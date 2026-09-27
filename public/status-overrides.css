@@ -1,19 +1,19 @@
 /* Market-state semantics: green is reserved for a live, fresh feed. */
-.marketStatus.closed .greenDot {
+.marketStatus.closed .statusDot {
   background: #94a3b8 !important;
   box-shadow: none !important;
 }
 .marketStatus.closed {
   color: #94a3b8 !important;
 }
-.marketStatus.warn .greenDot {
+.marketStatus.warn .statusDot {
   background: #f59e0b !important;
   box-shadow: 0 0 0 3px rgba(245,158,11,.12) !important;
 }
 .marketStatus.warn {
   color: #f59e0b !important;
 }
-.marketStatus.live .greenDot {
+.marketStatus.live .statusDot {
   background: #22c55e !important;
   box-shadow: 0 0 0 3px rgba(34,197,94,.12) !important;
 }
