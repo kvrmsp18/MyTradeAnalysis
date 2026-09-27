@@ -1,16 +1,36 @@
 import React,{useEffect,useMemo,useState} from 'react';
 import {Activity,AlertTriangle,BarChart3,Bell,Brain,CandlestickChart,CircleDollarSign,Eye,FileText,Gauge,History,LayoutDashboard,Menu,Pause,Play,Search,Settings,ShieldCheck,Square,Target,TrendingUp,Wallet,X} from 'lucide-react';
+import {frameworkSummary} from './strategyFrameworks';
 
 const DATA='/MyTradeAnalysis/data/market_snapshot.json';
 const EOD='/MyTradeAnalysis/data/eod_report.json';
 
 const NAV=[
   ['dashboard','Dashboard',LayoutDashboard],['screener','Stock Screener',Search],['stock360','Stock 360',BarChart3],
-  ['regime','Market Regime',TrendingUp],['scrap','SCRAP Analysis',Brain],['paper','Paper Trading',CircleDollarSign],
+  ['regime','Market Regime',TrendingUp],['scrap','SCRAP Analysis',Brain],['strategies','Strategy Council',Brain],['paper','Paper Trading',CircleDollarSign],
   ['live','Live Trading',Target],['journal','Trade Journal',FileText],['baskets','Thematic Baskets',CandlestickChart],
   ['postmortem','Post-Mortem',History],['supervisor','Supervisor',ShieldCheck],['health','System Health',Gauge],
   ['notifications','Notifications',Bell],['settings','Settings',Settings]
 ];
+
+function marketState(snapshot){
+  const now=new Date();
+  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kolkata',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(now);
+  const get=k=>parts.find(p=>p.type===k)?.value;
+  const weekday=get('weekday');
+  const hour=Number(get('hour'));
+  const minute=Number(get('minute'));
+  const minutes=hour*60+minute;
+  const session=weekday!=='Sat'&&weekday!=='Sun'&&minutes>=555&&minutes<930;
+  const live=snapshot?.status==='LIVE_MARKET_DATA';
+  const stamp=snapshot?.timestamp?new Date(snapshot.timestamp):null;
+  const age=stamp&&!Number.isNaN(stamp.getTime())?(Date.now()-stamp.getTime())/60000:null;
+  const fresh=age!==null&&age<=10;
+  if(session&&live&&fresh)return {label:'MARKET OPEN • LIVE DATA',tone:'live',live:true};
+  if(session&&live&&!fresh)return {label:'MARKET OPEN • STALE DATA',tone:'warn',live:false};
+  if(session)return {label:'MARKET OPEN • DATA UNAVAILABLE',tone:'warn',live:false};
+  return {label:'MARKET CLOSED',tone:'closed',live:false};
+}
 
 export default function App(){
   const [tab,setTab]=useState('dashboard');
@@ -26,8 +46,10 @@ export default function App(){
   async function load(){
     try{
       const responses=await Promise.all([fetch(DATA+'?t='+Date.now()),fetch(EOD+'?t='+Date.now())]);
-      setSnapshot(await responses[0].json());
-      setEod(await responses[1].json());
+      const nextSnapshot=await responses[0].json();
+      const nextEod=await responses[1].json();
+      setSnapshot(nextSnapshot);
+      setEod(nextEod);
     }catch(error){
       setSnapshot({status:'DATA_UNAVAILABLE',reason:'Market snapshot could not be loaded.',stocks:[]});
       setEod({status:'NOT_READY',profitable_moves:0,missed_opportunities:[],general_patterns:[]});
@@ -41,25 +63,28 @@ export default function App(){
     const q=search.toUpperCase();
     return String(stock.symbol||'').toUpperCase().includes(q)||String(stock.sector||'').toUpperCase().includes(q);
   }),[stocks,search]);
+  const market=marketState(snapshot);
 
   function showNotice(text){setNotice(text);setTimeout(()=>setNotice(''),4500)}
   function runCycle(){
     if(stop){showNotice('Emergency stop is active. No paper cycle was started.');return}
+    if(!market.live){showNotice('Paper cycle blocked: a fresh validated market feed is required.');return}
     showNotice('Analysis cycle requested. No live broker order can be sent in paper mode.');
   }
 
   function renderPage(){
-    if(tab==='dashboard')return <Dashboard snapshot={snapshot} eod={eod} loading={loading} stop={stop} paper={paper} setTab={setTab} runCycle={runCycle}/>;
+    if(tab==='dashboard')return <Dashboard snapshot={snapshot} eod={eod} loading={loading} stop={stop} paper={paper} setTab={setTab} runCycle={runCycle} market={market}/>;
     if(tab==='screener')return <Screener stocks={filtered} status={snapshot&&snapshot.status} search={search} setSearch={setSearch}/>;
     if(tab==='stock360')return <Stock360 stock={filtered[0]||stocks[0]} status={snapshot&&snapshot.status}/>;
-    if(tab==='regime')return <Regime live={snapshot&&snapshot.status==='LIVE_MARKET_DATA'}/>;
-    if(tab==='scrap')return <Scrap live={snapshot&&snapshot.status==='LIVE_MARKET_DATA'} count={stocks.length}/>;
+    if(tab==='regime')return <Regime live={market.live}/>;
+    if(tab==='scrap')return <Scrap live={market.live} count={stocks.length}/>;
+    if(tab==='strategies')return <StrategyCouncil stock={filtered[0]||stocks[0]} live={market.live}/>;
     if(tab==='paper')return <Paper stop={stop} showNotice={showNotice}/>;
     if(tab==='live')return <Locked title="Live Trading" text="Live broker execution is locked during paper validation."/>;
     if(tab==='journal')return <EmptyPage title="Trade Journal" text="Decision-time evidence and paper fills will appear here after the paper execution engine is connected."/>;
     if(tab==='baskets')return <Baskets/>;
     if(tab==='postmortem')return <PostMortem report={eod}/>;
-    if(tab==='supervisor')return <Supervisor live={snapshot&&snapshot.status==='LIVE_MARKET_DATA'} paper={paper}/>;
+    if(tab==='supervisor')return <Supervisor live={market.live} paper={paper}/>;
     if(tab==='health')return <Health snapshot={snapshot} eod={eod} paper={paper}/>;
     if(tab==='notifications')return <EmptyPage title="Notifications" text="Telegram notification integration will be connected after the core paper engine is stable."/>;
     return <SettingsPage paper={paper} setPaper={setPaper}/>;
@@ -79,12 +104,12 @@ export default function App(){
         <div className="globalSearch"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search stocks (e.g. RELIANCE, TCS, INFY)..."/></div>
         <div className="topRight">
           <div className="modeSwitch"><button className={paper?'selected':''} onClick={()=>setPaper(true)}><span/>Paper Trading</button><button onClick={()=>showNotice('Live Trading is locked until paper validation is complete.')}>● Live Trading</button></div>
-          <div className="connections"><span className="ok">●</span>Dhan <span className="teal">●</span>Telegram <span className="lime">●</span>Gemini</div>
+          <div className="connections"><span className={market.live?'ok':'muted'}>●</span>Dhan <span className="muted">●</span>Telegram <span className="muted">●</span>OpenAI <span className="muted">●</span>Anthropic</div>
           <button className="iconBtn" onClick={()=>setTab('settings')}><Settings size={17}/></button>
         </div>
       </header>
       <div className="content">
-        <div className="pageTop"><div className="crumb"><span>MyTradeAnalysis</span><i>/</i><b>{(NAV.find(item=>item[0]===tab)||[])[1]}</b></div><div className="marketStatus"><span className="greenDot"/> Market Open <button className="stopBtn" onClick={()=>setStop(!stop)}><Square size={12}/>{stop?'STOPPED':'Stop Bot'}</button></div></div>
+        <div className="pageTop"><div className="crumb"><span>MyTradeAnalysis</span><i>/</i><b>{(NAV.find(item=>item[0]===tab)||[])[1]}</b></div><div className={'marketStatus '+market.tone}><span className="greenDot"/>{market.label}<button className="stopBtn" onClick={()=>setStop(!stop)}><Square size={12}/>{stop?'STOPPED':'Stop Bot'}</button></div></div>
         {notice&&<div className="notice">{notice}<X size={15} onClick={()=>setNotice('')}/></div>}
         {renderPage()}
       </div>
@@ -92,9 +117,9 @@ export default function App(){
   </div>;
 }
 
-function Dashboard({snapshot,eod,loading,stop,paper,setTab,runCycle}){
+function Dashboard({snapshot,eod,loading,stop,paper,setTab,runCycle,market}){
   const stocks=(snapshot&&snapshot.stocks)||[];
-  const live=snapshot&&snapshot.status==='LIVE_MARKET_DATA';
+  const live=market.live;
   const top=[...stocks].sort((a,b)=>(Number(b.change)||0)-(Number(a.change)||0)).slice(0,5);
   const index=(snapshot&&snapshot.indices)||{};
   return <>
@@ -104,17 +129,19 @@ function Dashboard({snapshot,eod,loading,stop,paper,setTab,runCycle}){
       <MarketMetric title="Market Regime" value={live?'BULLISH':'UNAVAILABLE'} sub={live?'Validated regime layer pending':'Awaiting data'} icon={TrendingUp}/><MarketMetric title="Available Capital" value="₹1,000" sub="Paper reference capital" icon={Wallet}/><MarketMetric title="Today's P&L" value="₹0.00" sub="No simulated fills" icon={BarChart3}/><MarketMetric title="Open Positions" value="0" sub="Paper positions" icon={FileText}/>
     </div>
     <div className="dashGrid">
-      <section className="card"><div className="cardHead"><div><h3>Live Market Overview</h3><span>Index observation • data state is explicit</span></div><div className="tabs"><button className="active">NIFTY 50</button><button>BANKNIFTY</button><button>SENSEX</button></div></div><div className="bigChart"><div className="gridLines"/><div className="line"/><div className="chartLabel">Validated live series will populate here</div><div className="axis"><span>25,500</span><span>25,400</span><span>25,300</span><span>25,200</span></div></div></section>
-      <section className="card"><div className="cardHead"><div><h3>Bot Status</h3><span>Deterministic execution state</span></div><span className="running">{stop?'STOPPED':'● Running'}</span></div><div className="statusList"><StatusRow name="Trading Mode" value={paper?'Paper Trading':'Paper Trading'} blue/><StatusRow name="Market Hours" value={live?'Open':'Unknown'} green/><StatusRow name="Last Analysis" value={snapshot&&snapshot.timestamp?new Date(snapshot.timestamp).toLocaleTimeString():'—'}/><StatusRow name="Next Scan" value="5 min cadence"/><StatusRow name="Active Trades" value="0"/><StatusRow name="Daily Trades Limit" value="0 / 20"/><StatusRow name="Daily Loss Limit" value="₹0 / ₹5,000" red/><StatusRow name="Daily Profit Target" value="₹0 / ₹3,000" green/><StatusRow name="Risk Status" value="Normal" green/></div><div className="buttonRow"><button className="primary" onClick={runCycle}><Play size={15}/> Run Cycle Now</button><button className="secondary"><Pause size={14}/> Bot {stop?'Stopped':'Running'}</button></div></section>
+      <section className="card"><div className="cardHead"><div><h3>Live Market Overview</h3><span>{market.label}</span></div><div className="tabs"><button className="active">NIFTY 50</button><button>BANKNIFTY</button><button>SENSEX</button></div></div><div className="bigChart"><div className="gridLines"/><div className="line"/><div className="chartLabel">{live?'Validated live series will populate here':'Waiting for a fresh validated market feed'}</div><div className="axis"><span>25,500</span><span>25,400</span><span>25,300</span><span>25,200</span></div></div></section>
+      <section className="card"><div className="cardHead"><div><h3>Bot Status</h3><span>Deterministic execution state</span></div><span className="running">{stop?'STOPPED':'● Running'}</span></div><div className="statusList"><StatusRow name="Trading Mode" value="Paper Trading" blue/><StatusRow name="Market Hours" value={market.label} green/><StatusRow name="Last Analysis" value={snapshot&&snapshot.timestamp?new Date(snapshot.timestamp).toLocaleTimeString():'—'}/><StatusRow name="Next Scan" value="5 min cadence"/><StatusRow name="Active Trades" value="0"/><StatusRow name="Daily Trades Limit" value="0 / 20"/><StatusRow name="Daily Loss Limit" value="₹0 / ₹5,000" red/><StatusRow name="Daily Profit Target" value="₹0 / ₹3,000" green/><StatusRow name="Risk Status" value={live?'Normal':'WAITING FOR DATA'} green/></div><div className="buttonRow"><button className="primary" onClick={runCycle}><Play size={15}/> Run Cycle Now</button><button className="secondary"><Pause size={14}/> Bot {stop?'Stopped':'Running'}</button></div></section>
     </div>
     <div className="dashGrid lower">
-      <section className="card"><div className="cardHead"><div><h3>AI Market Analysis</h3><span>OpenAI + Anthropic research council</span></div><span className="aiBadge">Council</span></div><div className="aiBox"><Brain size={22}/><div><b>Research council is staged</b><p>Both models will independently review the same decision-time evidence, challenge each other, and produce a consensus for the deterministic trading engine. AI cannot bypass risk gates.</p></div></div><div className="sectorList">{['Banking','IT','Auto','Pharma','FMCG'].map((name,i)=><div key={name}><span>{name}</span><div className="bar"><i style={{width:(86-i*13)+'%'}}/></div><b>—</b></div>)}</div></section>
+      <section className="card"><div className="cardHead"><div><h3>AI Market Analysis</h3><span>OpenAI + Anthropic research council</span></div><span className="aiBadge">Council</span></div><div className="aiBox"><Brain size={22}/><div><b>Independent analysis → cross-critique → synthesis</b><p>Both models receive the same decision-time evidence. They cannot bypass deterministic capital, liquidity, risk, market-data or duplicate-order gates.</p></div></div><div className="sectorList">{['Banking','IT','Auto','Pharma','FMCG'].map((name,i)=><div key={name}><span>{name}</span><div className="bar"><i style={{width:(86-i*13)+'%'}}/></div><b>—</b></div>)}</div></section>
       <section className="card"><div className="cardHead"><div><h3>Top Trading Candidates</h3><span>Observation only until the analysis engine is validated</span></div><button className="ghost" onClick={()=>setTab('screener')}>View All Candidates →</button></div>{loading?<div className="empty">Loading…</div>:top.length?<div className="candidateTable"><div className="thead"><span>#</span><span>Symbol</span><span>Price</span><span>Change</span><span>AI Score</span><span>Setup</span><span>Action</span></div>{top.map((stock,i)=><div className="trow" key={stock.symbol}><span>{i+1}</span><b>{stock.symbol}</b><span>₹{Number(stock.price).toFixed(2)}</span><span className={Number(stock.change)>=0?'up':'down'}>{Number(stock.change)>=0?'+':''}{Number(stock.change).toFixed(2)}%</span><span>—</span><span>Pending</span><span className="tag hold">OBSERVE</span></div>)}</div>:<div className="empty"><AlertTriangle size={18}/>{(snapshot&&snapshot.reason)||'No market data available.'}</div>}</section>
     </div>
-    <div className="dashGrid lower"><section className="card"><div className="cardHead"><div><h3>Recent Bot Activity</h3><span>Auditable events</span></div></div><div className="activity"><Event time="NOW" text={'Market snapshot: '+(live?'available':'unavailable')}/><Event time="MODE" text="Paper trading only; live orders disabled."/><Event time="EOD" text={eod&&eod.status==='READY'?'Reverse-engineering report ready.':'Waiting for completed session ledger.'}/></div></section><section className="card"><div className="cardHead"><div><h3>System Health</h3><span>Connection and safety state</span></div><button className="ghost" onClick={()=>setTab('health')}>View Details →</button></div><HealthMini label="Dhan Connection" value={live?'Connected (Paper Mode)':'Waiting / unavailable'}/><HealthMini label="Telegram Notifications" value="Not configured"/><HealthMini label="AI Council" value="OpenAI + Anthropic staged"/><HealthMini label="Bot Engine" value={stop?'Stopped':'Running (Paper)'}/><HealthMini label="Database / Ledger" value="GitHub ledger"/></section></div>
+    <div className="dashGrid lower"><section className="card"><div className="cardHead"><div><h3>Strategy Council</h3><span>Five documented frameworks used as research factors, never stock-specific rules</span></div><button className="ghost" onClick={()=>setTab('strategies')}>Open Council →</button></div><StrategySummary stock={top[0]} live={live}/></section><section className="card"><div className="cardHead"><div><h3>System Health</h3><span>Connection and safety state</span></div><button className="ghost" onClick={()=>setTab('health')}>View Details →</button></div><HealthMini label="Dhan Connection" value={live?'Connected (Paper Mode)':'Waiting / unavailable'}/><HealthMini label="Telegram Notifications" value="Not configured"/><HealthMini label="OpenAI" value="Staged / key not configured"/><HealthMini label="Anthropic" value="Staged / key not configured"/><HealthMini label="Bot Engine" value={stop?'Stopped':'Running (Paper)'}/></section></div>
     <section className="eodStrip"><div><b>EOD Learning</b><span>Universe-wide missed-opportunity review</span></div><div className="eodStats"><b>{eod&&eod.profitable_moves||0}</b><span>profitable moves</span><b>{eod&&eod.missed_opportunities?eod.missed_opportunities.length:0}</b><span>misses</span><b>0</b><span>stock-specific rules</span></div><button className="ghost" onClick={()=>setTab('postmortem')}>View Audit →</button></section>
   </>;
 }
+function StrategySummary({stock,live}){if(!live||!stock)return <div className="empty"><Brain size={18}/> Strategy evidence is unavailable until a fresh market snapshot is available. Fundamental fields will never be invented.</div>;return <div className="strategyMini">{frameworkSummary(stock).map(item=><div key={item.id}><div><b>{item.name}</b><span>{item.focus}</span></div><strong className={item.status==='PASS'?'greenText':item.status==='PARTIAL'?'warnText':'mutedText'}>{item.status}</strong><small>{item.passed}/{item.total} checks • {item.evidenceCompleteness}% evidence</small></div>)}</div>}
+function StrategyCouncil({stock,live}){const rows=live&&stock?frameworkSummary(stock):[];return <><PageTitle eyebrow="RESEARCH COUNCIL" title="Investment Strategy Council" text="Buffett, Jhunjhunwala, Lynch, 100 Baggers and CANSLIM are generalized research factors. They do not create stock-specific exceptions or bypass risk gates."/><section className="card"><div className="cardHead"><div><h3>Framework evidence</h3><span>{live&&stock?`Candidate: ${stock.symbol}`:'Waiting for a fresh validated market snapshot'}</span></div><span className="tag hold">NO HARD-CODED SCORES</span></div>{rows.length?<div className="strategyGrid">{rows.map(item=><div className="strategyCard" key={item.id}><div className="strategyTitle"><Brain size={19}/><div><b>{item.name}</b><span>{item.focus}</span></div><strong className={item.status==='PASS'?'greenText':item.status==='PARTIAL'?'warnText':'mutedText'}>{item.status}</strong></div><div className="strategyProgress"><i style={{width:item.evidenceCompleteness+'%'}}/></div><div className="strategyFacts"><span>Passed <b>{item.passed}</b></span><span>Evidence <b>{item.available}/{item.total}</b></span></div><div className="strategyChecks">{item.checks.map(check=><span key={check.name} className={check.state==='PASS'?'pass':check.state==='REVIEW'?'review':'missing'}>{check.name}: {check.state}</span>)}</div></div>)}</div>:<div className="empty"><AlertTriangle size={18}/> No strategy score is shown because the required source evidence is not available. This prevents fabricated fundamentals or misleading scores.</div>}</section><section className="card"><div className="callout"><ShieldCheck size={18}/><span>These frameworks are research inputs. The final decision remains subject to the OpenAI + Anthropic council and deterministic execution/risk gates. A profitable stock cannot create a permanent special rule.</span></div></section></>}
 function MarketMetric({title,value,sub,icon:Icon}){return <div className="marketMetric"><div className="metricTop"><span>{title}</span>{Icon&&<Icon size={19}/>}</div><strong>{value}</strong><small>{sub}</small><div className="miniSpark"/></div>}
 function StatusRow({name,value,blue,green,red}){let cls=blue?'pillBlue':green?'greenText':red?'redText':'';return <div><span>{name}</span><b className={cls}>{value}</b></div>}
 function Event({time,text}){return <div className="event"><span className="time">{time}</span><span>{text}</span></div>}
