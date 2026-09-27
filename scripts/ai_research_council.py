@@ -2,15 +2,17 @@
 """Run a non-executing OpenAI + Anthropic research council.
 
 Both models receive the same decision-time market snapshot and deterministic
-SCRAP technical evidence. They work independently, cross-critique each other,
-and produce a research synthesis. The council is advisory only: deterministic
-capital, market-data, liquidity, risk and duplicate-order gates remain the
-only authority over execution.
+SCRAP technical evidence. They work independently, cross-critique the peer,
+and then independently produce a final council position. A deterministic
+consensus rule records agreement or disagreement. The council is advisory
+only: deterministic capital, market-data, liquidity, risk and duplicate-order
+gates remain the only authority over execution.
 """
 from __future__ import annotations
 
 import json
 import os
+import re
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +20,8 @@ from pathlib import Path
 SNAPSHOT = Path("public/data/market_snapshot.json")
 SCRAP = Path("public/data/scrap_analysis.json")
 OUT = Path("public/data/ai_research_council.json")
+
+ALLOWED_CLASSIFICATIONS = {"SUPPORTS_REVIEW", "WATCH_ONLY", "NO_SUPPORT"}
 
 
 def utc_now() -> str:
@@ -46,9 +50,23 @@ def openai_text(data: dict) -> str:
 
 def anthropic_text(data: dict) -> str:
     return "\n".join(
-        item.get("text", "") for item in data.get("content", [])
+        item.get("text", "")
+        for item in data.get("content", [])
         if isinstance(item, dict) and item.get("type") == "text"
     ).strip()
+
+
+def extract_classification(text: str) -> str | None:
+    """Read only an explicit model classification; never infer one."""
+    match = re.search(
+        r"(?:^|\n)\s*CLASSIFICATION\s*:\s*(SUPPORTS_REVIEW|WATCH_ONLY|NO_SUPPORT)\b",
+        text,
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    value = match.group(1).upper()
+    return value if value in ALLOWED_CLASSIFICATIONS else None
 
 
 def openai(prompt: str, evidence: dict) -> tuple[str, str | None]:
@@ -81,8 +99,15 @@ def anthropic(prompt: str, evidence: dict) -> tuple[str, str | None]:
             {"x-api-key": key, "anthropic-version": "2023-06-01"},
             {
                 "model": model,
-                "max_tokens": 1200,
-                "messages": [{"role": "user", "content": prompt + "\n\nEVIDENCE:\n" + json.dumps(evidence, sort_keys=True)}],
+                "max_tokens": 1400,
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                        + "\n\nEVIDENCE:\n"
+                        + json.dumps(evidence, sort_keys=True),
+                    }
+                ],
             },
         )
         text = anthropic_text(data)
@@ -106,96 +131,182 @@ def load(path: Path, fallback: dict) -> dict:
         return fallback
 
 
+def unavailable(reason: str, market: dict | None = None, scrap: dict | None = None) -> int:
+    write(
+        {
+            "status": "UNAVAILABLE",
+            "timestamp": utc_now(),
+            "paper_only": True,
+            "reason": reason,
+            "market_status": (market or {}).get("status"),
+            "scrap_status": (scrap or {}).get("status"),
+            "execution_authorized": False,
+        }
+    )
+    return 0
+
+
 def main() -> int:
     if not SNAPSHOT.exists():
-        write({"status": "UNAVAILABLE", "timestamp": utc_now(), "reason": "Market snapshot missing."})
-        return 0
+        return unavailable("Market snapshot missing.")
 
     market = load(SNAPSHOT, {"status": "DATA_UNAVAILABLE", "stocks": []})
     scrap = load(SCRAP, {"status": "NOT_RUN", "stocks": []})
     if market.get("status") != "LIVE_MARKET_DATA":
-        write({"status": "UNAVAILABLE", "timestamp": utc_now(), "reason": "No verified market data available."})
-        return 0
+        return unavailable("No verified market data available.", market, scrap)
 
     evidence = {"market_snapshot": market, "scrap_analysis": scrap}
-    analyst_prompt = (
+
+    independent_prompt = (
         "You are an independent market-research analyst inside a paper-trading research system. "
         "Review only the supplied decision-time market snapshot and deterministic SCRAP evidence. "
-        "Do not invent prices, news, indicators or fundamentals. Assess the technical evidence, "
-        "market context, contradictions, uncertainty, missing data and risk blind spots. "
-        "You may state an advisory view such as SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT, but "
-        "never issue an executable order or override a deterministic gate. End with questions "
-        "another analyst should challenge."
+        "Do not invent prices, news, indicators or fundamentals. Assess technical evidence, market "
+        "context, contradictions, uncertainty, missing data and risk blind spots. You may classify "
+        "the research evidence as SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT. This is an advisory "
+        "research classification, not an order. Start your response with exactly one line in the "
+        "form CLASSIFICATION: <value>. End with questions another analyst should challenge."
     )
-    openai_view, openai_error = openai(analyst_prompt, evidence)
-    anthropic_view, anthropic_error = anthropic(analyst_prompt, evidence)
+
+    openai_view, openai_error = openai(independent_prompt, evidence)
+    anthropic_view, anthropic_error = anthropic(independent_prompt, evidence)
 
     if not openai_view or not anthropic_view:
-        write({
-            "status": "QUORUM_UNAVAILABLE",
-            "timestamp": utc_now(),
-            "paper_only": True,
-            "independent": {"openai": openai_view or None, "anthropic": anthropic_view or None},
-            "cross_review": {"openai": None, "anthropic": None},
-            "consensus": None,
-            "errors": {"openai": openai_error, "anthropic": anthropic_error},
-            "execution_authorized": False,
-        })
+        write(
+            {
+                "status": "QUORUM_UNAVAILABLE",
+                "timestamp": utc_now(),
+                "paper_only": True,
+                "independent": {
+                    "openai": openai_view or None,
+                    "anthropic": anthropic_view or None,
+                },
+                "classifications": {
+                    "openai": extract_classification(openai_view),
+                    "anthropic": extract_classification(anthropic_view),
+                },
+                "cross_review": {"openai": None, "anthropic": None},
+                "final_positions": {"openai": None, "anthropic": None},
+                "consensus": {
+                    "status": "QUORUM_UNAVAILABLE",
+                    "classification": "HOLD_FOR_REVIEW",
+                },
+                "errors": {"openai": openai_error, "anthropic": anthropic_error},
+                "execution_authorized": False,
+            }
+        )
         return 0
 
     critique_prompt = (
-        "You are the second-pass reviewer in a two-model research council. Review the peer analysis "
-        "against the same market and SCRAP evidence. Identify unsupported claims, missing evidence, "
-        "contradictions and risk blind spots. Give a short challenge and state whether the peer's "
-        "research view is supported by the supplied evidence. Do not issue an executable trade order."
+        "You are a peer reviewer in a two-model market-research council. Review the peer analysis "
+        "against the same supplied market and SCRAP evidence. Identify unsupported claims, missing "
+        "evidence, contradictions and risk blind spots. State whether the peer's research position "
+        "is supported by the evidence. Do not issue an executable trade order."
     )
+
     anthropic_critique, anthropic_critique_error = anthropic(
-        critique_prompt + "\n\nPEER ANALYSIS:\n" + openai_view, evidence
+        critique_prompt + "\n\nPEER ANALYSIS (OpenAI):\n" + openai_view,
+        evidence,
     )
     openai_critique, openai_critique_error = openai(
-        critique_prompt + "\n\nPEER ANALYSIS:\n" + anthropic_view, evidence
+        critique_prompt + "\n\nPEER ANALYSIS (Anthropic):\n" + anthropic_view,
+        evidence,
     )
 
-    synthesis_prompt = (
-        "You are the chair of a market-research discussion. Compare both independent analyses and "
-        "their cross-critiques against the same deterministic evidence. Produce a concise research "
-        "consensus covering agreement, disagreement, technical evidence quality, uncertainty and "
-        "data gaps. If the evidence is insufficient, say so explicitly. The council may classify "
-        "research support as SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT, but this classification is "
-        "advisory only. Never authorize or submit an order. The deterministic trading engine remains "
-        "responsible for all strategy, capital, risk and execution decisions."
+    final_prompt = (
+        "You are completing the final pass of a two-model research council. Review your original "
+        "analysis, the peer's analysis, both cross-critiques, and the same deterministic market/SCRAP "
+        "evidence. Reassess your research classification. Do not follow the peer merely because it "
+        "is confident. Explicitly identify agreement, disagreement, uncertainty and data gaps. "
+        "This remains advisory research and must never authorize, submit, or override an order. "
+        "Start with exactly one line: CLASSIFICATION: SUPPORTS_REVIEW, CLASSIFICATION: WATCH_ONLY, "
+        "or CLASSIFICATION: NO_SUPPORT."
     )
-    synthesis_evidence = {
-        "market": market,
-        "scrap": scrap,
-        "openai": openai_view,
-        "anthropic": anthropic_view,
-        "openai_critique": openai_critique,
-        "anthropic_critique": anthropic_critique,
-    }
-    synthesis, synthesis_error = openai(synthesis_prompt, synthesis_evidence)
 
-    write({
-        "status": "COMPLETE" if synthesis else "SYNTHESIS_UNAVAILABLE",
-        "timestamp": utc_now(),
-        "paper_only": True,
-        "independent": {"openai": openai_view, "anthropic": anthropic_view},
-        "cross_review": {"openai": openai_critique, "anthropic": anthropic_critique},
-        "consensus": synthesis or None,
-        "errors": {
-            "openai": openai_error,
-            "anthropic": anthropic_error,
-            "openai_cross_review": openai_critique_error,
-            "anthropic_cross_review": anthropic_critique_error,
-            "synthesis": synthesis_error,
-        },
-        "execution_authorized": False,
-        "safety": {
-            "live_orders_enabled": False,
-            "ai_can_override_deterministic_gates": False,
-            "stock_specific_rules_allowed": False,
-        },
-    })
+    openai_final, openai_final_error = openai(
+        final_prompt
+        + "\n\nYOUR ORIGINAL ANALYSIS:\n"
+        + openai_view
+        + "\n\nPEER (Anthropic):\n"
+        + anthropic_view
+        + "\n\nYOUR CRITIQUE OF PEER:\n"
+        + openai_critique
+        + "\n\nPEER CRITIQUE OF YOU:\n"
+        + anthropic_critique,
+        evidence,
+    )
+    anthropic_final, anthropic_final_error = anthropic(
+        final_prompt
+        + "\n\nYOUR ORIGINAL ANALYSIS:\n"
+        + anthropic_view
+        + "\n\nPEER (OpenAI):\n"
+        + openai_view
+        + "\n\nYOUR CRITIQUE OF PEER:\n"
+        + anthropic_critique
+        + "\n\nPEER CRITIQUE OF YOU:\n"
+        + openai_critique,
+        evidence,
+    )
+
+    openai_class = extract_classification(openai_final)
+    anthropic_class = extract_classification(anthropic_final)
+
+    if not openai_final or not anthropic_final:
+        consensus_status = "QUORUM_UNAVAILABLE"
+        consensus_class = "HOLD_FOR_REVIEW"
+    elif not openai_class or not anthropic_class:
+        consensus_status = "CLASSIFICATION_UNAVAILABLE"
+        consensus_class = "HOLD_FOR_REVIEW"
+    elif openai_class == anthropic_class:
+        consensus_status = "AGREEMENT"
+        consensus_class = openai_class
+    else:
+        consensus_status = "DISAGREEMENT"
+        consensus_class = "HOLD_FOR_REVIEW"
+
+    write(
+        {
+            "status": "COMPLETE" if openai_final and anthropic_final else "SYNTHESIS_UNAVAILABLE",
+            "timestamp": utc_now(),
+            "paper_only": True,
+            "independent": {"openai": openai_view, "anthropic": anthropic_view},
+            "independent_classifications": {
+                "openai": extract_classification(openai_view),
+                "anthropic": extract_classification(anthropic_view),
+            },
+            "cross_review": {
+                "openai": openai_critique,
+                "anthropic": anthropic_critique,
+            },
+            "final_positions": {
+                "openai": openai_final or None,
+                "anthropic": anthropic_final or None,
+            },
+            "final_classifications": {
+                "openai": openai_class,
+                "anthropic": anthropic_class,
+            },
+            "consensus": {
+                "status": consensus_status,
+                "classification": consensus_class,
+                "rule": "Only exact agreement between both final classifications produces a research classification; otherwise HOLD_FOR_REVIEW.",
+            },
+            "errors": {
+                "openai": openai_error,
+                "anthropic": anthropic_error,
+                "openai_cross_review": openai_critique_error,
+                "anthropic_cross_review": anthropic_critique_error,
+                "openai_final": openai_final_error,
+                "anthropic_final": anthropic_final_error,
+            },
+            "execution_authorized": False,
+            "safety": {
+                "live_orders_enabled": False,
+                "ai_can_override_deterministic_gates": False,
+                "stock_specific_rules_allowed": False,
+                "disagreement_defaults_to_hold": True,
+            },
+        }
+    )
     return 0
 
 
