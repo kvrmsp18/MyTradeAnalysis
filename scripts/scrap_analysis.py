@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Build the deterministic technical/SCRAP analysis layer for paper trading.
 
-SCRAP here means a generalized, auditable technical-analysis gate:
+SCRAP is an auditable technical-analysis gate:
 - S = Structure / trend
 - C = Confirmation (momentum + volume)
 - R = Relative strength / range position
 - A = Actionability (breakout/pullback quality)
 - P = Protection (volatility / risk context)
 
-The script uses only data available at decision time. It never places orders,
-never fabricates missing candles, and never creates symbol-specific rules.
+This layer uses only evidence available at decision time. It never places
+orders, never fabricates candles, and never creates symbol-specific rules.
 """
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ def fetch_history(token, client_id, security_id, from_date, to_date):
         payload = json.loads(response.read().decode("utf-8"))
     if not isinstance(payload, dict):
         return []
-    # Dhan returns parallel arrays for historical candles.
+
     ts = payload.get("timestamp", [])
     opens = payload.get("open", [])
     highs = payload.get("high", [])
@@ -113,8 +113,11 @@ def fetch_history(token, client_id, security_id, from_date, to_date):
     rows = []
     for i in range(min(len(ts), len(opens), len(highs), len(lows), len(closes))):
         rows.append({
-            "timestamp": ts[i], "open": num(opens[i]), "high": num(highs[i]),
-            "low": num(lows[i]), "close": num(closes[i]),
+            "timestamp": ts[i],
+            "open": num(opens[i]),
+            "high": num(highs[i]),
+            "low": num(lows[i]),
+            "close": num(closes[i]),
             "volume": num(volumes[i]) if i < len(volumes) else None,
         })
     return rows
@@ -127,8 +130,16 @@ def analyse(symbol, quote, candles):
     lows = [num(x.get("low")) for x in candles]
     price = num(quote.get("price"))
 
-    if len([x for x in closes if x is not None]) < 20:
-        return {"symbol": symbol, "status": "INSUFFICIENT_DATA", "candle_count": len(candles)}
+    usable_closes = [x for x in closes if x is not None]
+    if len(usable_closes) < 50:
+        return {
+            "symbol": symbol,
+            "status": "INSUFFICIENT_DATA",
+            "candle_count": len(candles),
+            "required_candles": 50,
+            "score": None,
+            "action": "OBSERVE",
+        }
 
     e9, e20, e50 = ema(closes, 9), ema(closes, 20), ema(closes, 50)
     r = rsi(closes)
@@ -140,38 +151,55 @@ def analyse(symbol, quote, candles):
     low20 = min([x for x in lows[-20:] if x is not None], default=None)
 
     structure = 0
-    if price is not None and e20 is not None and price > e20: structure += 1
-    if e20 is not None and e50 is not None and e20 > e50: structure += 1
-    if price is not None and e9 is not None and e20 is not None and price > e9 > e20: structure += 1
+    if price is not None and e20 is not None and price > e20:
+        structure += 1
+    if e20 is not None and e50 is not None and e20 > e50:
+        structure += 1
+    if price is not None and e9 is not None and e20 is not None and price > e9 > e20:
+        structure += 1
 
     confirmation = 0
-    if r is not None and 50 <= r <= 70: confirmation += 1
-    if volume_ratio is not None and volume_ratio >= 1.2: confirmation += 1
-    if r is not None and r > 50: confirmation += 1
+    if r is not None and 50 <= r <= 70:
+        confirmation += 1
+    if volume_ratio is not None and volume_ratio >= 1.2:
+        confirmation += 1
+    if r is not None and r > 50:
+        confirmation += 1
 
     relative = 0
     if price is not None and high20 is not None and high20 > 0:
         range_pct = price / high20 * 100
-        if range_pct >= 98: relative += 2
-        elif range_pct >= 95: relative += 1
+        if range_pct >= 98:
+            relative += 2
+        elif range_pct >= 95:
+            relative += 1
     if price is not None and low20 is not None and high20 is not None and high20 > low20:
         pos = (price - low20) / (high20 - low20)
-        if pos >= 0.70: relative += 1
+        if pos >= 0.70:
+            relative += 1
 
     actionability = 0
-    if price is not None and high20 is not None and price >= high20 * 0.995: actionability += 2
-    if volume_ratio is not None and volume_ratio >= 1.2: actionability += 1
-    if e9 is not None and e20 is not None and e9 > e20: actionability += 1
+    if price is not None and high20 is not None and price >= high20 * 0.995:
+        actionability += 2
+    if volume_ratio is not None and volume_ratio >= 1.2:
+        actionability += 1
+    if e9 is not None and e20 is not None and e9 > e20:
+        actionability += 1
 
     protection = 0
     atr_pct = (a / price * 100) if a is not None and price else None
-    if atr_pct is not None and atr_pct <= 3: protection += 2
-    elif atr_pct is not None and atr_pct <= 5: protection += 1
-    if r is not None and r < 75: protection += 1
+    if atr_pct is not None and atr_pct <= 3:
+        protection += 2
+    elif atr_pct is not None and atr_pct <= 5:
+        protection += 1
+    if r is not None and r < 75:
+        protection += 1
 
-    # 15-point generalized technical score, normalized to 100.
+    # Component maxima are 3 + 3 + 3 + 4 + 3 = 16.
+    # Keep the normalization truthful so the score can never exceed 100.
+    max_raw = 16
     raw = structure + confirmation + relative + actionability + protection
-    score = round(raw / 15 * 100, 1)
+    score = round(raw / max_raw * 100, 1)
     if score >= 70:
         action = "REVIEW"
     elif score >= 50:
@@ -242,7 +270,14 @@ def main():
                 candles = fetch_history(token, client_id, quote.get("security_id"), str(from_date), str(to_date))
                 result["stocks"].append(analyse(symbol, quote, candles))
             except Exception as exc:
-                result["stocks"].append({"symbol": symbol, "status": "UNAVAILABLE", "reason": str(exc), "candle_count": 0})
+                result["stocks"].append({
+                    "symbol": symbol,
+                    "status": "UNAVAILABLE",
+                    "reason": str(exc),
+                    "candle_count": 0,
+                    "score": None,
+                    "action": "OBSERVE",
+                })
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, indent=2), encoding="utf-8")
 
