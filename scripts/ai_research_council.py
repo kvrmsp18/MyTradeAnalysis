@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Run a non-executing OpenAI + Anthropic research council.
 
-This module is deliberately limited to research discussion: evidence review,
-contradictions, uncertainty and data gaps. It does not place orders and does not
-produce an executable trade instruction. The deterministic paper engine remains
-responsible for strategy and risk decisions.
+Both models receive the same decision-time market snapshot and deterministic
+SCRAP technical evidence. They work independently, cross-critique each other,
+and produce a research synthesis. The council is advisory only: deterministic
+capital, market-data, liquidity, risk and duplicate-order gates remain the
+only authority over execution.
 """
 from __future__ import annotations
 
@@ -15,6 +16,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SNAPSHOT = Path("public/data/market_snapshot.json")
+SCRAP = Path("public/data/scrap_analysis.json")
 OUT = Path("public/data/ai_research_council.json")
 
 
@@ -57,7 +59,11 @@ def openai(prompt: str, evidence: dict) -> tuple[str, str | None]:
         data = post(
             "https://api.openai.com/v1/responses",
             {"Authorization": f"Bearer {key}"},
-            {"model": model, "input": prompt + "\n\nEVIDENCE:\n" + json.dumps(evidence, sort_keys=True), "store": False},
+            {
+                "model": model,
+                "input": prompt + "\n\nEVIDENCE:\n" + json.dumps(evidence, sort_keys=True),
+                "store": False,
+            },
         )
         text = openai_text(data)
         return (text, None) if text else ("", "OpenAI returned no text.")
@@ -73,7 +79,11 @@ def anthropic(prompt: str, evidence: dict) -> tuple[str, str | None]:
         data = post(
             "https://api.anthropic.com/v1/messages",
             {"x-api-key": key, "anthropic-version": "2023-06-01"},
-            {"model": model, "max_tokens": 1200, "messages": [{"role": "user", "content": prompt + "\n\nEVIDENCE:\n" + json.dumps(evidence, sort_keys=True)}]},
+            {
+                "model": model,
+                "max_tokens": 1200,
+                "messages": [{"role": "user", "content": prompt + "\n\nEVIDENCE:\n" + json.dumps(evidence, sort_keys=True)}],
+            },
         )
         text = anthropic_text(data)
         return (text, None) if text else ("", "Anthropic returned no text.")
@@ -86,21 +96,36 @@ def write(data: dict) -> None:
     OUT.write_text(json.dumps(data, indent=2), encoding="utf-8")
 
 
+def load(path: Path, fallback: dict) -> dict:
+    if not path.exists():
+        return fallback
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else fallback
+    except (OSError, json.JSONDecodeError):
+        return fallback
+
+
 def main() -> int:
     if not SNAPSHOT.exists():
         write({"status": "UNAVAILABLE", "timestamp": utc_now(), "reason": "Market snapshot missing."})
         return 0
 
-    evidence = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
-    if evidence.get("status") != "LIVE_MARKET_DATA":
+    market = load(SNAPSHOT, {"status": "DATA_UNAVAILABLE", "stocks": []})
+    scrap = load(SCRAP, {"status": "NOT_RUN", "stocks": []})
+    if market.get("status") != "LIVE_MARKET_DATA":
         write({"status": "UNAVAILABLE", "timestamp": utc_now(), "reason": "No verified market data available."})
         return 0
 
+    evidence = {"market_snapshot": market, "scrap_analysis": scrap}
     analyst_prompt = (
         "You are an independent market-research analyst inside a paper-trading research system. "
-        "Review only the supplied evidence. Do not invent prices, news, indicators or fundamentals. "
-        "Produce: evidence summary, notable strengths/weaknesses, risks, contradictions, missing data, "
-        "and questions another analyst should challenge. Do not issue an executable trade instruction."
+        "Review only the supplied decision-time market snapshot and deterministic SCRAP evidence. "
+        "Do not invent prices, news, indicators or fundamentals. Assess the technical evidence, "
+        "market context, contradictions, uncertainty, missing data and risk blind spots. "
+        "You may state an advisory view such as SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT, but "
+        "never issue an executable order or override a deterministic gate. End with questions "
+        "another analyst should challenge."
     )
     openai_view, openai_error = openai(analyst_prompt, evidence)
     anthropic_view, anthropic_error = anthropic(analyst_prompt, evidence)
@@ -110,17 +135,19 @@ def main() -> int:
             "status": "QUORUM_UNAVAILABLE",
             "timestamp": utc_now(),
             "paper_only": True,
-            "openai": openai_view or None,
-            "anthropic": anthropic_view or None,
+            "independent": {"openai": openai_view or None, "anthropic": anthropic_view or None},
+            "cross_review": {"openai": None, "anthropic": None},
+            "consensus": None,
             "errors": {"openai": openai_error, "anthropic": anthropic_error},
             "execution_authorized": False,
         })
         return 0
 
     critique_prompt = (
-        "You are the second-pass reviewer in a two-model research council. Review the peer analysis below "
-        "against the same evidence. Identify unsupported claims, missing evidence, contradictions and risk "
-        "blind spots. Do not issue an executable trade instruction."
+        "You are the second-pass reviewer in a two-model research council. Review the peer analysis "
+        "against the same market and SCRAP evidence. Identify unsupported claims, missing evidence, "
+        "contradictions and risk blind spots. Give a short challenge and state whether the peer's "
+        "research view is supported by the supplied evidence. Do not issue an executable trade order."
     )
     anthropic_critique, anthropic_critique_error = anthropic(
         critique_prompt + "\n\nPEER ANALYSIS:\n" + openai_view, evidence
@@ -130,13 +157,17 @@ def main() -> int:
     )
 
     synthesis_prompt = (
-        "You are the chair of a market-research discussion. Compare both independent analyses and their "
-        "critiques. Produce a concise research consensus covering agreement, disagreement, evidence quality, "
-        "uncertainty and data gaps. This is not a trading instruction. The trading engine, not an AI model, "
-        "remains responsible for any strategy/risk/execution decision."
+        "You are the chair of a market-research discussion. Compare both independent analyses and "
+        "their cross-critiques against the same deterministic evidence. Produce a concise research "
+        "consensus covering agreement, disagreement, technical evidence quality, uncertainty and "
+        "data gaps. If the evidence is insufficient, say so explicitly. The council may classify "
+        "research support as SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT, but this classification is "
+        "advisory only. Never authorize or submit an order. The deterministic trading engine remains "
+        "responsible for all strategy, capital, risk and execution decisions."
     )
     synthesis_evidence = {
-        "market": evidence,
+        "market": market,
+        "scrap": scrap,
         "openai": openai_view,
         "anthropic": anthropic_view,
         "openai_critique": openai_critique,
