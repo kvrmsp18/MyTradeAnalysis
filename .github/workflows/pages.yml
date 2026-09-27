@@ -14,7 +14,7 @@ jobs:
   deploy:
     environment:
       name: github-pages
-      url: PAGE_URL_PLACEHOLDER
+      url: https://kvrmsp18.github.io/MyTradeAnalysis/
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
