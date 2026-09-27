@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Create an auditable, paper-only decision snapshot.
 
-The decision ledger records the evidence available at decision time. Strategy
-frameworks are generalized research factors only; they never create symbol-
-specific exceptions and they never bypass deterministic safety gates.
+Pipeline responsibility:
+Dhan snapshot -> deterministic SCRAP -> strategy evidence -> AI research
+council context -> deterministic candidate/risk gates -> decision ledger.
+
+AI analysis is advisory. It can challenge evidence, but it cannot bypass the
+paper engine's data, capital, liquidity, risk or duplicate-order gates.
 """
 from __future__ import annotations
 
@@ -15,10 +18,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SNAPSHOT = Path("public/data/market_snapshot.json")
+SCRAP = Path("public/data/scrap_analysis.json")
 COUNCIL = Path("public/data/ai_research_council.json")
 CAPITAL = float(os.getenv("PAPER_REFERENCE_CAPITAL", "1000"))
 MAX_POSITION_PCT = float(os.getenv("PAPER_MAX_POSITION_PCT", "20"))
 MIN_SCORE = float(os.getenv("PAPER_REVIEW_SCORE", "65"))
+MIN_SCRAP_SCORE = float(os.getenv("PAPER_MIN_SCRAP_SCORE", "60"))
 
 
 def num(value: object) -> float | None:
@@ -44,27 +49,10 @@ def check(name: str, value: float | None, predicate) -> dict:
 
 
 def evaluate_frameworks(stock: dict) -> list[dict]:
-    """Evaluate only evidence actually present in the market snapshot.
-
-    Fundamental fields may be unavailable in the current Dhan LTP snapshot.
-    They are explicitly marked unavailable rather than guessed.
-    """
     change = num(stock.get("change"))
-    price = num(stock.get("price"))
-    open_price = num(stock.get("open"))
-    prev_close = num(stock.get("prev_close"))
-    volume = num(stock.get("volume"))
-
-    intraday = pct(price, open_price)
-    gap = pct(open_price, prev_close)
-
-    # Only generic, evidence-backed checks are used here. Missing fundamentals
-    # do not become synthetic scores.
     groups = [
         {
-            "id": "buffett",
-            "name": "Warren Buffett",
-            "focus": "Quality, moat, capital preservation",
+            "id": "buffett", "name": "Warren Buffett", "focus": "Quality, moat, capital preservation",
             "checks": [
                 check("ROIC / ROCE", num(stock.get("roic") or stock.get("roce")), lambda v: v >= 15),
                 check("Free cash flow", num(stock.get("free_cash_flow") or stock.get("fcf")), lambda v: v > 0),
@@ -72,9 +60,7 @@ def evaluate_frameworks(stock: dict) -> list[dict]:
             ],
         },
         {
-            "id": "jhunjhunwala",
-            "name": "Jhunjhunwala",
-            "focus": "Secular growth, earnings and operating leverage",
+            "id": "jhunjhunwala", "name": "Jhunjhunwala", "focus": "Secular growth, earnings and operating leverage",
             "checks": [
                 check("Earnings growth", num(stock.get("earnings_growth") or stock.get("profit_growth") or stock.get("eps_growth")), lambda v: v >= 15),
                 check("Revenue growth", num(stock.get("revenue_growth") or stock.get("sales_growth")), lambda v: v >= 10),
@@ -83,9 +69,7 @@ def evaluate_frameworks(stock: dict) -> list[dict]:
             ],
         },
         {
-            "id": "lynch",
-            "name": "Peter Lynch",
-            "focus": "Growth versus valuation",
+            "id": "lynch", "name": "Peter Lynch", "focus": "Growth versus valuation",
             "checks": [
                 check("PEG", num(stock.get("peg") or stock.get("peg_ratio")), lambda v: 0 < v <= 1.5),
                 check("Earnings growth", num(stock.get("earnings_growth") or stock.get("profit_growth") or stock.get("eps_growth")), lambda v: v >= 10),
@@ -93,9 +77,7 @@ def evaluate_frameworks(stock: dict) -> list[dict]:
             ],
         },
         {
-            "id": "hundred_baggers",
-            "name": "100 Baggers",
-            "focus": "Reinvestment and long growth runway",
+            "id": "hundred_baggers", "name": "100 Baggers", "focus": "Reinvestment and long growth runway",
             "checks": [
                 check("ROIC / ROCE", num(stock.get("roic") or stock.get("roce")), lambda v: v >= 15),
                 check("Reinvestment rate", num(stock.get("reinvestment_rate")), lambda v: v >= 10),
@@ -104,9 +86,7 @@ def evaluate_frameworks(stock: dict) -> list[dict]:
             ],
         },
         {
-            "id": "canslim",
-            "name": "CANSLIM / O'Neil",
-            "focus": "Growth, momentum and leadership",
+            "id": "canslim", "name": "CANSLIM / O'Neil", "focus": "Growth, momentum and leadership",
             "checks": [
                 check("EPS growth", num(stock.get("eps_growth") or stock.get("earnings_growth")), lambda v: v >= 20),
                 check("Sales growth", num(stock.get("sales_growth") or stock.get("revenue_growth")), lambda v: v >= 10),
@@ -132,78 +112,6 @@ def evaluate_frameworks(stock: dict) -> list[dict]:
     return groups
 
 
-def score_stock(stock: dict) -> tuple[float, list[str], str, dict]:
-    price = num(stock.get("price"))
-    open_price = num(stock.get("open"))
-    prev_close = num(stock.get("prev_close"))
-    high = num(stock.get("high"))
-    low = num(stock.get("low"))
-    change = num(stock.get("change"))
-
-    reasons: list[str] = []
-    score = 50.0
-    intraday = pct(price, open_price)
-    gap = pct(open_price, prev_close)
-
-    if change is not None:
-        if change > 0:
-            score += min(change * 8.0, 20.0)
-            reasons.append("positive_session_change")
-        elif change < 0:
-            score -= min(abs(change) * 8.0, 20.0)
-            reasons.append("negative_session_change")
-
-    if intraday is not None:
-        if intraday > 0:
-            score += min(intraday * 6.0, 15.0)
-            reasons.append("price_above_open")
-        else:
-            score -= min(abs(intraday) * 6.0, 15.0)
-            reasons.append("price_below_open")
-
-    if gap is not None and gap > 0:
-        score += min(gap * 2.0, 5.0)
-        reasons.append("positive_gap")
-
-    if high is not None and low is not None and high > low and price is not None:
-        position = (price - low) / (high - low)
-        if position >= 0.70:
-            score += 5.0
-            reasons.append("upper_range_position")
-        elif position <= 0.30:
-            score -= 5.0
-            reasons.append("lower_range_position")
-
-    frameworks = evaluate_frameworks(stock)
-    # Framework evidence is a small generalized research component. It cannot
-    # manufacture unavailable fundamentals and cannot override risk gates.
-    framework_passes = sum(1 for f in frameworks if f["status"] == "PASS")
-    framework_available = sum(1 for f in frameworks if f["available"] > 0)
-    if framework_passes:
-        score += min(framework_passes * 2.0, 8.0)
-        reasons.append("strategy_framework_support")
-    elif framework_available:
-        reasons.append("strategy_framework_mixed_or_review")
-    else:
-        reasons.append("strategy_framework_evidence_unavailable")
-
-    score = max(0.0, min(100.0, round(score, 2)))
-    if price is None:
-        return score, reasons, "INSUFFICIENT_DATA", {"frameworks": frameworks}
-    if score >= MIN_SCORE:
-        return score, reasons, "REVIEW", {"frameworks": frameworks}
-    return score, reasons, "OBSERVE", {"frameworks": frameworks}
-
-
-def load_council() -> dict:
-    if not COUNCIL.exists():
-        return {"status": "NOT_RUN"}
-    try:
-        return json.loads(COUNCIL.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return {"status": "UNAVAILABLE"}
-
-
 def market_regime(stocks: list[dict]) -> dict:
     changes = [num(s.get("change")) for s in stocks]
     changes = [x for x in changes if x is not None]
@@ -220,41 +128,161 @@ def market_regime(stocks: list[dict]) -> dict:
     return {"status": label, "breadth_pct": round(breadth * 100, 1), "confidence": round(abs(breadth - 0.5) * 200, 1)}
 
 
+def load_json(path: Path, fallback: dict) -> dict:
+    if not path.exists():
+        return fallback
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+        return value if isinstance(value, dict) else fallback
+    except (OSError, json.JSONDecodeError):
+        return fallback
+
+
+def quote_score(stock: dict) -> tuple[float, list[str]]:
+    price = num(stock.get("price"))
+    open_price = num(stock.get("open"))
+    prev_close = num(stock.get("prev_close"))
+    high = num(stock.get("high"))
+    low = num(stock.get("low"))
+    change = num(stock.get("change"))
+    score = 50.0
+    reasons: list[str] = []
+
+    if price is None:
+        return 0.0, ["price_unavailable"]
+    if change is not None:
+        if change > 0:
+            score += min(change * 8.0, 20.0)
+            reasons.append("positive_session_change")
+        elif change < 0:
+            score -= min(abs(change) * 8.0, 20.0)
+            reasons.append("negative_session_change")
+
+    intraday = pct(price, open_price)
+    gap = pct(open_price, prev_close)
+    if intraday is not None:
+        if intraday > 0:
+            score += min(intraday * 6.0, 15.0)
+            reasons.append("price_above_open")
+        else:
+            score -= min(abs(intraday) * 6.0, 15.0)
+            reasons.append("price_below_open")
+    if gap is not None and gap > 0:
+        score += min(gap * 2.0, 5.0)
+        reasons.append("positive_gap")
+    if high is not None and low is not None and high > low:
+        position = (price - low) / (high - low)
+        if position >= 0.70:
+            score += 5.0
+            reasons.append("upper_range_position")
+        elif position <= 0.30:
+            score -= 5.0
+            reasons.append("lower_range_position")
+    return max(0.0, min(100.0, round(score, 2))), reasons
+
+
+def score_stock(stock: dict, scrap_row: dict) -> tuple[float, list[str], str, dict]:
+    qscore, quote_reasons = quote_score(stock)
+    frameworks = evaluate_frameworks(stock)
+    framework_passes = sum(1 for f in frameworks if f["status"] == "PASS")
+    framework_available = sum(1 for f in frameworks if f["available"] > 0)
+    framework_score = min(100.0, 50.0 + framework_passes * 10.0) if framework_available else 50.0
+
+    scrap_status = scrap_row.get("status")
+    scrap_score = num(scrap_row.get("score"))
+    scrap_action = scrap_row.get("action") or "OBSERVE"
+
+    reasons = list(quote_reasons)
+    if scrap_status != "OK" or scrap_score is None:
+        reasons.append("scrap_unavailable_or_insufficient")
+        final_score = 0.55 * qscore + 0.15 * framework_score
+        decision = "INSUFFICIENT_DATA"
+    else:
+        final_score = 0.65 * scrap_score + 0.25 * qscore + 0.10 * framework_score
+        final_score = round(final_score, 2)
+        reasons.append(f"scrap_{scrap_action.lower()}")
+        if scrap_score >= MIN_SCRAP_SCORE and scrap_action == "REVIEW" and final_score >= MIN_SCORE:
+            decision = "REVIEW"
+            reasons.append("technical_scrap_gate_pass")
+        elif scrap_score >= 50:
+            decision = "WATCH"
+            reasons.append("technical_scrap_watch")
+        else:
+            decision = "OBSERVE"
+            reasons.append("technical_scrap_below_threshold")
+
+    if framework_passes:
+        reasons.append("strategy_framework_support")
+    elif framework_available:
+        reasons.append("strategy_framework_mixed_or_review")
+    else:
+        reasons.append("strategy_framework_evidence_unavailable")
+
+    research = {
+        "frameworks": frameworks,
+        "scrap": scrap_row,
+        "quote_score": qscore,
+        "framework_score": framework_score,
+    }
+    return round(final_score, 2), reasons, decision, research
+
+
 def main() -> int:
     if not SNAPSHOT.exists():
         raise SystemExit("Market snapshot is missing")
-    snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+
+    snapshot = load_json(SNAPSHOT, {"status": "DATA_UNAVAILABLE", "stocks": []})
+    scrap_data = load_json(SCRAP, {"status": "NOT_RUN", "stocks": []})
+    council = load_json(COUNCIL, {"status": "NOT_RUN"})
+    scrap_map = {row.get("symbol"): row for row in scrap_data.get("stocks", []) if row.get("symbol")}
+
     now = datetime.now(timezone.utc)
     day = now.strftime("%Y-%m-%d")
     stamp = now.strftime("%H%M%S")
     out = Path("data/ledger") / day / f"{stamp}.json"
     stocks = snapshot.get("stocks", [])
-    council = load_council()
     regime = market_regime(stocks)
     max_position_value = round(CAPITAL * MAX_POSITION_PCT / 100.0, 2)
 
     candidates = []
     for stock in stocks:
-        score, factors, decision, research = score_stock(stock)
+        symbol = stock.get("symbol")
+        scrap_row = scrap_map.get(symbol, {"symbol": symbol, "status": "UNAVAILABLE", "action": "OBSERVE", "score": None})
+        score, factors, decision, research = score_stock(stock, scrap_row)
+        rejection = None
+        if decision == "INSUFFICIENT_DATA":
+            rejection = "SCRAP_DATA_UNAVAILABLE"
+        elif decision == "WATCH":
+            rejection = "SCRAP_WATCH_ONLY"
+        elif decision == "OBSERVE":
+            rejection = "SCRAP_BELOW_REVIEW_THRESHOLD"
+
         candidates.append({
-            "symbol": stock.get("symbol"),
+            "symbol": symbol,
             "quote": {
                 "price": stock.get("price"), "change": stock.get("change"),
                 "open": stock.get("open"), "high": stock.get("high"),
                 "low": stock.get("low"), "prev_close": stock.get("prev_close"),
                 "volume": stock.get("volume"), "security_id": stock.get("security_id"),
             },
-            "features": {"score": score, "factors": factors, "strategy_frameworks": research["frameworks"]},
+            "features": {
+                "score": score,
+                "factors": factors,
+                "strategy_frameworks": research["frameworks"],
+                "quote_score": research["quote_score"],
+                "framework_score": research["framework_score"],
+            },
             "indicators": {
                 "intraday_return_pct": pct(num(stock.get("price")), num(stock.get("open"))),
                 "gap_pct": pct(num(stock.get("open")), num(stock.get("prev_close"))),
+                "scrap": scrap_row.get("indicators", {}),
             },
             "market_regime": regime,
-            "scrap_result": None,
+            "scrap_result": scrap_row,
             "ranking": None,
             "analysis_pool_member": decision == "REVIEW",
             "decision": decision,
-            "rejection_reason": None if decision == "REVIEW" else ("INSUFFICIENT_DATA" if decision == "INSUFFICIENT_DATA" else "BELOW_GENERALIZED_REVIEW_THRESHOLD"),
+            "rejection_reason": rejection,
             "available_capital": CAPITAL,
             "required_capital": max_position_value,
             "risk_gate": "PAPER_ONLY_PASS",
@@ -265,7 +293,11 @@ def main() -> int:
                 "consensus": council.get("consensus"),
                 "cross_review_available": bool(council.get("cross_review")),
             },
-            "execution": {"mode": "PAPER", "order_submitted": False, "reason": "PAPER_EXECUTION_ENGINE_NOT_YET_ENABLED"},
+            "execution": {
+                "mode": "PAPER",
+                "order_submitted": False,
+                "reason": "PAPER_EXECUTION_ENGINE_NOT_YET_ENABLED",
+            },
         })
 
     candidates.sort(key=lambda item: item["features"]["score"], reverse=True)
@@ -274,13 +306,15 @@ def main() -> int:
 
     reason_counts = Counter(x["rejection_reason"] for x in candidates if x["rejection_reason"])
     ledger = {
-        "schema_version": "3.0",
+        "schema_version": "4.0",
         "timestamp": now.isoformat().replace("+00:00", "Z"),
         "mode": "PAPER",
-        "stage": "DETERMINISTIC_SCREENING_WITH_STRATEGY_EVIDENCE",
+        "stage": "DHAΝ_SNAPSHOT -> SCRAP_TECHNICAL -> STRATEGY_EVIDENCE -> AI_RESEARCH -> DETERMINISTIC_GATES",
         "market_data_status": snapshot.get("status"),
         "source": snapshot.get("source"),
         "snapshot_timestamp": snapshot.get("timestamp"),
+        "scrap_status": scrap_data.get("status", "NOT_RUN"),
+        "scrap_timestamp": scrap_data.get("timestamp"),
         "universe_count": len(stocks),
         "review_candidates": sum(1 for x in candidates if x["decision"] == "REVIEW"),
         "rejection_summary": dict(reason_counts),
@@ -293,6 +327,7 @@ def main() -> int:
             "stock_specific_learning_enabled": False,
             "auto_strategy_mutation_enabled": False,
             "ai_can_bypass_risk_gates": False,
+            "scrap_is_deterministic_gate": True,
         },
     }
     out.parent.mkdir(parents=True, exist_ok=True)
