@@ -14,6 +14,7 @@ Market Data
    -> Dynamic Candidate Ranking
    -> Technical / SCRAP / Research Analysis
    -> Market Regime
+   -> Strategy Framework Evidence
    -> OpenAI + Anthropic Research Council
    -> Deterministic Risk & Funds Gates
    -> Paper Trade
@@ -31,7 +32,8 @@ Market Data
 - Dhan market snapshot adapter: **implemented**
 - Decision-time observation ledger: **implemented**
 - Deterministic paper screening/ranking evidence: **implemented**
-- OpenAI + Anthropic research-council module: **implemented as non-executing advisory analysis**
+- Buffett / Jhunjhunwala / Peter Lynch / 100 Baggers / CANSLIM evidence layer: **integrated into the decision ledger**
+- OpenAI + Anthropic research-council module: **implemented and invoked by the paper cycle when credentials/models are configured**
 - EOD missed-opportunity report: **implemented as diagnostic analysis**
 - Full technical/SCRAP/ranking engine: **next integration stage**
 - Paper execution engine: **next integration stage**
@@ -53,11 +55,25 @@ The collector never places an order. If credentials are missing, expired, reject
 
 The scheduled cycle runs every 5 minutes during the configured weekday UTC window and the GUI refreshes the published snapshot automatically.
 
+## Strategy framework evidence
+
+The paper ledger now evaluates generalized evidence from five research frameworks:
+
+- Warren Buffett — quality, returns on capital, cash generation and balance-sheet discipline
+- Rakesh Jhunjhunwala — earnings/revenue growth, sector tailwind and operating leverage
+- Peter Lynch — growth relative to valuation
+- 100 Baggers — reinvestment, returns on capital and growth runway
+- CANSLIM / William O'Neil — earnings/sales growth, momentum, relative strength and volume confirmation
+
+The framework layer never invents unavailable fundamentals. Missing data is explicitly marked `UNAVAILABLE`. Framework evidence contributes only a bounded research component to the generalized score; it cannot bypass deterministic risk or safety gates and cannot create a stock-specific rule.
+
 ## OpenAI + Anthropic research council
 
-The project includes a two-model research-council design. OpenAI and Anthropic are intended to review the same decision-time evidence independently, challenge each other's reasoning, and produce a research consensus covering evidence, contradictions, uncertainty and data gaps.
+The project includes a two-model research-council design. OpenAI and Anthropic review the same evidence independently, challenge each other's reasoning, and produce a research consensus covering evidence, contradictions, uncertainty and data gaps.
 
-This is deliberately **not an autonomous order-execution layer**. The AI council cannot bypass deterministic capital, risk, liquidity, position, loss-limit or reconciliation gates. Missing AI providers never result in invented output, and no provider API key is exposed to the browser GUI.
+The paper cycle now runs the council after verified market collection and before the decision-time ledger is persisted. If either provider is unavailable, the ledger records the unavailable/quorum state rather than inventing an AI opinion.
+
+This is deliberately **not an autonomous order-execution layer**. The AI council cannot bypass deterministic capital, risk, liquidity, position, loss-limit or reconciliation gates, and no provider API key is exposed to the browser GUI.
 
 Configure these only when we are ready to activate the council:
 
@@ -74,7 +90,7 @@ After market close, the bot must inspect the eligible universe for shares that a
 
 The current EOD diagnostic reads the persisted intraday ledgers and compares each decision-time observation with later same-session observations. A forward move above the configured generalized threshold is flagged for review. The report explicitly distinguishes a profitable forward move from proof that an executable trade was guaranteed.
 
-The system records decision-time quotes/features, ranking, analysis-pool membership, rejection reason, capital/capacity and risk-gate state. The EOD report then groups misses by generalized reasons instead of creating rules for individual stocks.
+The system records decision-time quotes/features, strategy-framework evidence, ranking, analysis-pool membership, rejection reason, capital/capacity and risk-gate state. The EOD report then groups misses by generalized reasons instead of creating rules for individual stocks.
 
 ## No stock-specific learning
 
