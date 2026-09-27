@@ -21,7 +21,7 @@ Market Data
    -> EOD Reconciliation
    -> EOD Reverse Engineering
    -> General Optimization Proposal
-   -> Validation
+   -> Out-of-Sample Validation
 ```
 
 ## Current implementation status
@@ -30,10 +30,12 @@ Market Data
 - 5-minute GitHub Actions paper-market cycle: **implemented**
 - Dhan market snapshot adapter: **implemented**
 - Decision-time observation ledger: **implemented**
+- Deterministic paper screening/ranking evidence: **implemented**
 - OpenAI + Anthropic research-council module: **implemented as non-executing advisory analysis**
-- Paper execution engine: **next integration stage**
+- EOD missed-opportunity report: **implemented as diagnostic analysis**
 - Full technical/SCRAP/ranking engine: **next integration stage**
-- EOD reverse-engineering engine: **next integration stage**
+- Paper execution engine: **next integration stage**
+- Full EOD strategy-optimization validator: **next integration stage**
 - Live orders: **disabled**
 
 ## Dhan market-data setup
@@ -53,7 +55,7 @@ The scheduled cycle runs every 5 minutes during the configured weekday UTC windo
 
 ## OpenAI + Anthropic research council
 
-The project now includes a two-model research-council design. OpenAI and Anthropic are intended to review the same decision-time evidence independently, challenge each other's reasoning, and produce a research consensus covering evidence, contradictions, uncertainty and data gaps.
+The project includes a two-model research-council design. OpenAI and Anthropic are intended to review the same decision-time evidence independently, challenge each other's reasoning, and produce a research consensus covering evidence, contradictions, uncertainty and data gaps.
 
 This is deliberately **not an autonomous order-execution layer**. The AI council cannot bypass deterministic capital, risk, liquidity, position, loss-limit or reconciliation gates. Missing AI providers never result in invented output, and no provider API key is exposed to the browser GUI.
 
@@ -68,18 +70,17 @@ See `docs/AI_COUNCIL.md` for the full protocol.
 
 ## Mandatory EOD reverse engineering
 
-After market close, the bot must inspect the eligible universe for shares that actually made meaningful profitable moves and determine why the bot missed them using the evidence that was available **at decision time**.
+After market close, the bot must inspect the eligible universe for shares that actually made meaningful profitable moves and determine why the bot missed them using evidence available **at decision time**.
 
-The system must record decision-time quotes/indicators, regime, SCRAP/research result, ranking, analysis-pool membership, rejection reason, capital/capacity and risk gates. It then separates:
+The current EOD diagnostic reads the persisted intraday ledgers and compares each decision-time observation with later same-session observations. A forward move above the configured generalized threshold is flagged for review. The report explicitly distinguishes a profitable forward move from proof that an executable trade was guaranteed.
 
-- **Analysis Error Score** — evidence that the decision logic was wrong at decision time.
-- **Opportunity Miss Score** — profitable opportunity that was not captured, even when the original rejection may have been correct.
+The system records decision-time quotes/features, ranking, analysis-pool membership, rejection reason, capital/capacity and risk-gate state. The EOD report then groups misses by generalized reasons instead of creating rules for individual stocks.
 
 ## No stock-specific learning
 
 This is a hard requirement. A profitable outcome for one stock must **never** create a special rule, exception, permanent priority, forced watchlist entry, or stock-specific threshold. General strategy changes require repeated evidence across multiple unrelated symbols and/or sessions. Risk, liquidity, capital and reconciliation protections cannot be weakened because of hindsight winners.
 
-EOD analysis may propose a **general** optimization, but it must be tested/backtested and validated before activation. It must not silently rewrite the active strategy.
+EOD analysis may propose a **general** optimization, but it must be tested/backtested and validated before activation. The current EOD report does **not** modify the active strategy automatically.
 
 ## Free paper deployment direction
 
@@ -100,6 +101,7 @@ See:
 - Missing market data is `DATA UNAVAILABLE`, never fabricated.
 - No hard-coded preference for a particular share.
 - All important decisions must be auditable from persisted decision-time evidence.
+- Automatic strategy mutation: **OFF**.
 
 ## Development rule
 
