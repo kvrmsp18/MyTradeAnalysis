@@ -31,6 +31,14 @@ jobs:
           DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
         run: python scripts/market_snapshot.py
 
+      - name: Run deterministic technical SCRAP analysis
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+          SCRAP_LOOKBACK_DAYS: '45'
+        run: python scripts/scrap_analysis.py
+
       - name: Run OpenAI + Anthropic research council
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -42,15 +50,15 @@ jobs:
       - name: Persist decision-time observation ledger
         run: python scripts/paper_cycle.py
 
-      - name: Commit market snapshot, council and ledger
+      - name: Commit market snapshot, SCRAP analysis, council and ledger
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/data/market_snapshot.json public/data/ai_research_council.json data/ledger
+          git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json data/ledger
           if git diff --cached --quiet; then
             echo 'No data changes to commit.'
             exit 0
           fi
-          git commit -m "chore: update paper market analysis and decision ledger"
+          git commit -m "chore: update paper market technical analysis"
           git pull --rebase origin main
           git push
