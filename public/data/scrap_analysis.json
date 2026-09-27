@@ -1,0 +1,9 @@
+{
+  "status": "NOT_RUN",
+  "timestamp": null,
+  "source": "Dhan historical candles + deterministic technical calculations",
+  "paper_only": true,
+  "stock_specific_rule_created": false,
+  "reason": "The scheduled paper cycle will populate this file when fresh Dhan market data is available.",
+  "stocks": []
+}
