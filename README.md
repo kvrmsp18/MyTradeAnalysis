@@ -60,3 +60,7 @@ See:
 ## Development rule
 
 For major code changes, replace complete files rather than applying fragile partial patches, matching the project's established development workflow.
+
+## GUI deployment
+
+The browser/PWA GUI is deployed through GitHub Actions and GitHub Pages. The Pages workflow explicitly enables Pages before uploading the production build.
