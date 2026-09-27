@@ -1,0 +1,8 @@
+{
+  "status": "DATA_UNAVAILABLE",
+  "timestamp": null,
+  "source": "Dhan market feed",
+  "reason": "Waiting for the first market-data collection run.",
+  "paper_only": true,
+  "stocks": []
+}
