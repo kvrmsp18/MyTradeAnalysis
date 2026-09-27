@@ -1,0 +1,8 @@
+{
+  "status": "NOT_READY",
+  "timestamp": null,
+  "profitable_moves": 0,
+  "missed_opportunities": [],
+  "general_patterns": [],
+  "message": "EOD reverse-engineering report will populate after the first complete paper-trading session with persisted decision-time evidence."
+}
