@@ -4,8 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-  schedule:
-    - cron: '*/5 3-10 * * 1-5'
 
 permissions:
   contents: read
@@ -25,18 +23,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
-      - name: Setup Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.12'
-
-      - name: Collect Dhan market snapshot
-        env:
-          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
-          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
-          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
-        run: python scripts/market_snapshot.py
 
       - name: Setup Node
         uses: actions/setup-node@v4
