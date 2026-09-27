@@ -14,7 +14,8 @@ Market Data
    -> Dynamic Candidate Ranking
    -> Technical / SCRAP / Research Analysis
    -> Market Regime
-   -> Risk & Funds Gates
+   -> OpenAI + Anthropic Research Council
+   -> Deterministic Risk & Funds Gates
    -> Paper Trade
    -> Position Monitoring
    -> EOD Reconciliation
@@ -29,6 +30,7 @@ Market Data
 - 5-minute GitHub Actions paper-market cycle: **implemented**
 - Dhan market snapshot adapter: **implemented**
 - Decision-time observation ledger: **implemented**
+- OpenAI + Anthropic research-council module: **implemented as non-executing advisory analysis**
 - Paper execution engine: **next integration stage**
 - Full technical/SCRAP/ranking engine: **next integration stage**
 - EOD reverse-engineering engine: **next integration stage**
@@ -38,15 +40,31 @@ Market Data
 
 The scheduled paper cycle runs on GitHub Actions, so no VPS or continuously running laptop is required.
 
-Add these GitHub repository secrets under **Settings -> Secrets and variables -> Actions**:
+For the current market-data collector, configure:
 
 - `DHAN_CLIENT_ID`
-- `DHAN_ACCESS_TOKEN` — preferred token variable
-- `DHAN_API_KEY` — supported as a fallback variable by the collector
+- `DHAN_ACCESS_TOKEN`
+
+`DHAN_API_KEY` is supported as a fallback credential by the collector, but it is **not required for the current paper-market snapshot path when `DHAN_ACCESS_TOKEN` is available**. There is no need to add it just for this stage. We can add/use it later if a future Dhan integration specifically requires it.
 
 The collector never places an order. If credentials are missing, expired, rejected, or market data cannot be read, it writes `DATA_UNAVAILABLE` instead of inventing prices or signals.
 
 The scheduled cycle runs every 5 minutes during the configured weekday UTC window and the GUI refreshes the published snapshot automatically.
+
+## OpenAI + Anthropic research council
+
+The project now includes a two-model research-council design. OpenAI and Anthropic are intended to review the same decision-time evidence independently, challenge each other's reasoning, and produce a research consensus covering evidence, contradictions, uncertainty and data gaps.
+
+This is deliberately **not an autonomous order-execution layer**. The AI council cannot bypass deterministic capital, risk, liquidity, position, loss-limit or reconciliation gates. Missing AI providers never result in invented output, and no provider API key is exposed to the browser GUI.
+
+Configure these only when we are ready to activate the council:
+
+- `OPENAI_API_KEY` — GitHub Actions secret
+- `ANTHROPIC_API_KEY` — GitHub Actions secret
+- `OPENAI_MODEL` — GitHub Actions repository variable
+- `ANTHROPIC_MODEL` — GitHub Actions repository variable
+
+See `docs/AI_COUNCIL.md` for the full protocol.
 
 ## Mandatory EOD reverse engineering
 
@@ -69,6 +87,7 @@ The target architecture is **GitHub + free-tier cloud + browser/PWA**. You do no
 
 See:
 - `docs/ARCHITECTURE.md`
+- `docs/AI_COUNCIL.md`
 - `docs/EOD_REVERSE_ENGINEERING.md`
 - `docs/ROADMAP.md`
 - `SOURCE_RULES.md`
