@@ -1,0 +1,43 @@
+name: EOD Missed Opportunity Learning
+
+on:
+  schedule:
+    # 16:00 IST on weekdays (10:30 UTC), after the NSE session.
+    - cron: '30 10 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: eod-learning
+  cancel-in-progress: false
+
+jobs:
+  eod-learning:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Build EOD learning report
+        env:
+          MISSED_MOVE_THRESHOLD_PCT: '1.0'
+        run: python scripts/eod_learning.py
+
+      - name: Commit EOD report
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data/eod_report.json
+          if git diff --cached --quiet; then
+            echo 'No EOD report changes to commit.'
+            exit 0
+          fi
+          git commit -m "chore: publish EOD missed opportunity report"
+          git push
