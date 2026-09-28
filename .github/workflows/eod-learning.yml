@@ -2,8 +2,8 @@ name: EOD Missed Opportunity Learning
 
 on:
   schedule:
-    # 16:03 IST on weekdays (10:33 UTC), after the final scheduled paper cycle.
-    - cron: '33 10 * * 1-5'
+    # 10:20 UTC = 15:50 IST, after NSE cash-market close.
+    - cron: '20 10 * * 1-5'
   workflow_dispatch:
 
 permissions:
@@ -25,20 +25,30 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Build EOD learning report
+      - name: Scan broad NSE equity universe
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+          EOD_OPPORTUNITY_TOP_N: '50'
+          EOD_OPPORTUNITY_MIN_MOVE_PCT: '2.0'
+          EOD_MARKETFEED_CHUNK: '100'
+        run: python scripts/eod_market_opportunities.py
+
+      - name: Generate generalized missed-opportunity report
         env:
           MISSED_MOVE_THRESHOLD_PCT: '1.0'
         run: python scripts/eod_learning.py
 
-      - name: Commit EOD report
+      - name: Commit EOD research outputs
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/data/eod_report.json
+          git add public/data/eod_market_opportunities.json public/data/eod_report.json
           if git diff --cached --quiet; then
-            echo 'No EOD report changes to commit.'
+            echo 'No EOD data changes to commit.'
             exit 0
           fi
-          git commit -m "chore: publish EOD missed opportunity report"
+          git commit -m 'chore: update EOD opportunity learning report'
           git pull --rebase origin main
           git push
