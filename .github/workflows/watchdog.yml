@@ -1,0 +1,100 @@
+name: MyTradeAnalysis Heartbeat Watchdog
+
+on:
+  schedule:
+    # Five-minute heartbeat during the configured NSE paper-trading window.
+    - cron: '*/5 3-11 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: mytradeanalysis-watchdog
+  cancel-in-progress: true
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check paper-cycle heartbeat
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, sys, urllib.request
+          from datetime import datetime, timezone
+
+          repo = os.environ['REPO']
+          token = os.environ['GH_TOKEN']
+          now = datetime.now(timezone.utc)
+          url = f'https://api.github.com/repos/{repo}/actions/workflows/paper-cycle.yml/runs?per_page=10'
+          req = urllib.request.Request(url, headers={
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+          })
+          with urllib.request.urlopen(req, timeout=20) as r:
+              data = json.load(r)
+          runs = data.get('workflow_runs', [])
+          scheduled = [r for r in runs if r.get('event') == 'schedule']
+          if not scheduled:
+              print('HEARTBEAT: NO_SCHEDULED_PAPER_RUN_FOUND')
+              sys.exit(1)
+          latest = scheduled[0]
+          started = latest.get('run_started_at') or latest.get('created_at')
+          dt = datetime.fromisoformat(started.replace('Z', '+00:00'))
+          age = (now - dt).total_seconds() / 60
+          status = latest.get('status')
+          conclusion = latest.get('conclusion')
+          print(f"HEARTBEAT: latest_run={latest.get('run_number')} status={status} conclusion={conclusion} age_minutes={age:.1f}")
+          if status in {'queued', 'in_progress'}:
+              if age > 15:
+                  print('HEARTBEAT FAILURE: paper cycle has been running/queued for more than 15 minutes.')
+                  sys.exit(1)
+              sys.exit(0)
+          if conclusion != 'success':
+              print('HEARTBEAT FAILURE: latest scheduled paper cycle did not succeed.')
+              sys.exit(1)
+          if age > 15:
+              print('HEARTBEAT FAILURE: no successful paper cycle in the last 15 minutes.')
+              sys.exit(1)
+          print('HEARTBEAT OK: paper cycle is alive.')
+          PY
+
+      - name: Validate public AI council heartbeat
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, urllib.request, sys
+          url = 'https://kvrmsp18.github.io/MyTradeAnalysis/data/ai_research_council.json'
+          try:
+              with urllib.request.urlopen(url, timeout=20) as r:
+                  data = json.load(r)
+          except Exception as exc:
+              print(f'AI HEARTBEAT FAILURE: {exc}')
+              sys.exit(1)
+          status = str(data.get('status', '')).upper()
+          print(f'AI HEARTBEAT: status={status}')
+          if status in {'UNAVAILABLE', 'ERROR', 'INVALID'}:
+              print('AI HEARTBEAT FAILURE: council output is unavailable or invalid.')
+              sys.exit(1)
+          print('AI HEARTBEAT OK: council output is structurally available.')
+          PY
+
+      - name: Publish heartbeat summary
+        if: always()
+        run: |
+          {
+            echo '## MyTradeAnalysis Heartbeat'
+            echo ''
+            echo "UTC: $(date -u '+%Y-%m-%d %H:%M:%S')"
+            echo ''
+            echo '- Paper-cycle watchdog: checked'
+            echo '- AI council output: checked'
+            echo '- Trading mode: PAPER ONLY'
+            echo '- Live execution: NOT ENABLED'
+          } >> "$GITHUB_STEP_SUMMARY"
