@@ -35,6 +35,15 @@ jobs:
           EOD_MARKETFEED_CHUNK: '100'
         run: python scripts/eod_market_opportunities.py
 
+      - name: Reconstruct intraday setups for EOD movers
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+          EOD_RECONSTRUCTION_TOP_N: '20'
+          EOD_RECONSTRUCTION_INTERVAL: '5'
+        run: python scripts/eod_intraday_reconstruction.py
+
       - name: Generate generalized missed-opportunity report
         env:
           MISSED_MOVE_THRESHOLD_PCT: '1.0'
@@ -44,7 +53,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/data/eod_market_opportunities.json public/data/eod_report.json
+          git add public/data/eod_market_opportunities.json public/data/eod_intraday_reconstruction.json public/data/eod_report.json
           if git diff --cached --quiet; then
             echo 'No EOD data changes to commit.'
             exit 0
