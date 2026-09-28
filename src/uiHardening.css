@@ -1,0 +1,27 @@
+/* Runtime safety/status presentation overrides. */
+.marketStatus.closed {
+  color: #94a3b8 !important;
+  background: rgba(148, 163, 184, 0.10) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
+}
+
+.marketStatus.closed .statusDot {
+  background: #94a3b8 !important;
+  box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.12) !important;
+}
+
+.marketStatus.warn {
+  color: #f59e0b !important;
+  background: rgba(245, 158, 11, 0.10) !important;
+  border-color: rgba(245, 158, 11, 0.28) !important;
+}
+
+.marketStatus.warn .statusDot {
+  background: #f59e0b !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.12) !important;
+}
+
+/* Never present a closed/unknown market as a healthy live connection. */
+.connections .muted {
+  color: #64748b !important;
+}
