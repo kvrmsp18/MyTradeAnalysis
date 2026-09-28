@@ -1,0 +1,34 @@
+{
+  "schema_version": "4.0",
+  "timestamp": "2026-09-28T09:03:07.508130Z",
+  "mode": "PAPER",
+  "stage": "DHA\u039d_SNAPSHOT -> SCRAP_TECHNICAL -> STRATEGY_EVIDENCE -> AI_RESEARCH -> DETERMINISTIC_GATES",
+  "market_data_status": "DATA_UNAVAILABLE",
+  "source": "Dhan market feed",
+  "snapshot_timestamp": "2026-09-28T09:03:07.277654Z",
+  "scrap_status": "UNAVAILABLE",
+  "scrap_timestamp": "2026-09-28T09:03:07.366582Z",
+  "universe_count": 0,
+  "review_candidates": 0,
+  "rejection_summary": {},
+  "market_regime": {
+    "status": "UNAVAILABLE",
+    "confidence": 0
+  },
+  "strategy_frameworks_enabled": [
+    "buffett",
+    "jhunjhunwala",
+    "lynch",
+    "hundred_baggers",
+    "canslim"
+  ],
+  "ai_council_status": "UNAVAILABLE",
+  "candidates": [],
+  "safety": {
+    "live_orders_enabled": false,
+    "stock_specific_learning_enabled": false,
+    "auto_strategy_mutation_enabled": false,
+    "ai_can_bypass_risk_gates": false,
+    "scrap_is_deterministic_gate": true
+  }
+}

@@ -1,8 +1,8 @@
 {
   "status": "DATA_UNAVAILABLE",
-  "timestamp": null,
+  "timestamp": "2026-09-28T09:03:07.277654Z",
   "source": "Dhan market feed",
-  "reason": "Waiting for the first market-data collection run.",
+  "reason": "HTTP Error 401: Unauthorized",
   "paper_only": true,
   "stocks": []
 }

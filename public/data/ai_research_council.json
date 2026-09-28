@@ -1,0 +1,26 @@
+{
+  "status": "UNAVAILABLE",
+  "timestamp": "2026-09-28T09:03:07.449908Z",
+  "paper_only": true,
+  "reason": "No verified market data available.",
+  "market_status": "DATA_UNAVAILABLE",
+  "scrap_status": "UNAVAILABLE",
+  "config": {
+    "openai": {
+      "api_key_configured": false,
+      "model": null
+    },
+    "anthropic": {
+      "api_key_configured": true,
+      "model": null
+    }
+  },
+  "stages": {
+    "market_evidence": "NOT_READY",
+    "independent_analysis": "NOT_RUN",
+    "cross_review": "NOT_RUN",
+    "final_positions": "NOT_RUN",
+    "consensus": "NOT_RUN"
+  },
+  "execution_authorized": false
+}
