@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import os
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 OPPORTUNITIES = Path("public/data/eod_market_opportunities.json")
@@ -26,7 +26,7 @@ def utc_now() -> str:
 
 def write(status: str, rows: list[dict], reason: str | None = None) -> None:
     payload = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "status": status,
         "generated_at": utc_now(),
         "paper_only": True,
@@ -48,11 +48,17 @@ def fetch_candles(token: str, client_id: str, security_id: str, day: str) -> dic
         "instrument": "EQUITY",
         "fromDate": day,
         "toDate": day,
+        "interval": str(INTERVAL_MIN),
     }
     req = urllib.request.Request(
         HISTORICAL_URL,
         data=json.dumps(body).encode("utf-8"),
-        headers={"access-token": token, "client-id": client_id, "Content-Type": "application/json", "Accept": "application/json"},
+        headers={
+            "access-token": token,
+            "client-id": client_id,
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
         method="POST",
     )
     with urllib.request.urlopen(req, timeout=30) as response:
@@ -69,13 +75,16 @@ def series(payload: dict) -> list[dict]:
     lows = data.get("low", [])
     closes = data.get("close", [])
     volumes = data.get("volume", [])
-    rows = []
+    rows: list[dict] = []
     for i, ts in enumerate(timestamps):
         try:
             rows.append({
                 "timestamp": ts,
-                "open": float(opens[i]), "high": float(highs[i]), "low": float(lows[i]),
-                "close": float(closes[i]), "volume": float(volumes[i]) if i < len(volumes) else 0.0,
+                "open": float(opens[i]),
+                "high": float(highs[i]),
+                "low": float(lows[i]),
+                "close": float(closes[i]),
+                "volume": float(volumes[i]) if i < len(volumes) else 0.0,
             })
         except (IndexError, TypeError, ValueError):
             continue
@@ -120,18 +129,25 @@ def reconstruct(candles: list[dict]) -> dict:
     for i in range(len(candles)):
         if i < 50 or e9[i] is None or e20[i] is None or e50[i] is None or rs[i] is None:
             continue
-        volume_base = sum(volumes[max(0, i - 20):i]) / max(1, len(volumes[max(0, i - 20):i]))
+        lookback_vol = volumes[max(0, i - 20):i]
+        volume_base = sum(lookback_vol) / max(1, len(lookback_vol))
+        prior_highs = [x["high"] for x in candles[max(0, i - 20):i]]
+        if not prior_highs:
+            continue
         trend = e9[i] > e20[i] > e50[i]
         momentum = 50 <= rs[i] <= 75
         volume_ok = volume_base > 0 and volumes[i] >= 1.2 * volume_base
-        breakout = closes[i] > max(x["high"] for x in candles[max(0, i - 20):i])
+        breakout = closes[i] > max(prior_highs)
         if trend and momentum and volume_ok and breakout:
             first_setup = {
                 "timestamp": candles[i]["timestamp"],
                 "close": candles[i]["close"],
-                "ema9": round(e9[i], 4), "ema20": round(e20[i], 4), "ema50": round(e50[i], 4),
+                "ema9": round(e9[i], 4),
+                "ema20": round(e20[i], 4),
+                "ema50": round(e50[i], 4),
                 "rsi14": round(rs[i], 2),
-                "volume": candles[i]["volume"], "volume_ratio": round(candles[i]["volume"] / volume_base, 2),
+                "volume": candles[i]["volume"],
+                "volume_ratio": round(candles[i]["volume"] / volume_base, 2),
                 "setup": "TREND_MOMENTUM_VOLUME_BREAKOUT",
                 "research_only": True,
             }
@@ -168,11 +184,24 @@ def main() -> int:
                 continue
             try:
                 candles = series(fetch_candles(token, client_id, str(security_id), day))
-                rows.append({"symbol": symbol, "security_id": str(security_id), "change_pct": stock.get("change_pct"), "reconstruction": reconstruct(candles)})
+                reconstruction = reconstruct(candles)
+                rows.append({
+                    "symbol": symbol,
+                    "security_id": str(security_id),
+                    "change_pct": stock.get("change_pct"),
+                    "reconstruction": reconstruction,
+                    "attribution_status": "PENDING_ACTUAL_BOT_DECISION_MATCH" if reconstruction.get("setup_found") else "NO_RECONSTRUCTED_SETUP",
+                })
             except Exception as exc:
-                rows.append({"symbol": symbol, "security_id": str(security_id), "change_pct": stock.get("change_pct"), "reconstruction": {"status": "UNAVAILABLE", "reason": str(exc)}})
+                rows.append({
+                    "symbol": symbol,
+                    "security_id": str(security_id),
+                    "change_pct": stock.get("change_pct"),
+                    "reconstruction": {"status": "UNAVAILABLE", "reason": str(exc)},
+                    "attribution_status": "UNAVAILABLE",
+                })
         write("READY", rows)
-        print(f"Reconstructed {len(rows)} EOD movers using historical candles.")
+        print(f"Reconstructed {len(rows)} EOD movers using {INTERVAL_MIN}-minute historical candles.")
         return 0
     except Exception as exc:
         write("DATA_UNAVAILABLE", [], str(exc))
