@@ -27,23 +27,30 @@ jobs:
       - name: Python syntax validation
         run: python -m compileall -q scripts
 
-      - name: Validate required paper-only safeguards
+      - name: Validate required paper-only safeguards and AI council wiring
         run: |
           python - <<'PY'
           from pathlib import Path
           checks = {
-              'scripts/ai_research_council.py': ['HOLD_FOR_REVIEW', 'paper_only'],
+              'scripts/ai_research_council.py': [
+                  'HOLD_FOR_REVIEW', 'paper_only', 'OPENAI_MODEL', 'ANTHROPIC_MODEL',
+                  'cross_review', 'execution_authorized'
+              ],
               'scripts/eod_learning.py': ['stock_specific_rules_allowed', 'automatic_strategy_mutation'],
               'scripts/eod_intraday_reconstruction.py': ['paper_only', 'automatic_strategy_mutation'],
               'scripts/eod_market_opportunities.py': ['paper_only'],
-              '.github/workflows/paper-cycle.yml': ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY'],
+              '.github/workflows/paper-cycle.yml': [
+                  'ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'ANTHROPIC_MODEL',
+                  'scrap_analysis.py', 'ai_research_council.py'
+              ],
+              '.github/workflows/watchdog.yml': ['PAPER ONLY', 'AI council output', 'market closed'],
           }
           for path, needles in checks.items():
               text = Path(path).read_text(encoding='utf-8')
               missing = [n for n in needles if n not in text]
               if missing:
                   raise SystemExit(f'{path}: missing required safeguards/config markers: {missing}')
-          print('Required paper-only and AI-council safeguards are present.')
+          print('Required paper-only, SCRAP, AI-council and heartbeat safeguards are present.')
           PY
 
       - name: Setup Node
@@ -62,6 +69,8 @@ jobs:
           echo 'VALIDATION PASSED'
           echo 'Python syntax: OK'
           echo 'Paper-only safeguards: OK'
-          echo 'OpenAI + Anthropic wiring: present'
+          echo 'Technical/SCRAP wiring: OK'
+          echo 'OpenAI + Anthropic council wiring: OK'
+          echo 'Market-aware heartbeat/watchdog: OK'
           echo 'GUI production build: OK'
           echo 'Live trading execution remains disabled.'
