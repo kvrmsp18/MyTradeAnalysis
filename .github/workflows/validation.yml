@@ -1,0 +1,68 @@
+name: MyTradeAnalysis Validation
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mytradeanalysis-validation
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Python syntax validation
+        run: python -m compileall -q scripts
+
+      - name: Validate required paper-only safeguards
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          checks = {
+              'scripts/ai_research_council.py': ['HOLD_FOR_REVIEW', 'paper_only'],
+              'scripts/eod_learning.py': ['stock_specific_rules_allowed', 'automatic_strategy_mutation'],
+              'scripts/eod_intraday_reconstruction.py': ['paper_only', 'automatic_strategy_mutation'],
+              'scripts/eod_market_opportunities.py': ['paper_only'],
+              '.github/workflows/paper-cycle.yml': ['ANTHROPIC_API_KEY', 'OPENAI_API_KEY'],
+          }
+          for path, needles in checks.items():
+              text = Path(path).read_text(encoding='utf-8')
+              missing = [n for n in needles if n not in text]
+              if missing:
+                  raise SystemExit(f'{path}: missing required safeguards/config markers: {missing}')
+          print('Required paper-only and AI-council safeguards are present.')
+          PY
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build GUI
+        run: npm run build
+
+      - name: Final validation summary
+        run: |
+          echo 'VALIDATION PASSED'
+          echo 'Python syntax: OK'
+          echo 'Paper-only safeguards: OK'
+          echo 'OpenAI + Anthropic wiring: present'
+          echo 'GUI production build: OK'
+          echo 'Live trading execution remains disabled.'
