@@ -35,7 +35,7 @@ def main():
     if not lp: print("No ledger; no paper execution."); return 0
     ledger=read(lp,{})
     snapshot=read(SNAPSHOT,{})
-    if ledger.get("mode")!="PAPER" or snapshot.get("status")!="LIVE_MARKET_DATA":
+    if ledger.get("mode")!="PAPER" or snapshot.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_FALLBACK"):
         print("No live market snapshot or non-paper ledger; no execution."); return 0
     state=read(STATE,{"schema_version":"1.0","cash":CAPITAL,"positions":{},"realized_pnl":0.0,"trades":[],"last_processed_ledger":None})
     if state.get("last_processed_ledger")==str(lp):
