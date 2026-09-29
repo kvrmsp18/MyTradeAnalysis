@@ -1,0 +1,22 @@
+name: MyTradeAnalysis Paper Engine Self-Test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * 1-5' # 08:30 IST before pre-market readiness
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Run offline BUY/SELL state test
+        run: python scripts/paper_engine_self_test.py
+      - name: Compile all Python scripts
+        run: python -m compileall -q scripts
