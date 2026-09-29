@@ -1,9 +1,9 @@
 {
   "status": "LIVE_MARKET_DATA_FALLBACK",
-  "timestamp": "2026-09-29T04:51:35.255753Z",
+  "timestamp": "2026-09-29T04:54:53.892755Z",
   "source": "Yahoo Finance chart feed",
   "reason": {
-    "dhan_error": "HTTP Error 401: Unauthorized",
+    "dhan_error": "HTTP 401: {\"data\":{\"806\":\"Data APIs not Subscribed\"},\"status\":\"failed\"}",
     "nse_error": "HTTP Error 403: Forbidden",
     "fallback_errors": []
   },
@@ -11,68 +11,68 @@
   "stocks": [
     {
       "symbol": "RELIANCE",
-      "price": 1186.1,
-      "change": -0.96,
+      "price": 1186.3,
+      "change": -0.94,
       "open": null,
       "high": 1198.3,
       "low": 1181.8,
       "prev_close": 1197.6,
-      "volume": 4765330,
+      "volume": 4874824,
       "security_id": null
     },
     {
       "symbol": "HDFCBANK",
-      "price": 707.4,
-      "change": -1.62,
+      "price": 707.6,
+      "change": -1.59,
       "open": null,
       "high": 715.9,
       "low": 706.25,
       "prev_close": 719.05,
-      "volume": 9905449,
+      "volume": 10049234,
       "security_id": null
     },
     {
       "symbol": "INFY",
-      "price": 987.9,
-      "change": -1.53,
+      "price": 988.1,
+      "change": -1.51,
       "open": null,
       "high": 1004.8,
       "low": 983.1,
       "prev_close": 1003.2,
-      "volume": 2277350,
+      "volume": 2319881,
       "security_id": null
     },
     {
       "symbol": "TCS",
-      "price": 2053.9,
-      "change": -0.81,
+      "price": 2054.1,
+      "change": -0.8,
       "open": null,
       "high": 2085.1,
       "low": 2050.0,
       "prev_close": 2070.7,
-      "volume": 522358,
+      "volume": 531927,
       "security_id": null
     },
     {
       "symbol": "SUNPHARMA",
-      "price": 1847.7,
-      "change": 0.53,
+      "price": 1849.0,
+      "change": 0.6,
       "open": null,
       "high": 1862.3,
       "low": 1840.6,
       "prev_close": 1838.0,
-      "volume": 492096,
+      "volume": 502849,
       "security_id": null
     },
     {
       "symbol": "M&M",
-      "price": 2957.5,
-      "change": -1.25,
+      "price": 2953.3,
+      "change": -1.39,
       "open": null,
       "high": 2989.8,
-      "low": 2956.0,
+      "low": 2953.0,
       "prev_close": 2995.0,
-      "volume": 451876,
+      "volume": 467446,
       "security_id": null
     }
   ]
