@@ -4,7 +4,8 @@ on:
   schedule:
     - cron: '45 3 * * 1-5' # 09:15 IST
     - cron: '0 4 * * 1-5'  # 09:30 IST
-    - cron: '5 10 * * 1-5' # 15:35 IST EOD
+    - cron: '5 10 * * 1-5' # 15:35 IST market checkpoint
+    - cron: '5 11 * * 1-5' # 16:05 IST EOD post-mortem, after EOD learning
   workflow_dispatch:
     inputs:
       event:
@@ -35,14 +36,42 @@ jobs:
             minute=$(TZ=Asia/Kolkata date +%M)
             if [ "$hour" = "09" ] && [ "$minute" = "15" ]; then event="OPEN"; fi
             if [ "$hour" = "09" ] && [ "$minute" = "30" ]; then event="CHECKPOINT"; fi
-            if [ "$hour" = "15" ]; then event="EOD"; fi
+            if [ "$hour" = "15" ] && [ "$minute" = "35" ]; then event="MARKET_CHECKPOINT"; fi
+            if [ "$hour" = "16" ] && [ "$minute" = "05" ]; then event="EOD_POST_MORTEM"; fi
           fi
+
           status=$(jq -r '.status // "UNKNOWN"' public/data/market_snapshot.json 2>/dev/null || echo UNKNOWN)
           latest=$(find data/ledger -type f -name '*.json' | sort | tail -1 || true)
-          if [ -n "$latest" ]; then regime=$(jq -r '.market_regime.status // "—"' "$latest" 2>/dev/null || echo —); else regime='—'; fi
+          if [ -n "$latest" ]; then
+            regime=$(jq -r '.market_regime.status // "—"' "$latest" 2>/dev/null || echo —)
+            review_count=$(jq -r '.review_candidates // 0' "$latest" 2>/dev/null || echo 0)
+            universe_count=$(jq -r '.universe_count // 0' "$latest" 2>/dev/null || echo 0)
+          else
+            regime='—'
+            review_count=0
+            universe_count=0
+          fi
+
           council=$(jq -r '.status // "—"' public/data/ai_research_council.json 2>/dev/null || echo —)
           scrap=$(jq -r '.status // "—"' public/data/scrap_analysis.json 2>/dev/null || echo —)
           count=$(jq '.stocks | length' public/data/market_snapshot.json 2>/dev/null || echo 0)
+
+          eod_status=$(jq -r '.status // "NOT_RUN"' public/data/eod_report.json 2>/dev/null || echo NOT_RUN)
+          missed_count=$(jq '.missed_opportunities | length' public/data/eod_report.json 2>/dev/null || echo 0)
+          movers_count=$(jq -r '.broad_market_mover_count // 0' public/data/eod_report.json 2>/dev/null || echo 0)
+          setup_count=$(jq -r '.external_movers_with_reconstructed_setup // 0' public/data/eod_report.json 2>/dev/null || echo 0)
+          profitable_count=$(jq -r '.profitable_forward_moves_in_ledger // 0' public/data/eod_report.json 2>/dev/null || echo 0)
+
+          top_misses=$(jq -r '
+            [.missed_opportunities[]? |
+              if .source == "broad_market_eod_scan"
+              then "(.symbol) (.eod_move_pct)% — (.reason)"
+              else "(.symbol) (.best_forward_return_pct)% forward — (.reason)"
+              end] |
+            .[0:3] | join("
+")
+          ' public/data/eod_report.json 2>/dev/null || true)
+
           cat > message.txt <<EOF
           🤖 MyTradeAnalysis — Paper Trading
           🕒 $(TZ=Asia/Kolkata date '+%d-%b-%Y %H:%M IST')
@@ -50,11 +79,39 @@ jobs:
           📡 Market data: $status
           🏛 Regime: $regime
           📊 Stocks observed: $count
+
+          📋 Today's paper review candidates: $review_count
           🔎 SCRAP: $scrap
           🧠 AI Council: $council
+
+          🔬 EOD post-mortem: $eod_status
+          📈 Broad-market movers: $movers_count
+          🎯 Reconstructed setups: $setup_count
+          💰 Profitable forward moves found in evaluated candidates: $profitable_count
+          🧩 Missed/discovery opportunities: $missed_count
+          EOF
+
+          if [ "$event" = "EOD_POST_MORTEM" ]; then
+            if [ -n "$top_misses" ]; then
+              printf '\nTop EOD findings:\n%s\n' "$top_misses" >> message.txt
+            else
+              printf '\nTop EOD findings:\nNo qualifying missed/discovery opportunities were identified.\n' >> message.txt
+            fi
+            cat >> message.txt <<'EOF'
+          
+          ⚠️ EOD findings are research evidence, not trade authorization.
+          🧠 Learning remains generalized; no stock-specific rules are created.
           🔒 Live trading: OFF
           ❤️ Heartbeat/watchdog: enabled
           EOF
+          else
+            cat >> message.txt <<'EOF'
+          
+          🔒 Live trading: OFF
+          ❤️ Heartbeat/watchdog: enabled
+          EOF
+          fi
+
           { printf 'message<<EOF\n'; cat message.txt; printf '\nEOF\n'; } >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram notification
