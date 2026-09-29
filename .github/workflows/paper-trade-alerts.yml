@@ -1,0 +1,43 @@
+name: MyTradeAnalysis Paper Trade Alerts
+
+on:
+  workflow_run:
+    workflows: ["Paper Market Cycle"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout latest paper state
+        uses: actions/checkout@v5
+
+      - name: Send only BUY/SELL Telegram events
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          set -euo pipefail
+          latest=$(find data/paper/events -type f -name '*.json' 2>/dev/null | sort | tail -1 || true)
+          if [ -z "$latest" ]; then echo "No paper trade event. No Telegram message."; exit 0; fi
+          side=$(jq -r '.event.side // ""' "$latest")
+          if [ "$side" != "BUY" ] && [ "$side" != "SELL" ]; then echo "Latest event is not BUY/SELL. No Telegram message."; exit 0; fi
+          if [ -z "${TELEGRAM_BOT_TOKEN:-}" ] || [ -z "${TELEGRAM_CHAT_ID:-}" ]; then echo "Telegram secrets are not configured."; exit 0; fi
+          symbol=$(jq -r '.event.symbol' "$latest")
+          qty=$(jq -r '.event.quantity' "$latest")
+          price=$(jq -r '.event.price' "$latest")
+          reason=$(jq -r '.event.reason // "PAPER_ENTRY"' "$latest")
+          pnl=$(jq -r '.event.pnl // "-"' "$latest")
+          ts=$(jq -r '.event.timestamp' "$latest")
+          if [ "$side" = "BUY" ]; then
+            score=$(jq -r '.event.score // "-"' "$latest")
+            text="MyTradeAnalysis PAPER BUY\n\nSymbol: $symbol\nQuantity: $qty\nSimulated price: Rs.$price\nScore: $score\nTime: $ts\n\nLive trading: OFF"
+          else
+            text="MyTradeAnalysis PAPER SELL\n\nSymbol: $symbol\nQuantity: $qty\nSimulated price: Rs.$price\nP&L: Rs.$pnl\nReason: $reason\nTime: $ts\n\nLive trading: OFF"
+          fi
+          curl -fsS --max-time 20 -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" -d chat_id="$TELEGRAM_CHAT_ID" --data-urlencode text="$text"
