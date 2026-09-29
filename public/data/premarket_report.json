@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "status": "READY",
-  "timestamp": "2026-09-29T03:31:26.247718Z",
+  "timestamp": "2026-09-29T09:58:10.625967Z",
   "market_phase": "PREMARKET",
   "market_open_ist": "09:15",
   "market_close_ist": "15:30",
@@ -17,8 +17,69 @@
       "withdrawableBalance": 0.18
     }
   },
-  "market_data_status": "DATA_UNAVAILABLE",
+  "market_data_status": "LIVE_MARKET_DATA_FALLBACK",
   "ai_council_status": "UNAVAILABLE",
-  "suggested_watchlist": [],
+  "suggested_watchlist": [
+    {
+      "symbol": "SUNPHARMA",
+      "latest_price": 1850.0,
+      "latest_change_pct": 0.65,
+      "scrap_score": 75.0,
+      "watch_score": 60.75,
+      "reasons": [
+        "positive_latest_change",
+        "SCRAP_available"
+      ],
+      "status": "WATCHLIST_ONLY"
+    },
+    {
+      "symbol": "HDFCBANK",
+      "latest_price": 715.4,
+      "latest_change_pct": -0.51,
+      "scrap_score": 75.0,
+      "watch_score": 54.95,
+      "reasons": [
+        "latest_change_not_positive",
+        "SCRAP_available"
+      ],
+      "status": "WATCHLIST_ONLY"
+    },
+    {
+      "symbol": "INFY",
+      "latest_price": 987.9,
+      "latest_change_pct": -1.53,
+      "scrap_score": 81.2,
+      "watch_score": 52.95,
+      "reasons": [
+        "latest_change_not_positive",
+        "SCRAP_available"
+      ],
+      "status": "WATCHLIST_ONLY"
+    },
+    {
+      "symbol": "TCS",
+      "latest_price": 2046.8,
+      "latest_change_pct": -1.15,
+      "scrap_score": 68.8,
+      "watch_score": 48.65,
+      "reasons": [
+        "latest_change_not_positive",
+        "SCRAP_available"
+      ],
+      "status": "WATCHLIST_ONLY"
+    },
+    {
+      "symbol": "RELIANCE",
+      "latest_price": 1188.0,
+      "latest_change_pct": -0.8,
+      "scrap_score": 43.8,
+      "watch_score": 37.9,
+      "reasons": [
+        "latest_change_not_positive",
+        "SCRAP_available"
+      ],
+      "status": "WATCHLIST_ONLY"
+    }
+  ],
   "selection_note": "Watchlist candidates use the latest available Dhan/SCRAP evidence. They are not pre-authorized trades; the live paper engine must revalidate at market time."
 }

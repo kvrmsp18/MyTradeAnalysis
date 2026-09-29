@@ -1,6 +1,6 @@
 {
   "status": "LIVE_MARKET_DATA_FALLBACK",
-  "timestamp": "2026-09-29T04:56:40.917044Z",
+  "timestamp": "2026-09-29T09:58:09.568943Z",
   "source": "Yahoo Finance chart feed",
   "reason": {
     "dhan_error": "HTTP 401: {\"data\":{\"806\":\"Data APIs not Subscribed\"},\"status\":\"failed\"}",
@@ -12,46 +12,46 @@
   "stocks": [
     {
       "symbol": "RELIANCE",
-      "price": 1187.5,
-      "change": -0.84,
+      "price": 1188.0,
+      "change": -0.8,
       "open": null,
       "high": 1198.3,
       "low": 1181.8,
       "prev_close": 1197.6,
-      "volume": 4968019,
+      "volume": 16192402,
       "security_id": null
     },
     {
       "symbol": "HDFCBANK",
-      "price": 707.5,
-      "change": -1.61,
+      "price": 715.4,
+      "change": -0.51,
       "open": null,
-      "high": 715.9,
+      "high": 715.95,
       "low": 706.25,
       "prev_close": 719.05,
-      "volume": 10193798,
+      "volume": 32831032,
       "security_id": null
     },
     {
       "symbol": "INFY",
-      "price": 988.9,
-      "change": -1.43,
+      "price": 987.9,
+      "change": -1.53,
       "open": null,
       "high": 1004.8,
-      "low": 983.1,
+      "low": 980.4,
       "prev_close": 1003.2,
-      "volume": 2331605,
+      "volume": 9962500,
       "security_id": null
     },
     {
       "symbol": "TCS",
-      "price": 2054.4,
-      "change": -0.79,
+      "price": 2046.8,
+      "change": -1.15,
       "open": null,
       "high": 2085.1,
-      "low": 2050.0,
+      "low": 2036.3,
       "prev_close": 2070.7,
-      "volume": 536112,
+      "volume": 3422890,
       "security_id": null
     },
     {
@@ -60,20 +60,20 @@
       "change": 0.65,
       "open": null,
       "high": 1862.3,
-      "low": 1840.6,
+      "low": 1836.6,
       "prev_close": 1838.0,
-      "volume": 510521,
+      "volume": 2369948,
       "security_id": null
     },
     {
       "symbol": "M&M",
-      "price": 2954.6,
-      "change": -1.35,
+      "price": 2955.0,
+      "change": -1.34,
       "open": null,
-      "high": 2989.8,
-      "low": 2953.0,
+      "high": 2991.0,
+      "low": 2950.5,
       "prev_close": 2995.0,
-      "volume": 477930,
+      "volume": 2671143,
       "security_id": null
     }
   ]
