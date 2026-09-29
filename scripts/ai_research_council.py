@@ -59,7 +59,8 @@ def unavailable(reason,market=None,scrap=None):
 def main():
     if not SNAPSHOT.exists(): return unavailable("Market snapshot missing.")
     market=load(SNAPSHOT,{"status":"DATA_UNAVAILABLE","stocks":[]}); scrap=load(SCRAP,{"status":"NOT_RUN","stocks":[]})
-    if market.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE","LIVE_MARKET_DATA_NSE_PROXY","LIVE_MARKET_DATA_FALLBACK"):\n        return unavailable("No validated market data available.",market,scrap)
+    if market.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE","LIVE_MARKET_DATA_NSE_PROXY","LIVE_MARKET_DATA_FALLBACK"):
+        return unavailable("No validated market data available.",market,scrap)
     evidence={"market_snapshot":market,"scrap_analysis":scrap}
     stages={"market_evidence":"READY", "market_source": market.get("source"), "independent_analysis":"RUNNING","cross_review":"NOT_RUN","final_positions":"NOT_RUN","consensus":"NOT_RUN"}
     independent=("You are an independent market-research analyst in a paper-trading system. Use only the supplied decision-time market snapshot and deterministic SCRAP evidence. Do not invent data. Assess technical evidence, context, contradictions, uncertainty and risk blind spots. This is advisory research, not an order. Start with exactly: CLASSIFICATION: SUPPORTS_REVIEW, CLASSIFICATION: WATCH_ONLY, or CLASSIFICATION: NO_SUPPORT.")
