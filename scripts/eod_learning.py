@@ -164,6 +164,13 @@ def external_misses(movers: dict, reconstruction: dict, evaluated_symbols: set[s
 def analyze(day: str, ledgers: list[dict]) -> dict:
     ledger_misses, reason_counts, realized_candidates = analyze_ledger(day, ledgers)
     evaluated_symbols = {str(c.get("symbol")) for l in ledgers for c in l.get("candidates", []) if c.get("symbol")}
+    paper_orders_submitted = sum(
+        1
+        for ledger in ledgers
+        for candidate in ledger.get("candidates", [])
+        if bool(candidate.get("execution", {}).get("order_submitted"))
+    )
+    review_candidates = sum(int(ledger.get("review_candidates", 0) or 0) for ledger in ledgers)
     movers = load_external_movers()
     reconstruction = load_reconstruction()
     market_misses = external_misses(movers, reconstruction, evaluated_symbols)
@@ -194,6 +201,14 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
         "intraday_reconstruction_status": reconstruction.get("status"),
         "external_movers_with_reconstructed_setup": reconstructed_setups,
         "profitable_forward_moves_in_ledger": realized_candidates,
+        "paper_orders_submitted": paper_orders_submitted,
+        "review_candidates_seen": review_candidates,
+        "no_trade_day": bool(ledgers) and paper_orders_submitted == 0,
+        "no_trade_day_explanation": (
+            "No paper order was submitted during the trading day; EOD analysis still scans broad-market movers and reconstructs candidate setups."
+            if ledgers and paper_orders_submitted == 0
+            else "Paper orders were submitted or no usable intraday ledger exists."
+        ),
         "missed_opportunities": all_misses,
         "general_patterns": patterns,
         "threshold_pct": THRESHOLD,
