@@ -43,7 +43,11 @@ def main():
     state.setdefault("cash",CAPITAL); state.setdefault("positions",{}); state.setdefault("realized_pnl",0.0); state.setdefault("trades",[])
     events=[]
     quote_map={str(s.get("symbol")):s for s in snapshot.get("stocks",[]) if s.get("symbol")}
-    ist=datetime.now(ZoneInfo("Asia/Kolkata"))
+    test_clock=os.getenv("PAPER_ENGINE_TEST_TIME_IST")
+    if test_clock:
+        ist=datetime.strptime(test_clock, "%Y-%m-%d %H:%M").replace(tzinfo=ZoneInfo("Asia/Kolkata"))
+    else:
+        ist=datetime.now(ZoneInfo("Asia/Kolkata"))
     market_minutes=ist.hour*60+ist.minute
     eod_exit=ist.weekday()<5 and market_minutes>=15*60+29
     entry_allowed=ist.weekday()<5 and 9*60+15<=market_minutes<15*60+25
