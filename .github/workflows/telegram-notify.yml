@@ -2,8 +2,9 @@ name: MyTradeAnalysis Telegram Notifications
 
 on:
   schedule:
-    - cron: '45 3 * * 1-5'
-    - cron: '0 4 * * 1-5'
+    - cron: '45 3 * * 1-5' # 09:15 IST
+    - cron: '0 4 * * 1-5'  # 09:30 IST
+    - cron: '5 10 * * 1-5' # 15:35 IST EOD
   workflow_dispatch:
     inputs:
       event:
@@ -21,19 +22,48 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Build notification
+        id: message
+        shell: bash
+        env:
+          EVENT_INPUT: ${{ inputs.event }}
+        run: |
+          set -euo pipefail
+          event="${EVENT_INPUT:-AUTO}"
+          if [ "$event" = "AUTO" ]; then
+            hour=$(TZ=Asia/Kolkata date +%H)
+            minute=$(TZ=Asia/Kolkata date +%M)
+            if [ "$hour" = "09" ] && [ "$minute" = "15" ]; then event="OPEN"; fi
+            if [ "$hour" = "09" ] && [ "$minute" = "30" ]; then event="CHECKPOINT"; fi
+            if [ "$hour" = "15" ]; then event="EOD"; fi
+          fi
+          status=$(jq -r '.status // "UNKNOWN"' public/data/market_snapshot.json 2>/dev/null || echo UNKNOWN)
+          regime=$(jq -r '.market_regime.status // "—"' data/ledger/*/*.json 2>/dev/null | tail -1 || echo —)
+          council=$(jq -r '.status // "—"' public/data/ai_research_council.json 2>/dev/null || echo —)
+          scrap=$(jq -r '.status // "—"' public/data/scrap_analysis.json 2>/dev/null || echo —)
+          count=$(jq '.stocks | length' public/data/market_snapshot.json 2>/dev/null || echo 0)
+          cat > message.txt <<EOF
+          🤖 MyTradeAnalysis — Paper Trading
+          🕒 $(TZ=Asia/Kolkata date '+%d-%b-%Y %H:%M IST')
+          📌 $event
+          📡 Market data: $status
+          🏛 Regime: $regime
+          📊 Stocks observed: $count
+          🔎 SCRAP: $scrap
+          🧠 AI Council: $council
+          🔒 Live trading: OFF
+          ❤️ Heartbeat/watchdog: enabled
+          EOF
+          { printf 'message<<EOF\n'; cat message.txt; printf '\nEOF\n'; } >> "$GITHUB_OUTPUT"
+
       - name: Send Telegram notification
         if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != '' }}
         uses: appleboy/telegram-action@v1.0.1
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
           token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          message: |
-            🤖 MyTradeAnalysis — Paper Trading
-            🕒 Scheduled market-session notification
-            📊 Paper mode is active.
-            🔒 Live trading: OFF
-            ❤️ Heartbeat/watchdog: enabled
-            🧠 OpenAI + Anthropic council: configured
-            🔎 SCRAP analysis: enabled
-            📋 EOD reverse-engineering: enabled
-            Event: ${{ inputs.event || 'MARKET_SESSION' }}
+          message: ${{ steps.message.outputs.message }}
+
+      - name: Telegram not configured
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN == '' || secrets.TELEGRAM_CHAT_ID == '' }}
+        run: echo 'Telegram notification skipped because TELEGRAM_BOT_TOKEN and/or TELEGRAM_CHAT_ID is not configured.'
