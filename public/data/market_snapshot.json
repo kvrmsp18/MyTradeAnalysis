@@ -1,77 +1,77 @@
 {
   "status": "LIVE_MARKET_DATA_FALLBACK",
-  "timestamp": "2026-09-29T04:10:24.216797Z",
+  "timestamp": "2026-09-29T04:14:47.737925Z",
   "source": "Yahoo Finance chart feed",
   "reason": {
-    "dhan_error": "HTTP Error 401: Unauthorized",
+    "dhan_error": "DHAN_ACCESS_TOKEN: HTTP Error 401: Unauthorized",
     "fallback_errors": []
   },
   "paper_only": true,
   "stocks": [
     {
       "symbol": "RELIANCE",
-      "price": 1183.8,
-      "change": -1.15,
+      "price": 1187.0,
+      "change": -0.89,
       "open": null,
       "high": 1198.3,
       "low": 1181.8,
       "prev_close": 1197.6,
-      "volume": 2501821,
+      "volume": 3014116,
       "security_id": null
     },
     {
       "symbol": "HDFCBANK",
-      "price": 706.6,
-      "change": -1.73,
+      "price": 708.0,
+      "change": -1.54,
       "open": null,
       "high": 715.9,
       "low": 706.25,
       "prev_close": 719.05,
-      "volume": 6090098,
+      "volume": 7494716,
       "security_id": null
     },
     {
       "symbol": "INFY",
-      "price": 988.8,
-      "change": -1.44,
+      "price": 991.1,
+      "change": -1.21,
       "open": null,
       "high": 1004.8,
       "low": 988.0,
       "prev_close": 1003.2,
-      "volume": 1270860,
+      "volume": 1397492,
       "security_id": null
     },
     {
       "symbol": "TCS",
-      "price": 2053.8,
-      "change": -0.82,
+      "price": 2056.0,
+      "change": -0.71,
       "open": null,
       "high": 2085.1,
       "low": 2052.7,
       "prev_close": 2070.7,
-      "volume": 329511,
+      "volume": 351705,
       "security_id": null
     },
     {
       "symbol": "SUNPHARMA",
-      "price": 1846.5,
-      "change": 0.46,
+      "price": 1847.2,
+      "change": 0.5,
       "open": null,
       "high": 1862.3,
       "low": 1841.1,
       "prev_close": 1838.0,
-      "volume": 326474,
+      "volume": 346054,
       "security_id": null
     },
     {
       "symbol": "M&M",
-      "price": 2965.0,
-      "change": -1.0,
+      "price": 2971.6,
+      "change": -0.78,
       "open": null,
       "high": 2989.8,
       "low": 2958.2,
       "prev_close": 2995.0,
-      "volume": 211133,
+      "volume": 233560,
       "security_id": null
     }
   ]
