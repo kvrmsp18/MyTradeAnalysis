@@ -74,8 +74,6 @@ jobs:
           PAPER_TARGET_PCT: '2.0'
           PAPER_STOP_PCT: '1.0'
           PAPER_MAX_POSITIONS: '2'
-          PAPER_FUNDS_STATUS: ${{ env.PAPER_FUNDS_STATUS }}
-          PAPER_AVAILABLE_CAPITAL: ${{ env.PAPER_AVAILABLE_CAPITAL }}
         run: python scripts/paper_executor.py
 
       - name: Commit market snapshot, SCRAP analysis, council, ledger and paper state
