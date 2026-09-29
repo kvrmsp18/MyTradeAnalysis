@@ -69,6 +69,7 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          mkdir -p data/paper/events
           git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json data/ledger data/paper
           if git diff --cached --quiet; then
             echo 'No data changes to commit.'
