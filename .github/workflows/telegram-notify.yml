@@ -38,7 +38,8 @@ jobs:
             if [ "$hour" = "15" ]; then event="EOD"; fi
           fi
           status=$(jq -r '.status // "UNKNOWN"' public/data/market_snapshot.json 2>/dev/null || echo UNKNOWN)
-          regime=$(jq -r '.market_regime.status // "—"' data/ledger/*/*.json 2>/dev/null | tail -1 || echo —)
+          latest=$(find data/ledger -type f -name '*.json' | sort | tail -1 || true)
+          if [ -n "$latest" ]; then regime=$(jq -r '.market_regime.status // "—"' "$latest" 2>/dev/null || echo —); else regime='—'; fi
           council=$(jq -r '.status // "—"' public/data/ai_research_council.json 2>/dev/null || echo —)
           scrap=$(jq -r '.status // "—"' public/data/scrap_analysis.json 2>/dev/null || echo —)
           count=$(jq '.stocks | length' public/data/market_snapshot.json 2>/dev/null || echo 0)
@@ -57,7 +58,10 @@ jobs:
           { printf 'message<<EOF\n'; cat message.txt; printf '\nEOF\n'; } >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram notification
-        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
         uses: appleboy/telegram-action@v1.0.1
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -65,5 +69,8 @@ jobs:
           message: ${{ steps.message.outputs.message }}
 
       - name: Telegram not configured
-        if: ${{ secrets.TELEGRAM_BOT_TOKEN == '' || secrets.TELEGRAM_CHAT_ID == '' }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        if: ${{ env.TELEGRAM_BOT_TOKEN == '' || env.TELEGRAM_CHAT_ID == '' }}
         run: echo 'Telegram notification skipped because TELEGRAM_BOT_TOKEN and/or TELEGRAM_CHAT_ID is not configured.'
