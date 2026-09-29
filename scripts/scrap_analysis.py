@@ -289,7 +289,7 @@ def main():
             symbol = quote.get("symbol")
             try:
                 candles = []
-                if quote.get("security_id") and snapshot.get("status") == "LIVE_MARKET_DATA":
+                if quote.get("security_id") and snapshot.get("status") in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE"):
                     try:
                         candles = fetch_history(token, client_id, quote.get("security_id"), str(from_date), str(to_date))
                     except Exception:
