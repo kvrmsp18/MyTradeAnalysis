@@ -75,34 +75,25 @@ def yahoo_fallback():
     if not rows: raise RuntimeError("Yahoo fallback failed: "+"; ".join(errors))
     return rows, errors
 def main():
-    client_id=os.getenv("DHAN_CLIENT_ID")
-    candidates=[]
-    seen=set()
-    for name in ("DHAN_ACCESS_TOKEN","DHAN_API_KEY"):
-        value=os.getenv(name)
-        if value and value not in seen:
-            candidates.append((name,value))
-            seen.add(value)
-    dhan_errors=[]
-    if client_id and candidates:
+    client_id=(os.getenv("DHAN_CLIENT_ID") or "").strip()
+    token=(os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
+    dhan_error=None
+    if client_id and token:
         try:
             ids=resolve_ids()
             body=json.dumps({"NSE_EQ":[int(v) for v in ids.values()]}).encode()
-            for credential_name, token in candidates:
-                try:
-                    payload=json.loads(fetch(MARKETFEED_URL,{"access-token":token,"client-id":client_id,"Content-Type":"application/json","Accept":"application/json"},body).decode("utf-8"))
-                    rows=normalise_dhan(payload,ids)
-                    if rows:
-                        write_report("LIVE_MARKET_DATA","Dhan market feed",{"credential_used":credential_name,"credentials_tried":len(candidates)},rows)
-                        return 0
-                    dhan_errors.append(f"{credential_name}: Dhan returned no usable NSE equity quotes")
-                except Exception as exc:
-                    dhan_errors.append(f"{credential_name}: {exc}")
+            payload=json.loads(fetch(MARKETFEED_URL,{"access-token":token,"client-id":client_id,"Content-Type":"application/json","Accept":"application/json"},body).decode("utf-8"))
+            rows=normalise_dhan(payload,ids)
+            if rows:
+                write_report("LIVE_MARKET_DATA","Dhan market feed",{"credential":"DHAN_ACCESS_TOKEN"},rows)
+                return 0
+            dhan_error="Dhan returned no usable NSE equity quotes."
         except Exception as exc:
-            dhan_errors.append(f"instrument-resolution: {exc}")
+            dhan_error=str(exc)
+    elif not client_id:
+        dhan_error="DHAN_CLIENT_ID is not configured."
     else:
-        dhan_errors.append("Dhan credentials are not configured.")
-    dhan_error="; ".join(dhan_errors)
+        dhan_error="DHAN_ACCESS_TOKEN is not configured."
     try:
         rows,errors=yahoo_fallback()
         reason={"dhan_error":dhan_error,"fallback_errors":errors}
