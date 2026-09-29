@@ -39,6 +39,9 @@ jobs:
               'scripts/eod_learning.py': ['stock_specific_rules_allowed', 'automatic_strategy_mutation'],
               'scripts/eod_intraday_reconstruction.py': ['paper_only', 'automatic_strategy_mutation'],
               'scripts/eod_market_opportunities.py': ['paper_only'],
+              'scripts/paper_executor.py': ['PAPER_SIMULATED_FILL', 'live_orders_enabled', 'EOD_EXIT', 'STOP_LOSS'],
+              'scripts/paper_engine_self_test.py': ['PAPER ENGINE SELF-TEST: PASS', 'realized_pnl'],
+              '.github/workflows/paper-trade-alerts.yml': ['Paper Market Cycle', 'BUY/SELL', 'TELEGRAM_BOT_TOKEN'],
               '.github/workflows/paper-cycle.yml': [
                   'ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'ANTHROPIC_MODEL',
                   'scrap_analysis.py', 'ai_research_council.py'
