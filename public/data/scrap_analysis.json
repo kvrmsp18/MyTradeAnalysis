@@ -1,6 +1,6 @@
 {
   "status": "LIVE_TECHNICAL_DATA",
-  "timestamp": "2026-09-29T04:14:47.821179Z",
+  "timestamp": "2026-09-29T04:49:06.372017Z",
   "source": "Dhan historical candles + deterministic technical calculations",
   "paper_only": true,
   "stock_specific_rule_created": false,
@@ -8,16 +8,16 @@
     {
       "symbol": "RELIANCE",
       "status": "OK",
-      "candle_count": 1582,
+      "candle_count": 1589,
       "indicators": {
-        "ema9": 1189.999,
-        "ema20": 1194.2469,
-        "ema50": 1200.1778,
-        "rsi14": 21.49,
-        "atr14": 2.3546,
-        "atr_pct": 0.2,
+        "ema9": 1186.8949,
+        "ema20": 1190.1058,
+        "ema50": 1196.7188,
+        "rsi14": 28.35,
+        "atr14": 2.6308,
+        "atr_pct": 0.22,
         "volume_ratio_20": 0.0,
-        "high20": 1200.5999755859375,
+        "high20": 1199.5,
         "low20": 1182.300048828125
       },
       "components": {
@@ -42,16 +42,16 @@
     {
       "symbol": "HDFCBANK",
       "status": "OK",
-      "candle_count": 1582,
+      "candle_count": 1589,
       "indicators": {
-        "ema9": 710.6337,
-        "ema20": 714.1633,
-        "ema50": 718.2185,
-        "rsi14": 17.11,
-        "atr14": 1.3455,
-        "atr_pct": 0.19,
+        "ema9": 708.6818,
+        "ema20": 711.1388,
+        "ema50": 715.7578,
+        "rsi14": 20.68,
+        "atr14": 1.5385,
+        "atr_pct": 0.22,
         "volume_ratio_20": 0.0,
-        "high20": 720.6500244140625,
+        "high20": 720.5,
         "low20": 706.25
       },
       "components": {
@@ -76,17 +76,17 @@
     {
       "symbol": "INFY",
       "status": "OK",
-      "candle_count": 1582,
+      "candle_count": 1589,
       "indicators": {
-        "ema9": 994.0722,
-        "ema20": 997.7573,
-        "ema50": 999.4919,
-        "rsi14": 32.5,
-        "atr14": 2.7818,
-        "atr_pct": 0.28,
+        "ema9": 989.294,
+        "ema20": 992.7875,
+        "ema50": 996.6328,
+        "rsi14": 26.89,
+        "atr14": 2.9769,
+        "atr_pct": 0.3,
         "volume_ratio_20": 0.0,
-        "high20": 1005.5999755859375,
-        "low20": 988.0
+        "high20": 1005.2999877929688,
+        "low20": 983.0999755859375
       },
       "components": {
         "structure": 0,
@@ -110,17 +110,17 @@
     {
       "symbol": "TCS",
       "status": "OK",
-      "candle_count": 1582,
+      "candle_count": 1589,
       "indicators": {
-        "ema9": 2060.8299,
-        "ema20": 2066.8381,
-        "ema50": 2071.2353,
-        "rsi14": 24.04,
-        "atr14": 3.9,
+        "ema9": 2056.4812,
+        "ema20": 2061.0885,
+        "ema50": 2067.383,
+        "rsi14": 27.27,
+        "atr14": 4.0,
         "atr_pct": 0.19,
         "volume_ratio_20": 0.0,
         "high20": 2084.699951171875,
-        "low20": 2053.0
+        "low20": 2050.0
       },
       "components": {
         "structure": 0,
@@ -144,30 +144,30 @@
     {
       "symbol": "SUNPHARMA",
       "status": "OK",
-      "candle_count": 1582,
+      "candle_count": 1589,
       "indicators": {
-        "ema9": 1846.7897,
-        "ema20": 1846.7935,
-        "ema50": 1846.3173,
-        "rsi14": 51.65,
-        "atr14": 5.25,
-        "atr_pct": 0.28,
+        "ema9": 1846.4823,
+        "ema20": 1846.3436,
+        "ema50": 1846.1544,
+        "rsi14": 62.18,
+        "atr14": 5.3154,
+        "atr_pct": 0.29,
         "volume_ratio_20": 0.0,
         "high20": 1858.9000244140625,
         "low20": 1838.0
       },
       "components": {
-        "structure": 2,
+        "structure": 3,
         "confirmation": 2,
         "relative_strength": 2,
-        "actionability": 0,
+        "actionability": 1,
         "protection": 3
       },
-      "score": 56.2,
+      "score": 68.8,
       "action": "WATCH",
       "reasons": [
         "price_above_ema20",
-        "ema9_not_above_ema20",
+        "ema9_above_ema20",
         "volume_not_confirmed",
         "not_near_20d_high"
       ],
@@ -178,17 +178,17 @@
     {
       "symbol": "M&M",
       "status": "OK",
-      "candle_count": 1582,
+      "candle_count": 1589,
       "indicators": {
-        "ema9": 2974.7353,
-        "ema20": 2980.2944,
-        "ema50": 2986.3582,
-        "rsi14": 39.94,
-        "atr14": 5.5364,
-        "atr_pct": 0.19,
+        "ema9": 2963.1404,
+        "ema20": 2970.4819,
+        "ema50": 2980.2118,
+        "rsi14": 20.87,
+        "atr14": 6.1077,
+        "atr_pct": 0.21,
         "volume_ratio_20": 0.0,
-        "high20": 2998.0,
-        "low20": 2960.300048828125
+        "high20": 2997.5,
+        "low20": 2956.0
       },
       "components": {
         "structure": 0,
