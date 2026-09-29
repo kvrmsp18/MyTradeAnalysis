@@ -1,0 +1,65 @@
+name: AI Development Council
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ai-development-council
+  cancel-in-progress: true
+
+jobs:
+  council:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 2
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Install frontend dependencies
+        run: npm install
+
+      - name: Build GUI and capture evidence
+        id: gui_build
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts
+          set +e
+          npm run build 2>&1 | tee artifacts/build.log
+          status=${PIPESTATUS[0]}
+          echo "GUI_BUILD_EXIT=$status" >> artifacts/build.log
+          exit $status
+
+      - name: Run mandatory OpenAI + Anthropic development council
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+        run: python scripts/ai_development_council.py
+
+      - name: Upload AI development council report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-development-council
+          path: artifacts/
+
+      - name: Enforce GUI build success
+        if: steps.gui_build.outcome != 'success'
+        run: exit 1
