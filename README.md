@@ -98,6 +98,21 @@ This is a hard requirement. A profitable outcome for one stock must **never** cr
 
 EOD analysis may propose a **general** optimization, but it must be tested/backtested and validated before activation. The current EOD report does **not** modify the active strategy automatically.
 
+
+## Telegram notifications
+
+Telegram notification workflow is implemented for:
+- 09:15 IST market-open status
+- 09:30 IST checkpoint
+- 15:35 IST end-of-day status
+- Manual workflow dispatch for testing
+
+Configure these GitHub repository **secrets** before expecting Telegram delivery:
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+
+Telegram is notification-only. It cannot place, modify, or cancel trades. If the two secrets are absent, the workflow completes without sending a message.
+
 ## Free paper deployment direction
 
 The target architecture is **GitHub + free-tier cloud + browser/PWA**. You do not need a VPS or a laptop running continuously for the current paper-only phase.
