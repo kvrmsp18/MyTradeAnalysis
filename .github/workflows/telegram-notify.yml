@@ -2,10 +2,8 @@ name: MyTradeAnalysis Telegram Notifications
 
 on:
   schedule:
-    - cron: '45 3 * * 1-5' # 09:15 IST
-    - cron: '0 4 * * 1-5'  # 09:30 IST
-    - cron: '5 10 * * 1-5' # 15:35 IST market checkpoint
-    - cron: '5 11 * * 1-5' # 16:05 IST EOD post-mortem, after EOD learning
+    - cron: '20 3 * * 1-5' # 08:50 IST pre-market readiness
+    - cron: '5 11 * * 1-5' # 16:05 IST EOD post-mortem
   workflow_dispatch:
     inputs:
       event:
@@ -34,13 +32,16 @@ jobs:
           if [ "$event" = "AUTO" ]; then
             hour=$(TZ=Asia/Kolkata date +%H)
             minute=$(TZ=Asia/Kolkata date +%M)
-            if [ "$hour" = "09" ] && [ "$minute" = "15" ]; then event="OPEN"; fi
-            if [ "$hour" = "09" ] && [ "$minute" = "30" ]; then event="CHECKPOINT"; fi
-            if [ "$hour" = "15" ] && [ "$minute" = "35" ]; then event="MARKET_CHECKPOINT"; fi
+            if [ "$hour" = "08" ] && [ "$minute" = "50" ]; then event="PREMARKET"; fi
             if [ "$hour" = "16" ] && [ "$minute" = "05" ]; then event="EOD_POST_MORTEM"; fi
           fi
 
           status=$(jq -r '.status // "UNKNOWN"' public/data/market_snapshot.json 2>/dev/null || echo UNKNOWN)
+          premarket_status=$(jq -r '.status // "NOT_RUN"' public/data/premarket_report.json 2>/dev/null || echo NOT_RUN)
+          dhan_funds_status=$(jq -r '.dhan_funds_read_only.status // "UNAVAILABLE"' public/data/premarket_report.json 2>/dev/null || echo UNAVAILABLE)
+          dhan_available=$(jq -r '.dhan_funds_read_only.available_balance // "—"' public/data/premarket_report.json 2>/dev/null || echo —)
+          paper_capital=$(jq -r '.paper_reference_capital // 1000' public/data/premarket_report.json 2>/dev/null || echo 1000)
+          watchlist=$(jq -r '[.suggested_watchlist[]? | "\(.symbol) \(.watch_score)"] | join(", ")' public/data/premarket_report.json 2>/dev/null || echo "—")
           latest=$(find data/ledger -type f -name '*.json' | sort | tail -1 || true)
           if [ -n "$latest" ]; then
             regime=$(jq -r '.market_regime.status // "—"' "$latest" 2>/dev/null || echo —)
@@ -78,6 +79,10 @@ jobs:
           🕒 $(TZ=Asia/Kolkata date '+%d-%b-%Y %H:%M IST')
           📌 $event
           📡 Market data: $status
+          💰 Dhan funds (read-only): $dhan_funds_status / $dhan_available
+          🪙 Paper capital: ₹$paper_capital
+          🧭 Pre-market readiness: $premarket_status
+          📌 Suggested watchlist: $watchlist
           🏛 Regime: $regime
           📊 Stocks observed: $count
 
