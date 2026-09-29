@@ -76,6 +76,29 @@ def nse_quote(opener,symbol):
     if price is None: raise RuntimeError("NSE quote missing lastPrice")
     pi=data.get("priceInfo",{})
     return {"symbol":symbol,"price":float(price),"change":float(pi.get("pChange") or 0),"open":pi.get("open"),"high":pi.get("intraDayHighLow",{}).get("max"),"low":pi.get("intraDayHighLow",{}).get("min"),"prev_close":pi.get("previousClose"),"volume":data.get("marketDeptOrderBook",{}).get("tradeInfo",{}).get("totalTradedVolume"),"security_id":None}
+def nse_proxy_quote(symbol):
+    # Cloud runners can receive NSE's anti-bot 403. Use a public fetch proxy only
+    # to retrieve the NSE India URL; the underlying source remains NSE India.
+    target="https://www.nseindia.com/api/quote-equity?symbol="+urllib.parse.quote(symbol)
+    proxy="https://r.jina.ai/"+target
+    req=urllib.request.Request(proxy,headers={"User-Agent":"Mozilla/5.0","Accept":"application/json"})
+    with urllib.request.urlopen(req,timeout=30) as response:
+        raw=response.read().decode("utf-8","replace").strip()
+    data=json.loads(raw)
+    if not isinstance(data,dict): raise RuntimeError("NSE proxy returned non-object")
+    pi=data.get("priceInfo",{})
+    price=pi.get("lastPrice")
+    if price is None: raise RuntimeError("NSE proxy quote missing lastPrice")
+    return {"symbol":symbol,"price":float(price),"change":float(pi.get("pChange") or 0),"open":pi.get("open"),"high":pi.get("intraDayHighLow",{}).get("max"),"low":pi.get("intraDayHighLow",{}).get("min"),"prev_close":pi.get("previousClose"),"volume":data.get("marketDeptOrderBook",{}).get("tradeInfo",{}).get("totalTradedVolume"),"security_id":None}
+
+def nse_proxy_fallback():
+    rows=[]; errors=[]
+    for symbol in SYMBOLS:
+        try: rows.append(nse_proxy_quote(symbol))
+        except Exception as exc: errors.append(f"{symbol}: {exc}")
+    if not rows: raise RuntimeError("NSE proxy fallback failed: "+"; ".join(errors))
+    return rows,errors
+
 def nse_fallback():
     opener=nse_session(); rows=[]; errors=[]
     for symbol in SYMBOLS:
@@ -131,10 +154,17 @@ def main():
         return 0
     except Exception as nse_exc:
         try:
-            rows,errors=yahoo_fallback()
-            reason={"dhan_error":dhan_error,"nse_error":str(nse_exc),"fallback_errors":errors}
+            rows,errors=nse_proxy_fallback()
+            reason={"dhan_error":dhan_error,"direct_nse_error":str(nse_exc),"fallback_errors":errors}
+            write_report("LIVE_MARKET_DATA_NSE_PROXY","NSE India via public fetch proxy",reason,rows)
+            print(f"Using NSE India via proxy because direct NSE access was unavailable: {nse_exc}")
+            return 0
+        except Exception as nse_proxy_exc:
+            try:
+                rows,errors=yahoo_fallback()
+            reason={"dhan_error":dhan_error,"nse_error":str(nse_exc),"nse_proxy_error":str(nse_proxy_exc),"fallback_errors":errors}
             write_report("LIVE_MARKET_DATA_FALLBACK","Yahoo Finance chart feed",reason,rows)
-            print(f"Using Yahoo fallback because Dhan and NSE were unavailable: {dhan_error}; NSE={nse_exc}")
+            print(f"Using Yahoo fallback because Dhan and NSE were unavailable: {dhan_error}; NSE={nse_exc}; proxy={nse_proxy_exc}")
             return 0
         except Exception as exc:
             write_report("DATA_UNAVAILABLE","none",{"dhan_error":dhan_error,"nse_error":str(nse_exc),"fallback_error":str(exc)},[])
