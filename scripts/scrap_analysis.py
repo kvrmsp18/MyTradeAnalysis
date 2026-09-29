@@ -267,15 +267,8 @@ def main():
     if not SNAPSHOT.exists():
         raise SystemExit("Market snapshot is missing")
     snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
-    tokens = []
-    seen_tokens = set()
-    for name in ("DHAN_ACCESS_TOKEN","DHAN_API_KEY"):
-        value = os.getenv(name)
-        if value and value not in seen_tokens:
-            tokens.append((name, value))
-            seen_tokens.add(value)
-    token = tokens[0][1] if tokens else None
-    client_id = os.getenv("DHAN_CLIENT_ID")
+    token = (os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
+    client_id = (os.getenv("DHAN_CLIENT_ID") or "").strip()
     result = {
         "status": "UNAVAILABLE",
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
@@ -297,13 +290,10 @@ def main():
             try:
                 candles = []
                 if quote.get("security_id") and snapshot.get("status") == "LIVE_MARKET_DATA":
-                    for _, candidate_token in tokens:
-                        try:
-                            candles = fetch_history(candidate_token, client_id, quote.get("security_id"), str(from_date), str(to_date))
-                            if candles:
-                                break
-                        except Exception:
-                            continue
+                    try:
+                        candles = fetch_history(token, client_id, quote.get("security_id"), str(from_date), str(to_date))
+                    except Exception:
+                        candles = []
                 if not candles:
                     candles = fetch_yahoo_history(symbol)
                 row = analyse(symbol, quote, candles)
