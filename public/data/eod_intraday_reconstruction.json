@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.1",
+  "status": "PENDING",
+  "generated_at": "2026-09-29T16:33:23.215833Z",
+  "paper_only": true,
+  "stock_specific_rules_allowed": false,
+  "automatic_strategy_mutation": false,
+  "interval_minutes": 5,
+  "rows": [],
+  "reason": "EOD opportunity scan is not ready."
+}

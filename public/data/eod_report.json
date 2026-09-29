@@ -1,8 +1,353 @@
 {
-  "status": "NOT_READY",
-  "timestamp": null,
-  "profitable_moves": 0,
-  "missed_opportunities": [],
-  "general_patterns": [],
-  "message": "EOD reverse-engineering report will populate after the first complete paper-trading session with persisted decision-time evidence."
+  "schema_version": "2.1",
+  "status": "READY",
+  "generated_at": "2026-09-29T16:33:23.269749Z",
+  "trading_day_utc": "2026-09-29",
+  "source_ledger_count": 9,
+  "evaluated_symbol_count": 6,
+  "broad_market_scan_status": "DATA_UNAVAILABLE",
+  "broad_market_mover_count": 0,
+  "intraday_reconstruction_status": "PENDING",
+  "external_movers_with_reconstructed_setup": 0,
+  "profitable_forward_moves_in_ledger": 15,
+  "paper_orders_submitted": 0,
+  "review_candidates_seen": 7,
+  "no_trade_day": true,
+  "no_trade_day_explanation": "No paper order was submitted during the trading day; EOD analysis still scans broad-market movers and reconstructs candidate setups.",
+  "missed_opportunities": [
+    {
+      "source": "paper_observation",
+      "symbol": "SUNPHARMA",
+      "decision_timestamp": "2026-09-29T04:10:25.470624Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 1846.5,
+      "best_observed_future_price": 1865.0,
+      "best_forward_return_pct": 1.002,
+      "generalized_factors": [
+        "positive_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:09:39.355920Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 989.1,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.659,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:10:25.470624Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 988.8,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.69,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:14:48.491992Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 991.1,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.452,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:49:07.027662Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 987.9,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.784,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:51:36.182148Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 987.9,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.784,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:54:55.339361Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 988.1,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.763,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "INFY",
+      "decision_timestamp": "2026-09-29T04:56:42.373248Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 988.9,
+      "best_observed_future_price": 1015.4,
+      "best_forward_return_pct": 2.68,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:09:39.355920Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 706.7,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.264,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:10:25.470624Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 706.6,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.279,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:14:48.491992Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 708.0,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.076,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:49:07.027662Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 707.85,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.098,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:51:36.182148Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 707.4,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.163,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:54:55.339361Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 707.6,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.134,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    },
+    {
+      "source": "paper_observation",
+      "symbol": "HDFCBANK",
+      "decision_timestamp": "2026-09-29T04:56:42.373248Z",
+      "decision": "OBSERVE",
+      "reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "decision_price": 707.5,
+      "best_observed_future_price": 722.7,
+      "best_forward_return_pct": 2.148,
+      "generalized_factors": [
+        "negative_session_change",
+        "lower_range_position",
+        "scrap_observe",
+        "technical_scrap_below_threshold",
+        "strategy_framework_mixed_or_review"
+      ],
+      "reconstruction": {
+        "status": "NOT_APPLICABLE",
+        "note": "Symbol was already evaluated; paper decision evidence is the primary source."
+      }
+    }
+  ],
+  "general_patterns": [
+    {
+      "pattern": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "occurrences": 15,
+      "action": "Review the generalized universe/threshold/feature interaction across multiple symbols; do not create a symbol-specific rule."
+    }
+  ],
+  "threshold_pct": 1.0,
+  "optimization_policy": {
+    "stock_specific_rules_allowed": false,
+    "automatic_strategy_mutation": false,
+    "required_next_step": "Validate generalized proposals on multiple days and out-of-sample data before activation."
+  },
+  "limitations": [
+    "An EOD move alone is not proof that an executable trade existed at the decision price.",
+    "A reconstructed setup is a historical heuristic and is not a trade authorization.",
+    "The broad-market scan currently reconstructs only the configured top movers, not every NSE symbol.",
+    "The report never automatically changes strategy code."
+  ]
 }

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.1",
+  "status": "DATA_UNAVAILABLE",
+  "generated_at": "2026-09-29T16:33:23.133601Z",
+  "source": "Dhan NSE equity LTP feed",
+  "paper_only": true,
+  "min_move_pct": 2.0,
+  "top_n": 50,
+  "universe_count": 0,
+  "stocks": [],
+  "intraday_reconstruction": {
+    "status": "PENDING",
+    "required_source": "Dhan historical 5-minute candles",
+    "purpose": "Reconstruct decision-time SCRAP/strategy evidence for discovered movers.",
+    "stock_specific_rules_allowed": false
+  },
+  "reason": "HTTP Error 401: Unauthorized"
+}
