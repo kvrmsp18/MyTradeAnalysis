@@ -3,6 +3,7 @@
 from __future__ import annotations
 import json, os
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 LEDGER_ROOT=Path("data/ledger")
@@ -42,19 +43,27 @@ def main():
     state.setdefault("cash",CAPITAL); state.setdefault("positions",{}); state.setdefault("realized_pnl",0.0); state.setdefault("trades",[])
     events=[]
     quote_map={str(s.get("symbol")):s for s in snapshot.get("stocks",[]) if s.get("symbol")}
+    ist=datetime.now(ZoneInfo("Asia/Kolkata"))
+    market_minutes=ist.hour*60+ist.minute
+    eod_exit=ist.weekday()<5 and market_minutes>=15*60+29
+    entry_allowed=ist.weekday()<5 and 9*60+15<=market_minutes<15*60+25
+
     for symbol,pos in list(state["positions"].items()):
         q=quote_map.get(symbol); p=price({"quote":q}) if q else None
         if p is None: continue
         entry=float(pos["entry_price"]); qty=int(pos["quantity"]); ret=(p-entry)/entry*100
-        reason="TARGET" if ret>=TARGET_PCT else ("STOP_LOSS" if ret<=-STOP_PCT else None)
+        reason="EOD_EXIT" if eod_exit else ("TARGET" if ret>=TARGET_PCT else ("STOP_LOSS" if ret<=-STOP_PCT else None))
         if reason:
             proceeds=p*qty; pnl=(p-entry)*qty
             state["cash"]=round(state["cash"]+proceeds,2); state["realized_pnl"]=round(state["realized_pnl"]+pnl,2)
             trade={"side":"SELL","symbol":symbol,"quantity":qty,"price":p,"entry_price":entry,"pnl":round(pnl,2),"reason":reason,"timestamp":now()}
             state["trades"].append(trade); del state["positions"][symbol]; events.append(trade)
     open_count=len(state["positions"]); position_value_cap=state["cash"]*MAX_POS_PCT/100
-    candidates=[c for c in ledger.get("candidates",[]) if c.get("decision")=="REVIEW" and c.get("features",{}).get("score",0)>=65]
-    candidates.sort(key=lambda c:c.get("ranking",9999))
+    if not entry_allowed:
+        candidates=[]
+    else:
+        candidates=[c for c in ledger.get("candidates",[]) if c.get("decision")=="REVIEW" and c.get("features",{}).get("score",0)>=65]
+        candidates.sort(key=lambda c:c.get("ranking",9999))
     for c in candidates:
         if open_count>=MAX_POSITIONS: break
         symbol=str(c.get("symbol")); p=price(c)
