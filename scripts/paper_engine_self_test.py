@@ -24,10 +24,11 @@ def main():
         }
         write(root/"data/ledger/2026-01-01/035000.json",base)
         write(root/"public/data/market_snapshot.json",{"status":"LIVE_MARKET_DATA","stocks":[{"symbol":"TEST","price":100}]})
-        os.environ.update({"PAPER_STARTING_CAPITAL":"1000","PAPER_MAX_POSITION_PCT":"20","PAPER_TARGET_PCT":"2","PAPER_STOP_PCT":"1","PAPER_MAX_POSITIONS":"2"})
+        os.environ.update({"PAPER_STARTING_CAPITAL":"1000","PAPER_MAX_POSITION_PCT":"20","PAPER_TARGET_PCT":"2","PAPER_STOP_PCT":"1","PAPER_MAX_POSITIONS":"2","PAPER_ENGINE_TEST_TIME_IST":"2026-01-01 10:00"})
         runpy.run_path(str(executor),run_name="__main__")
         state=json.loads((root/"data/paper/state.json").read_text())
         assert len(state["positions"])==1 and state["cash"]==900, state
+        os.environ["PAPER_ENGINE_TEST_TIME_IST"]="2026-01-01 10:05"
         base["timestamp"]="2026-01-01T03:55:00Z"
         base["candidates"][0]["quote"]["price"]=102
         write(root/"data/ledger/2026-01-01/035500.json",base)
