@@ -50,3 +50,33 @@ When the council is ready to run, configure GitHub Actions secrets:
 Model names should be supplied through repository variables or environment configuration rather than hard-coded into trading logic.
 
 The workflow must continue safely when either provider is unavailable: the missing provider is recorded as unavailable and no AI response is fabricated. If the required council quorum is not available, the AI layer cannot authorize a trade.
+
+## Software-development council
+
+The project has two separate AI-council responsibilities:
+
+1. Development Council — mandatory for application development
+   - OpenAI and Anthropic independently review every pushed code change.
+   - They receive the changed-code diff plus GUI build evidence.
+   - Each identifies defects, root causes, required complete-file changes and tests.
+   - Each then critiques the other model's review.
+   - OpenAI produces the final synthesis.
+   - The review is uploaded as a GitHub Actions artifact.
+   - If either provider or model configuration is missing, the development council is BLOCKED, not silently skipped.
+   - A failed GUI build keeps the workflow failed even if the AI review completes.
+
+2. Trading Research Council — mandatory for paper-market analysis
+   - OpenAI and Anthropic independently review decision-time market/SCRAP evidence.
+   - They cross-critique and reach an exact-agreement consensus.
+   - Disagreement or missing quorum becomes HOLD_FOR_REVIEW.
+   - This council cannot execute live orders.
+
+These are deliberately separate so that the AIs help build and audit the application itself as well as participate in the market-analysis pipeline.
+
+### Required GitHub configuration
+
+The development council requires:
+- Secrets: OPENAI_API_KEY, ANTHROPIC_API_KEY
+- Repository variables: OPENAI_MODEL, ANTHROPIC_MODEL
+
+Without those four values, the workflow will explicitly report that the AI development council is blocked. It will never pretend that OpenAI or Anthropic participated.
