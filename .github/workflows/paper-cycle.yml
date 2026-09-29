@@ -30,6 +30,12 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: Validate Dhan access token
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+        run: python scripts/dhan_auth_check.py
+
       - name: Collect Dhan market snapshot
         env:
           DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
