@@ -43,6 +43,11 @@ jobs:
           DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
         run: python scripts/market_snapshot.py
 
+      - name: Check available Dhan funds for paper-entry gating
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+        run: python scripts/paper_funds.py
       - name: Run deterministic technical SCRAP analysis
         env:
           DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
@@ -64,11 +69,13 @@ jobs:
 
       - name: Run deterministic paper execution engine
         env:
-          PAPER_STARTING_CAPITAL: '1000'
+          PAPER_STARTING_CAPITAL: '10000'
           PAPER_MAX_POSITION_PCT: '20'
           PAPER_TARGET_PCT: '2.0'
           PAPER_STOP_PCT: '1.0'
           PAPER_MAX_POSITIONS: '2'
+          PAPER_FUNDS_STATUS: ${{ env.PAPER_FUNDS_STATUS }}
+          PAPER_AVAILABLE_CAPITAL: ${{ env.PAPER_AVAILABLE_CAPITAL }}
         run: python scripts/paper_executor.py
 
       - name: Commit market snapshot, SCRAP analysis, council, ledger and paper state
