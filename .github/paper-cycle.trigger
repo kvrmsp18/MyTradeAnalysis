@@ -1,1 +1,1 @@
-Trigger paper market cycle for 2026-09-29 09:40 IST - executor fallback fix
+Trigger paper cycle: try DHAN_ACCESS_TOKEN and DHAN_API_KEY independently
