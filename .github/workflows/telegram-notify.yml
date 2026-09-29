@@ -1,0 +1,39 @@
+name: MyTradeAnalysis Telegram Notifications
+
+on:
+  schedule:
+    - cron: '45 3 * * 1-5'
+    - cron: '0 4 * * 1-5'
+  workflow_dispatch:
+    inputs:
+      event:
+        description: "Notification event"
+        required: false
+        default: "CHECKPOINT"
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Send Telegram notification
+        if: ${{ secrets.TELEGRAM_BOT_TOKEN != '' && secrets.TELEGRAM_CHAT_ID != '' }}
+        uses: appleboy/telegram-action@v1.0.1
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          message: |
+            🤖 MyTradeAnalysis — Paper Trading
+            🕒 Scheduled market-session notification
+            📊 Paper mode is active.
+            🔒 Live trading: OFF
+            ❤️ Heartbeat/watchdog: enabled
+            🧠 OpenAI + Anthropic council: configured
+            🔎 SCRAP analysis: enabled
+            📋 EOD reverse-engineering: enabled
+            Event: ${{ inputs.event || 'MARKET_SESSION' }}
