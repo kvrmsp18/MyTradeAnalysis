@@ -1,8 +1,8 @@
 {
-  "schema_version": "1.0",
-  "cash": 1000.0,
+  "schema_version": "1.1",
+  "cash": 10000.0,
   "positions": {},
   "realized_pnl": 0.0,
   "trades": [],
-  "last_processed_ledger": "data/ledger/2026-09-29/102954.json"
+  "last_processed_ledger": null
 }
