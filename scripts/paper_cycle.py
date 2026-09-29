@@ -296,7 +296,7 @@ def main() -> int:
             "execution": {
                 "mode": "PAPER",
                 "order_submitted": False,
-                "reason": "PAPER_EXECUTION_ENGINE_NOT_YET_ENABLED",
+                "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
             },
         })
 
