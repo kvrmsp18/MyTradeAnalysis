@@ -75,21 +75,34 @@ def yahoo_fallback():
     if not rows: raise RuntimeError("Yahoo fallback failed: "+"; ".join(errors))
     return rows, errors
 def main():
-    token=os.getenv("DHAN_ACCESS_TOKEN") or os.getenv("DHAN_API_KEY")
     client_id=os.getenv("DHAN_CLIENT_ID")
-    dhan_error=None
-    if token and client_id:
+    candidates=[]
+    seen=set()
+    for name in ("DHAN_ACCESS_TOKEN","DHAN_API_KEY"):
+        value=os.getenv(name)
+        if value and value not in seen:
+            candidates.append((name,value))
+            seen.add(value)
+    dhan_errors=[]
+    if client_id and candidates:
         try:
             ids=resolve_ids()
             body=json.dumps({"NSE_EQ":[int(v) for v in ids.values()]}).encode()
-            payload=json.loads(fetch(MARKETFEED_URL,{"access-token":token,"client-id":client_id,"Content-Type":"application/json","Accept":"application/json"},body).decode("utf-8"))
-            rows=normalise_dhan(payload,ids)
-            if rows:
-                write_report("LIVE_MARKET_DATA","Dhan market feed",None,rows); return 0
-            dhan_error="Dhan returned no usable NSE equity quotes."
-        except Exception as exc: dhan_error=str(exc)
+            for credential_name, token in candidates:
+                try:
+                    payload=json.loads(fetch(MARKETFEED_URL,{"access-token":token,"client-id":client_id,"Content-Type":"application/json","Accept":"application/json"},body).decode("utf-8"))
+                    rows=normalise_dhan(payload,ids)
+                    if rows:
+                        write_report("LIVE_MARKET_DATA","Dhan market feed",{"credential_used":credential_name,"credentials_tried":len(candidates)},rows)
+                        return 0
+                    dhan_errors.append(f"{credential_name}: Dhan returned no usable NSE equity quotes")
+                except Exception as exc:
+                    dhan_errors.append(f"{credential_name}: {exc}")
+        except Exception as exc:
+            dhan_errors.append(f"instrument-resolution: {exc}")
     else:
-        dhan_error="Dhan credentials are not configured."
+        dhan_errors.append("Dhan credentials are not configured.")
+    dhan_error="; ".join(dhan_errors)
     try:
         rows,errors=yahoo_fallback()
         reason={"dhan_error":dhan_error,"fallback_errors":errors}
@@ -100,4 +113,5 @@ def main():
         write_report("DATA_UNAVAILABLE","none",{"dhan_error":dhan_error,"fallback_error":str(exc)},[])
         print(f"Market data unavailable: Dhan={dhan_error}; fallback={exc}",file=sys.stderr)
         return 0
+
 if __name__=="__main__": raise SystemExit(main())
