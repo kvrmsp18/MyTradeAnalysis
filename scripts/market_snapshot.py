@@ -7,7 +7,7 @@ authentication is unavailable. Fallback data is explicitly labelled and never
 used for broker orders.
 """
 from __future__ import annotations
-import csv, io, json, os, sys, urllib.parse, urllib.request
+import csv, io, json, os, sys, urllib.parse, urllib.request, urllib.error
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -23,7 +23,12 @@ def write_report(status, source, reason, stocks):
     OUT.write_text(json.dumps({"status":status,"timestamp":utc_now(),"source":source,"reason":reason,"paper_only":True,"stocks":stocks},indent=2),encoding="utf-8")
 def fetch(url,headers=None,body=None):
     req=urllib.request.Request(url,data=body,headers=headers or {},method="POST" if body else "GET")
-    with urllib.request.urlopen(req,timeout=25) as response: return response.read()
+    try:
+        with urllib.request.urlopen(req,timeout=25) as response:
+            return response.read()
+    except urllib.error.HTTPError as exc:
+        body=exc.read().decode('utf-8','replace')
+        raise RuntimeError('HTTP ' + str(exc.code) + ': ' + body[:500]) from exc
 def pick(row,*names):
     lowered={str(k).strip().lower():v for k,v in row.items()}
     for name in names:
