@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import math
 import os
-import urllib.request
+import urllib.request, urllib.parse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -122,6 +122,27 @@ def fetch_history(token, client_id, security_id, from_date, to_date):
         })
     return rows
 
+
+def fetch_yahoo_history(symbol):
+    ticker = urllib.parse.quote({
+        "RELIANCE":"RELIANCE.NS","HDFCBANK":"HDFCBANK.NS","INFY":"INFY.NS",
+        "TCS":"TCS.NS","SUNPHARMA":"SUNPHARMA.NS","M&M":"M&M.NS"
+    }.get(symbol, symbol + ".NS"), safe="")
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=5m&range=1mo"
+    req = urllib.request.Request(url, headers={"User-Agent":"Mozilla/5.0","Accept":"application/json"})
+    with urllib.request.urlopen(req, timeout=25) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    result = (payload.get("chart", {}).get("result") or [])
+    if not result:
+        return []
+    r = result[0]
+    timestamps = r.get("timestamp", [])
+    quote = (r.get("indicators", {}).get("quote") or [{}])[0]
+    opens, highs, lows, closes, volumes = [quote.get(k, []) for k in ("open","high","low","close","volume")]
+    rows=[]
+    for i in range(min(len(timestamps),len(opens),len(highs),len(lows),len(closes))):
+        rows.append({"timestamp":timestamps[i],"open":num(opens[i]),"high":num(highs[i]),"low":num(lows[i]),"close":num(closes[i]),"volume":num(volumes[i]) if i<len(volumes) else None})
+    return rows
 
 def analyse(symbol, quote, candles):
     closes = [num(x.get("close")) for x in candles]
@@ -258,7 +279,7 @@ def main():
     }
     if not token or not client_id:
         result["reason"] = "Dhan credentials are not configured."
-    elif snapshot.get("status") != "LIVE_MARKET_DATA":
+    elif snapshot.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_FALLBACK"):
         result["reason"] = "Fresh market snapshot is unavailable."
     else:
         to_date = datetime.now(timezone.utc).date()
@@ -267,16 +288,18 @@ def main():
         for quote in snapshot.get("stocks", []):
             symbol = quote.get("symbol")
             try:
-                candles = fetch_history(token, client_id, quote.get("security_id"), str(from_date), str(to_date))
-                result["stocks"].append(analyse(symbol, quote, candles))
+                candles = []
+                if quote.get("security_id") and snapshot.get("status") == "LIVE_MARKET_DATA":
+                    candles = fetch_history(token, client_id, quote.get("security_id"), str(from_date), str(to_date))
+                if not candles:
+                    candles = fetch_yahoo_history(symbol)
+                row = analyse(symbol, quote, candles)
+                row["data_source"] = "Dhan historical candles" if quote.get("security_id") and snapshot.get("status") == "LIVE_MARKET_DATA" else "Yahoo Finance 5-minute fallback"
+                result["stocks"].append(row)
             except Exception as exc:
                 result["stocks"].append({
-                    "symbol": symbol,
-                    "status": "UNAVAILABLE",
-                    "reason": str(exc),
-                    "candle_count": 0,
-                    "score": None,
-                    "action": "OBSERVE",
+                    "symbol": symbol, "status": "UNAVAILABLE", "reason": str(exc),
+                    "candle_count": 0, "score": None, "action": "OBSERVE",
                 })
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(result, indent=2), encoding="utf-8")
