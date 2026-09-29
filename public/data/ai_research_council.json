@@ -1,18 +1,18 @@
 {
   "status": "UNAVAILABLE",
-  "timestamp": "2026-09-28T17:35:53.005016Z",
+  "timestamp": "2026-09-29T03:31:25.916216Z",
   "paper_only": true,
   "reason": "No verified market data available.",
   "market_status": "DATA_UNAVAILABLE",
   "scrap_status": "UNAVAILABLE",
   "config": {
     "openai": {
-      "api_key_configured": false,
-      "model": null
+      "api_key_configured": true,
+      "model": "gpt-5"
     },
     "anthropic": {
       "api_key_configured": true,
-      "model": null
+      "model": "claude-sonnet-4-5"
     }
   },
   "stages": {

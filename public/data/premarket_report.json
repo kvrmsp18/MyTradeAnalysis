@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "status": "READY",
+  "timestamp": "2026-09-29T03:31:26.247718Z",
+  "market_phase": "PREMARKET",
+  "market_open_ist": "09:15",
+  "market_close_ist": "15:30",
+  "paper_only": true,
+  "live_trading_enabled": false,
+  "paper_reference_capital": 1000.0,
+  "dhan_funds_read_only": {
+    "status": "READY",
+    "available_balance": 0.18,
+    "raw_fields": {
+      "availabelBalance": 0.18,
+      "sodLimit": 0.18,
+      "withdrawableBalance": 0.18
+    }
+  },
+  "market_data_status": "DATA_UNAVAILABLE",
+  "ai_council_status": "UNAVAILABLE",
+  "suggested_watchlist": [],
+  "selection_note": "Watchlist candidates use the latest available Dhan/SCRAP evidence. They are not pre-authorized trades; the live paper engine must revalidate at market time."
+}
