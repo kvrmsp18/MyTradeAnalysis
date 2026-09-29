@@ -1,0 +1,69 @@
+name: MyTradeAnalysis Pre-Market Readiness
+
+on:
+  schedule:
+    - cron: '20 3 * * 1-5' # 08:50 IST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: premarket-readiness
+  cancel-in-progress: true
+
+jobs:
+  premarket:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Collect latest market snapshot
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+        run: python scripts/market_snapshot.py
+
+      - name: Run SCRAP pre-market evidence
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+          SCRAP_LOOKBACK_DAYS: '45'
+        run: python scripts/scrap_analysis.py
+
+      - name: Run AI research council
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+        run: python scripts/ai_research_council.py
+
+      - name: Build pre-market readiness report
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+          PAPER_REFERENCE_CAPITAL: '1000'
+        run: python scripts/premarket_check.py
+
+      - name: Commit pre-market report
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json public/data/premarket_report.json
+          if git diff --cached --quiet; then
+            echo 'No pre-market data changes to commit.'
+            exit 0
+          fi
+          git commit -m "chore: publish pre-market readiness"
+          git pull --rebase origin main
+          git push
