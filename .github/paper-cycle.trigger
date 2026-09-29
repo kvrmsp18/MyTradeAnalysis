@@ -1,1 +1,1 @@
-Use NSE India public market data for paper analysis - 2026-09-29 09:52 IST
+NSE/Dhan diagnostics cycle - 2026-09-29 10:00 IST
