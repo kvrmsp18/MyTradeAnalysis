@@ -67,11 +67,10 @@ jobs:
           top_misses=$(jq -r '
             [.missed_opportunities[]? |
               if .source == "broad_market_eod_scan"
-              then "(.symbol) (.eod_move_pct)% — (.reason)"
-              else "(.symbol) (.best_forward_return_pct)% forward — (.reason)"
+              then "\(.symbol) \(.eod_move_pct)% — \(.reason)"
+              else "\(.symbol) \(.best_forward_return_pct)% forward — \(.reason)"
               end] |
-            .[0:3] | join("
-")
+            .[0:3] | join("\n")
           ' public/data/eod_report.json 2>/dev/null || true)
 
           cat > message.txt <<EOF
