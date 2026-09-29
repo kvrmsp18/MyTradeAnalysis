@@ -61,6 +61,8 @@ jobs:
           movers_count=$(jq -r '.broad_market_mover_count // 0' public/data/eod_report.json 2>/dev/null || echo 0)
           setup_count=$(jq -r '.external_movers_with_reconstructed_setup // 0' public/data/eod_report.json 2>/dev/null || echo 0)
           profitable_count=$(jq -r '.profitable_forward_moves_in_ledger // 0' public/data/eod_report.json 2>/dev/null || echo 0)
+          paper_orders=$(jq -r '.paper_orders_submitted // 0' public/data/eod_report.json 2>/dev/null || echo 0)
+          no_trade_day=$(jq -r '.no_trade_day // false' public/data/eod_report.json 2>/dev/null || echo false)
 
           top_misses=$(jq -r '
             [.missed_opportunities[]? |
@@ -88,6 +90,8 @@ jobs:
           📈 Broad-market movers: $movers_count
           🎯 Reconstructed setups: $setup_count
           💰 Profitable forward moves found in evaluated candidates: $profitable_count
+          🧾 Paper orders submitted: $paper_orders
+          💤 No-trade day: $no_trade_day
           🧩 Missed/discovery opportunities: $missed_count
           EOF
 
