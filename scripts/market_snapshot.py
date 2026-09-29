@@ -146,29 +146,27 @@ def main():
         dhan_error="DHAN_CLIENT_ID is not configured."
     else:
         dhan_error="DHAN_ACCESS_TOKEN is not configured."
+
     try:
         rows,errors=nse_fallback()
-        reason={"dhan_error":dhan_error,"fallback_errors":errors}
-        write_report("LIVE_MARKET_DATA_NSE","NSE India public quote feed",reason,rows)
+        write_report("LIVE_MARKET_DATA_NSE","NSE India public quote feed",{"dhan_error":dhan_error,"fallback_errors":errors},rows)
         print(f"Using NSE India because Dhan was unavailable: {dhan_error}")
         return 0
     except Exception as nse_exc:
         try:
             rows,errors=nse_proxy_fallback()
-            reason={"dhan_error":dhan_error,"direct_nse_error":str(nse_exc),"fallback_errors":errors}
-            write_report("LIVE_MARKET_DATA_NSE_PROXY","NSE India via public fetch proxy",reason,rows)
+            write_report("LIVE_MARKET_DATA_NSE_PROXY","NSE India via public fetch proxy",{"dhan_error":dhan_error,"direct_nse_error":str(nse_exc),"fallback_errors":errors},rows)
             print(f"Using NSE India via proxy because direct NSE access was unavailable: {nse_exc}")
             return 0
         except Exception as nse_proxy_exc:
             try:
                 rows,errors=yahoo_fallback()
-            reason={"dhan_error":dhan_error,"nse_error":str(nse_exc),"nse_proxy_error":str(nse_proxy_exc),"fallback_errors":errors}
-            write_report("LIVE_MARKET_DATA_FALLBACK","Yahoo Finance chart feed",reason,rows)
-            print(f"Using Yahoo fallback because Dhan and NSE were unavailable: {dhan_error}; NSE={nse_exc}; proxy={nse_proxy_exc}")
-            return 0
-        except Exception as exc:
-            write_report("DATA_UNAVAILABLE","none",{"dhan_error":dhan_error,"nse_error":str(nse_exc),"fallback_error":str(exc)},[])
-            print(f"Market data unavailable: Dhan={dhan_error}; NSE={nse_exc}; fallback={exc}",file=sys.stderr)
-            return 0
+                write_report("LIVE_MARKET_DATA_FALLBACK","Yahoo Finance chart feed",{"dhan_error":dhan_error,"nse_error":str(nse_exc),"nse_proxy_error":str(nse_proxy_exc),"fallback_errors":errors},rows)
+                print(f"Using Yahoo fallback because Dhan and NSE were unavailable: {dhan_error}; NSE={nse_exc}; proxy={nse_proxy_exc}")
+                return 0
+            except Exception as exc:
+                write_report("DATA_UNAVAILABLE","none",{"dhan_error":dhan_error,"nse_error":str(nse_exc),"nse_proxy_error":str(nse_proxy_exc),"fallback_error":str(exc)},[])
+                print(f"Market data unavailable: Dhan={dhan_error}; NSE={nse_exc}; proxy={nse_proxy_exc}; fallback={exc}",file=sys.stderr)
+                return 0
 
 if __name__=="__main__": raise SystemExit(main())
