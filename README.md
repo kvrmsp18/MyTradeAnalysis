@@ -34,9 +34,9 @@ Market Data
 - Deterministic paper screening/ranking evidence: **implemented**
 - Buffett / Jhunjhunwala / Peter Lynch / 100 Baggers / CANSLIM evidence layer: **integrated into the decision ledger**
 - OpenAI + Anthropic research-council module: **implemented and invoked by the paper cycle when credentials/models are configured**
-- EOD missed-opportunity report: **implemented as diagnostic analysis**
-- Full technical/SCRAP/ranking engine: **next integration stage**
-- Paper execution engine: **next integration stage**
+- EOD missed-opportunity report: **implemented as diagnostic analysis; activation of generalized optimizations remains validation-gated**
+- Technical/SCRAP/ranking engine: **running on the current validation universe; Dhan data-subscription limitation currently forces an explicitly labelled fallback when required**
+- Paper execution engine: **implemented; not declared fully ready until a market-hours cycle passes the funds gate and produces an auditable fill/skip**
 - Full EOD strategy-optimization validator: **next integration stage**
 - Live orders: **disabled**
 
@@ -141,3 +141,8 @@ For major code changes, replace complete files rather than applying fragile part
 ## GUI deployment
 
 The browser/PWA GUI is deployed through GitHub Actions and GitHub Pages. Pages is configured to use **GitHub Actions** as its source.
+
+
+## Truthful readiness status
+
+The GUI is deployed, but the bot is **not being declared production-ready for paper trading yet**. The exact gates and current blockers are documented in `docs/PAPER_READINESS.md`. The current cloud evidence shows the Dhan marketfeed returning `Data APIs not Subscribed`; the system therefore uses an explicitly labelled real-data fallback for paper validation. The browser `Run Cycle Now` button cannot securely dispatch GitHub Actions from a static GitHub Pages site, so it opens the workflow page while the unattended 5-minute schedule remains the actual cycle trigger.
