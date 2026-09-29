@@ -1,6 +1,6 @@
 {
   "status": "LIVE_MARKET_DATA_FALLBACK",
-  "timestamp": "2026-09-29T10:10:56.921125Z",
+  "timestamp": "2026-09-29T10:29:53.020657Z",
   "source": "Yahoo Finance chart feed",
   "reason": {
     "dhan_error": "HTTP 401: {\"data\":{\"806\":\"Data APIs not Subscribed\"},\"status\":\"failed\"}",

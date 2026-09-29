@@ -1,6 +1,6 @@
 {
   "status": "LIVE_TECHNICAL_DATA",
-  "timestamp": "2026-09-29T10:10:57.008661Z",
+  "timestamp": "2026-09-29T10:29:53.097580Z",
   "source": "Dhan historical candles + deterministic technical calculations",
   "paper_only": true,
   "stock_specific_rule_created": false,
@@ -10,15 +10,15 @@
       "status": "OK",
       "candle_count": 1650,
       "indicators": {
-        "ema9": 1188.2607,
-        "ema20": 1189.1334,
-        "ema50": 1190.8154,
-        "rsi14": 41.23,
-        "atr14": 1.8909,
-        "atr_pct": 0.16,
+        "ema9": 1187.0085,
+        "ema20": 1188.454,
+        "ema50": 1190.4697,
+        "rsi14": 24.38,
+        "atr14": 2.2333,
+        "atr_pct": 0.19,
         "volume_ratio_20": 0.0,
         "high20": 1192.5,
-        "low20": 1186.0999755859375
+        "low20": 1182.0
       },
       "components": {
         "structure": 0,
@@ -44,14 +44,14 @@
       "status": "OK",
       "candle_count": 1650,
       "indicators": {
-        "ema9": 713.9672,
-        "ema20": 713.2811,
-        "ema50": 712.8652,
-        "rsi14": 81.6,
-        "atr14": 0.9818,
-        "atr_pct": 0.14,
+        "ema9": 715.7137,
+        "ema20": 714.1781,
+        "ema50": 713.2509,
+        "rsi14": 90.61,
+        "atr14": 1.5083,
+        "atr_pct": 0.21,
         "volume_ratio_20": 0.0,
-        "high20": 715.7000122070312,
+        "high20": 722.7000122070312,
         "low20": 711.3499755859375
       },
       "components": {
@@ -78,24 +78,24 @@
       "status": "OK",
       "candle_count": 1650,
       "indicators": {
-        "ema9": 985.974,
-        "ema20": 985.5863,
-        "ema50": 987.2462,
-        "rsi14": 61.59,
-        "atr14": 1.7091,
-        "atr_pct": 0.17,
+        "ema9": 991.8592,
+        "ema20": 988.4257,
+        "ema50": 988.3503,
+        "rsi14": 86.68,
+        "atr14": 3.8583,
+        "atr_pct": 0.38,
         "volume_ratio_20": 0.0,
-        "high20": 988.0,
+        "high20": 1015.4000244140625,
         "low20": 982.7000122070312
       },
       "components": {
-        "structure": 2,
-        "confirmation": 2,
+        "structure": 3,
+        "confirmation": 1,
         "relative_strength": 3,
         "actionability": 3,
-        "protection": 3
+        "protection": 2
       },
-      "score": 81.2,
+      "score": 75.0,
       "action": "REVIEW",
       "reasons": [
         "price_above_ema20",
@@ -112,24 +112,24 @@
       "status": "OK",
       "candle_count": 1650,
       "indicators": {
-        "ema9": 2043.5159,
-        "ema20": 2045.2571,
-        "ema50": 2051.2528,
-        "rsi14": 54.42,
-        "atr14": 3.7091,
-        "atr_pct": 0.18,
+        "ema9": 2041.2927,
+        "ema20": 2044.0326,
+        "ema50": 2050.5135,
+        "rsi14": 34.91,
+        "atr14": 4.6,
+        "atr_pct": 0.23,
         "volume_ratio_20": 0.0,
         "high20": 2047.5,
-        "low20": 2036.699951171875
+        "low20": 2032.4000244140625
       },
       "components": {
         "structure": 0,
-        "confirmation": 2,
+        "confirmation": 0,
         "relative_strength": 2,
         "actionability": 0,
         "protection": 3
       },
-      "score": 43.8,
+      "score": 31.2,
       "action": "OBSERVE",
       "reasons": [
         "price_not_above_ema20",
@@ -146,24 +146,24 @@
       "status": "OK",
       "candle_count": 1650,
       "indicators": {
-        "ema9": 1851.4524,
-        "ema20": 1849.2247,
-        "ema50": 1846.641,
-        "rsi14": 69.6,
-        "atr14": 2.9818,
-        "atr_pct": 0.16,
+        "ema9": 1854.1619,
+        "ema20": 1850.7271,
+        "ema50": 1847.361,
+        "rsi14": 80.45,
+        "atr14": 3.9833,
+        "atr_pct": 0.21,
         "volume_ratio_20": 0.0,
-        "high20": 1854.699951171875,
+        "high20": 1865.0,
         "low20": 1842.0
       },
       "components": {
         "structure": 3,
-        "confirmation": 2,
+        "confirmation": 1,
         "relative_strength": 3,
         "actionability": 3,
-        "protection": 3
+        "protection": 2
       },
-      "score": 87.5,
+      "score": 75.0,
       "action": "REVIEW",
       "reasons": [
         "price_above_ema20",
@@ -180,15 +180,15 @@
       "status": "OK",
       "candle_count": 1650,
       "indicators": {
-        "ema9": 2957.0935,
-        "ema20": 2959.6715,
-        "ema50": 2965.3329,
-        "rsi14": 46.71,
-        "atr14": 4.1091,
-        "atr_pct": 0.14,
+        "ema9": 2955.2348,
+        "ema20": 2958.5409,
+        "ema50": 2964.6453,
+        "rsi14": 25.47,
+        "atr14": 4.3917,
+        "atr_pct": 0.15,
         "volume_ratio_20": 0.0,
         "high20": 2966.60009765625,
-        "low20": 2951.0
+        "low20": 2947.800048828125
       },
       "components": {
         "structure": 0,
