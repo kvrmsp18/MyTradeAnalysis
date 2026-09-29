@@ -1,8 +1,78 @@
 {
-  "status": "DATA_UNAVAILABLE",
-  "timestamp": "2026-09-29T03:31:25.809319Z",
-  "source": "Dhan market feed",
-  "reason": "HTTP Error 401: Unauthorized",
+  "status": "LIVE_MARKET_DATA_FALLBACK",
+  "timestamp": "2026-09-29T04:09:38.367846Z",
+  "source": "Yahoo Finance chart feed",
+  "reason": {
+    "dhan_error": "HTTP Error 401: Unauthorized",
+    "fallback_errors": []
+  },
   "paper_only": true,
-  "stocks": []
+  "stocks": [
+    {
+      "symbol": "RELIANCE",
+      "price": 1183.6,
+      "change": -1.17,
+      "open": null,
+      "high": 1198.3,
+      "low": 1181.8,
+      "prev_close": 1197.6,
+      "volume": 2455813,
+      "security_id": null
+    },
+    {
+      "symbol": "HDFCBANK",
+      "price": 706.7,
+      "change": -1.72,
+      "open": null,
+      "high": 715.9,
+      "low": 706.4,
+      "prev_close": 719.05,
+      "volume": 6008201,
+      "security_id": null
+    },
+    {
+      "symbol": "INFY",
+      "price": 989.1,
+      "change": -1.41,
+      "open": null,
+      "high": 1004.8,
+      "low": 988.5,
+      "prev_close": 1003.2,
+      "volume": 1243975,
+      "security_id": null
+    },
+    {
+      "symbol": "TCS",
+      "price": 2053.9,
+      "change": -0.81,
+      "open": null,
+      "high": 2085.1,
+      "low": 2052.7,
+      "prev_close": 2070.7,
+      "volume": 320683,
+      "security_id": null
+    },
+    {
+      "symbol": "SUNPHARMA",
+      "price": 1846.8,
+      "change": 0.48,
+      "open": null,
+      "high": 1862.3,
+      "low": 1841.1,
+      "prev_close": 1838.0,
+      "volume": 323310,
+      "security_id": null
+    },
+    {
+      "symbol": "M&M",
+      "price": 2964.4,
+      "change": -1.02,
+      "open": null,
+      "high": 2989.8,
+      "low": 2958.2,
+      "prev_close": 2995.0,
+      "volume": 207641,
+      "security_id": null
+    }
+  ]
 }

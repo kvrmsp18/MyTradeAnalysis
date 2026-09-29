@@ -1,10 +1,10 @@
 {
   "status": "UNAVAILABLE",
-  "timestamp": "2026-09-29T03:31:25.916216Z",
+  "timestamp": "2026-09-29T04:09:39.315785Z",
   "paper_only": true,
   "reason": "No verified market data available.",
-  "market_status": "DATA_UNAVAILABLE",
-  "scrap_status": "UNAVAILABLE",
+  "market_status": "LIVE_MARKET_DATA_FALLBACK",
+  "scrap_status": "LIVE_TECHNICAL_DATA",
   "config": {
     "openai": {
       "api_key_configured": true,
