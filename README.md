@@ -67,6 +67,15 @@ The paper ledger now evaluates generalized evidence from five research framework
 
 The framework layer never invents unavailable fundamentals. Missing data is explicitly marked `UNAVAILABLE`. Framework evidence contributes only a bounded research component to the generalized score; it cannot bypass deterministic risk or safety gates and cannot create a stock-specific rule.
 
+
+## Mandatory AI-assisted development
+
+OpenAI and Anthropic are also mandatory participants in application development, not just market research. Every push runs the AI Development Council against the code diff and GUI build evidence. Both models review independently, cross-critique each other, and produce a development synthesis.
+
+The development council requires `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_MODEL`, and `ANTHROPIC_MODEL` in GitHub Actions. If either model is not configured, the development council is explicitly BLOCKED rather than being presented as active.
+
+The deployment pipeline also validates the AI-council GUI wiring without modifying `src/App.jsx`. This prevents the duplicate-`COUNCIL` declaration regression that previously broke the Pages build.
+
 ## OpenAI + Anthropic research council
 
 The project includes a two-model research-council design. OpenAI and Anthropic review the same evidence independently, challenge each other's reasoning, and produce a research consensus covering evidence, contradictions, uncertainty and data gaps.
