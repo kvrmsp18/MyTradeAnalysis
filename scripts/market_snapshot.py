@@ -319,6 +319,8 @@ def main() -> int:
         pass
 
     dhan_error: str | None = None
+    nse_exc: Exception | None = None
+    nse_proxy_exc: Exception | None = None
 
     if client_id and token:
         try:
@@ -363,8 +365,8 @@ def main() -> int:
         )
         print(f"Using NSE India because Dhan was unavailable: {dhan_error}")
         return 0
-    except Exception as nse_exc:
-        pass
+    except Exception as exc:
+        nse_exc = exc
 
     try:
         rows, errors = nse_proxy_fallback()
@@ -376,8 +378,8 @@ def main() -> int:
         )
         print(f"Using NSE India via proxy because direct NSE access was unavailable: {nse_exc}")
         return 0
-    except Exception as nse_proxy_exc:
-        pass
+    except Exception as exc:
+        nse_proxy_exc = exc
 
     try:
         rows, errors = yahoo_fallback()
