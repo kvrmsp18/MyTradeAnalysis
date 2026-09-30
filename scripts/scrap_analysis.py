@@ -269,12 +269,16 @@ def main():
     snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     token = (os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
     client_id = (os.getenv("DHAN_CLIENT_ID") or "").strip()
+    analysis_budget = max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", "1000") or 1000))
     result = {
         "status": "UNAVAILABLE",
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "source": "Dhan historical candles + deterministic technical calculations",
         "paper_only": True,
         "stock_specific_rule_created": False,
+        "analysis_budget": analysis_budget,
+        "budget_rule": "Dhan available funds when available; otherwise ₹1,000 paper minimum",
+        "excluded_by_budget": [],
         "stocks": [],
     }
     if not token or not client_id:
@@ -287,6 +291,14 @@ def main():
         result["status"] = "LIVE_TECHNICAL_DATA"
         for quote in snapshot.get("stocks", []):
             symbol = quote.get("symbol")
+            price = num(quote.get("price"))
+            if price is None or price > analysis_budget:
+                result["excluded_by_budget"].append({
+                    "symbol": symbol,
+                    "price": price,
+                    "reason": "PRICE_ABOVE_ANALYSIS_BUDGET",
+                })
+                continue
             try:
                 candles = []
                 if quote.get("security_id") and snapshot.get("status") in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE"):
