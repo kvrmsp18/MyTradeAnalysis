@@ -46,10 +46,35 @@ SYMBOLS = [
 
 YAHOO = {symbol: symbol.replace("&", "%26") + ".NS" for symbol in SYMBOLS}
 YAHOO["M&M"] = "M%26M.NS"
+YAHOO_INDICES = {"nifty50":"%5ENSEI", "banknifty":"%5ENSEBANK", "sensex":"%5EBSESN"}
 
 
 def utc_now() -> str:
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def yahoo_index_snapshot() -> dict:
+    indices = {}
+    for name, ticker in YAHOO_INDICES.items():
+        try:
+            url = (
+                f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+                "?interval=5m&range=1d"
+            )
+            payload = json.loads(
+                fetch(url, {"User-Agent":"Mozilla/5.0","Accept":"application/json"}, timeout=12).decode("utf-8")
+            )
+            result = (payload.get("chart", {}).get("result") or [None])[0]
+            meta = (result or {}).get("meta", {})
+            price = meta.get("regularMarketPrice")
+            previous = meta.get("previousClose", meta.get("chartPreviousClose"))
+            if price is None:
+                continue
+            change = ((float(price)-float(previous))/float(previous)*100) if previous else None
+            indices[name] = {"value":float(price),"change_pct":round(change,2) if change is not None else None}
+        except Exception:
+            continue
+    return indices
 
 
 def write_report(status: str, source: str, reason: object, stocks: list[dict]) -> None:
@@ -64,6 +89,7 @@ def write_report(status: str, source: str, reason: object, stocks: list[dict]) -
                 "paper_only": True,
                 "universe": "NIFTY50_VALIDATION_BASKET",
                 "universe_count": len(SYMBOLS),
+                "indices": yahoo_index_snapshot(),
                 "stocks": stocks,
             },
             indent=2,
