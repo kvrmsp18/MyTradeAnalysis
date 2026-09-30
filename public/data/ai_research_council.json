@@ -1,10 +1,7 @@
 {
-  "status": "UNAVAILABLE",
-  "timestamp": "2026-09-29T10:29:54.355392Z",
+  "status": "QUORUM_UNAVAILABLE",
+  "timestamp": "2026-09-30T07:26:57.995578Z",
   "paper_only": true,
-  "reason": "No verified market data available.",
-  "market_status": "LIVE_MARKET_DATA_FALLBACK",
-  "scrap_status": "LIVE_TECHNICAL_DATA",
   "config": {
     "openai": {
       "api_key_configured": true,
@@ -16,11 +13,36 @@
     }
   },
   "stages": {
-    "market_evidence": "NOT_READY",
-    "independent_analysis": "NOT_RUN",
+    "market_evidence": "READY",
+    "market_source": "Yahoo Finance chart feed",
+    "independent_analysis": "QUORUM_UNAVAILABLE",
     "cross_review": "NOT_RUN",
     "final_positions": "NOT_RUN",
     "consensus": "NOT_RUN"
+  },
+  "independent": {
+    "openai": null,
+    "anthropic": "# CLASSIFICATION: SUPPORTS_REVIEW\n\n## Market Snapshot Assessment\n\n**Data Quality & Reliability:**\n- **CRITICAL LIMITATION**: This is paper-trading fallback data only. Primary data sources (Dhan, NSE) are completely unavailable\n- Yahoo Finance chart feed is operational but provides LIMITED data: `open` prices are NULL across all securities\n- Volume data present but `volume_ratio_20` is **0.0 universally** - suggests volume comparison metrics unavailable or non-functional\n- Timestamp: 2026-09-30T07:26:09 UTC (likely early Indian market hours given 12:56 IST)\n\n**Technical Infrastructure Flags:**\n- Missing instrument IDs (TATAMOTORS, M&M delisting errors - likely data artifacts, not actual delistings)\n- NSE 403 Forbidden errors indicate API access issues\n- All securities show `security_id: null` - prevents real trade execution even in paper system\n\n## SCRAP Analysis Quality\n\n**Strengths:**\n- 1,696 5-minute candles per stock = adequate historical depth (~5-6 trading days)\n- Deterministic technical calculations appear consistent\n- Multi-component scoring system (actionability, confirmation, protection, relative_strength, structure)\n\n**Critical Weaknesses:**\n1. **Volume Confirmation ZERO**: Every single stock shows `volume_ratio_20: 0.0` and reason \"volume_not_confirmed\" - this is a **systemic calculation failure**, not market reality\n2. **Missing Open Prices**: All `open: null` values compromise intraday pattern analysis\n3. **No Real-Time Validation**: Paper-only status means no cross-verification against actual order book depth\n\n## Contextual Contradictions\n\n**High-Score Stocks with Broken Metrics:**\n- **KOTAKBANK** (score 75.0): RSI 86.41 (extremely overbought), but flagged as REVIEW despite no volume confirmation\n- **SHRIRAMFIN** (score 75.0): RSI 84.71, same issue\n- **JSWSTEEL** (score 75.0): RSI 80.7 - all showing momentum exhaustion signals yet recommended\n\n**Contradiction**: The SCRAP system awards high scores to stocks near 20-day highs with bullish EMA alignment, but **ignores that volume=0 data makes these signals unverifiable**. In real markets, breakouts without volume are typically false signals.\n\n## Risk Blind Spots\n\n### 1. **Overbought Cluster Risk**\nMultiple REVIEW-rated stocks show RSI >75:\n- BAJFINANCE (79.81)\n- KOTAKBANK (86.41) \n- SHRIRAMFIN (84.71)\n- SUNPHARMA (86.42)\n- ULTRACEMCO (81.91)\n\nThese are reversion candidates, not continuation plays.\n\n### 2. **Volatility Dispersion**\n- ATR percentages range from 0.09% (NESTLEIND, POWERGRID) to 0.22% (APOLLOHOSP, ETERNAL, TATASTEEL)\n- High-volatility stocks (ETERNAL -2.42%, MAXHEALTH -4.58%, APOLLOHOSP -5.76%) flagged as OBSERVE/WATCH despite needing wider stop-losses\n\n### 3. **Sector Blind Spot**\nNo sector/correlation analysis. Example:\n- Banks (AXISBANK +1.76%, ICICIBANK +3.18%, KOTAKBANK +2.93%) all bullish\n- If this is sector rotation vs. systemic risk-on, position sizing changes dramatically\n\n### 4. **Data Staleness Unknown**\nTimestamp is 07:26 UTC but no \"last update\" per security. In fast markets, even 5-minute-old data creates execution risk.\n\n## Uncertainty Quantification\n\n**What We DON'T Know:**\n- Bid-ask spreads (critical for actual entry/exit)\n- Order book depth beyond last price\n- Whether volume=0 is a calculation bug or actual thin trading\n- Impact of missing M&M and TATAMOTORS data on universe coverage\n- Price gaps from null `open` values\n\n**Probabilistic Assessment:**\n- Directional signals (EMA alignments): ~60-70% reliable given clean price data\n- Momentum signals (RSI): 30-40% reliable given overbought clustering + no volume\n- Entry timing: <20% reliable without volume or intraday open reference\n\n## Advisory Synthesis\n\n### SUPPORTS_REVIEW Rationale:\nThe SCRAP analysis identifies **legitimate technical setups** (price above EMAs, momentum alignment, proximity to resistance), BUT these require **manual review** because:\n\n1. **Volume data is non-functional** - automated signals cannot distinguish real breakouts from noise\n2. **Extreme RSI readings** cluster in REVIEW category - needs human judgment on mean reversion vs. continuation\n3. **Fallback data quality** insufficient for algorithmic execution without verification\n\n### Stocks Warranting Human Review:\n- **ADANIENT, BAJAJ-AUTO, BEL, HDFCBANK, HINDALCO, LT, MARUTI, NTPC**: Score \u226587.5, moderate RSI (56-69), less overbought\n- **Avoid**: KOTAKBANK, SHRIRAMFIN, SUNPHARMA (RSI >85 = exhaustion risk)\n\n### Recommended Actions:\n1. **Do NOT auto-execute** any REVIEW-rated positions until volume data restored\n2. **Verify prices** independently (alternative feed) given null opens\n3. **Reduce position sizes** by 50% to account for data uncertainty\n4. **Monitor**: NSE API restoration for volume confirmation before adding exposure\n\n**Final Note**: This is research-grade analysis of compromised data. The technical signals exist, but execution confidence is LOW until infrastructure issues resolve."
+  },
+  "classifications": {
+    "openai": null,
+    "anthropic": null
+  },
+  "cross_review": {
+    "openai": null,
+    "anthropic": null
+  },
+  "final_positions": {
+    "openai": null,
+    "anthropic": null
+  },
+  "consensus": {
+    "status": "QUORUM_UNAVAILABLE",
+    "classification": "HOLD_FOR_REVIEW"
+  },
+  "errors": {
+    "openai": "OpenAI unavailable: HTTP Error 429: Too Many Requests",
+    "anthropic": null
   },
   "execution_authorized": false
 }
