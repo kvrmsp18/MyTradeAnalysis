@@ -35,6 +35,12 @@ jobs:
       - name: Inject live AI council GUI state
         run: python3 scripts/inject_ai_council_gui.py
 
+      - name: Generate browser-safe runtime health status
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/generate_runtime_status.py
+
       - name: Build
         run: npm run build
 
