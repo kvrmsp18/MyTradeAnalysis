@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "status": "READY",
-  "timestamp": "2026-09-29T09:58:10.625967Z",
+  "timestamp": "2026-09-30T09:51:39.962809Z",
   "market_phase": "PREMARKET",
   "market_open_ist": "09:15",
   "market_close_ist": "15:30",
@@ -9,23 +9,18 @@
   "live_trading_enabled": false,
   "paper_reference_capital": 1000.0,
   "dhan_funds_read_only": {
-    "status": "READY",
-    "available_balance": 0.18,
-    "raw_fields": {
-      "availabelBalance": 0.18,
-      "sodLimit": 0.18,
-      "withdrawableBalance": 0.18
-    }
+    "status": "UNAVAILABLE",
+    "reason": "HTTP Error 401: "
   },
   "market_data_status": "LIVE_MARKET_DATA_FALLBACK",
-  "ai_council_status": "UNAVAILABLE",
+  "ai_council_status": "QUORUM_UNAVAILABLE",
   "suggested_watchlist": [
     {
-      "symbol": "SUNPHARMA",
-      "latest_price": 1850.0,
-      "latest_change_pct": 0.65,
+      "symbol": "SHRIRAMFIN",
+      "latest_price": 983.5,
+      "latest_change_pct": 1.24,
       "scrap_score": 75.0,
-      "watch_score": 60.75,
+      "watch_score": 63.7,
       "reasons": [
         "positive_latest_change",
         "SCRAP_available"
@@ -33,50 +28,46 @@
       "status": "WATCHLIST_ONLY"
     },
     {
-      "symbol": "HDFCBANK",
-      "latest_price": 715.4,
-      "latest_change_pct": -0.51,
-      "scrap_score": 75.0,
-      "watch_score": 54.95,
+      "symbol": "ICICIBANK",
+      "latest_price": 1323.0,
+      "latest_change_pct": 2.38,
+      "scrap_score": null,
+      "watch_score": 61.9,
       "reasons": [
-        "latest_change_not_positive",
-        "SCRAP_available"
+        "positive_latest_change"
       ],
       "status": "WATCHLIST_ONLY"
     },
     {
-      "symbol": "INFY",
-      "latest_price": 987.9,
-      "latest_change_pct": -1.53,
-      "scrap_score": 81.2,
-      "watch_score": 52.95,
+      "symbol": "TECHM",
+      "latest_price": 1533.4,
+      "latest_change_pct": 1.52,
+      "scrap_score": null,
+      "watch_score": 57.6,
       "reasons": [
-        "latest_change_not_positive",
-        "SCRAP_available"
+        "positive_latest_change"
+      ],
+      "status": "WATCHLIST_ONLY"
+    },
+    {
+      "symbol": "HEROMOTOCO",
+      "latest_price": 5272.5,
+      "latest_change_pct": 1.24,
+      "scrap_score": null,
+      "watch_score": 56.2,
+      "reasons": [
+        "positive_latest_change"
       ],
       "status": "WATCHLIST_ONLY"
     },
     {
       "symbol": "TCS",
-      "latest_price": 2046.8,
-      "latest_change_pct": -1.15,
-      "scrap_score": 68.8,
-      "watch_score": 48.65,
+      "latest_price": 2055.7,
+      "latest_change_pct": 1.15,
+      "scrap_score": null,
+      "watch_score": 55.75,
       "reasons": [
-        "latest_change_not_positive",
-        "SCRAP_available"
-      ],
-      "status": "WATCHLIST_ONLY"
-    },
-    {
-      "symbol": "RELIANCE",
-      "latest_price": 1188.0,
-      "latest_change_pct": -0.8,
-      "scrap_score": 43.8,
-      "watch_score": 37.9,
-      "reasons": [
-        "latest_change_not_positive",
-        "SCRAP_available"
+        "positive_latest_change"
       ],
       "status": "WATCHLIST_ONLY"
     }
