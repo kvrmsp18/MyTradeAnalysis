@@ -61,7 +61,23 @@ def main():
     market=load(SNAPSHOT,{"status":"DATA_UNAVAILABLE","stocks":[]}); scrap=load(SCRAP,{"status":"NOT_RUN","stocks":[]})
     if market.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE","LIVE_MARKET_DATA_NSE_PROXY","LIVE_MARKET_DATA_FALLBACK"):
         return unavailable("No validated market data available.",market,scrap)
-    evidence={"market_snapshot":market,"scrap_analysis":scrap}
+    analysis_budget = max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", "1000") or 1000))
+    affordable_symbols = {
+        str(q.get("symbol"))
+        for q in market.get("stocks", [])
+        if q.get("price") is not None and float(q.get("price")) <= analysis_budget
+    }
+    filtered_market = dict(market)
+    filtered_market["stocks"] = [
+        q for q in market.get("stocks", [])
+        if str(q.get("symbol")) in affordable_symbols
+    ]
+    filtered_scrap = dict(scrap)
+    filtered_scrap["stocks"] = [
+        row for row in scrap.get("stocks", [])
+        if str(row.get("symbol")) in affordable_symbols
+    ]
+    evidence={"analysis_budget":analysis_budget,"budget_rule":"Dhan available funds when available; otherwise ₹1,000 paper minimum","market_snapshot":filtered_market,"scrap_analysis":filtered_scrap}
     stages={"market_evidence":"READY", "market_source": market.get("source"), "independent_analysis":"RUNNING","cross_review":"NOT_RUN","final_positions":"NOT_RUN","consensus":"NOT_RUN"}
     independent=("You are an independent market-research analyst in a paper-trading system. Use only the supplied decision-time market snapshot and deterministic SCRAP evidence. Do not invent data. Assess technical evidence, context, contradictions, uncertainty and risk blind spots. This is advisory research, not an order. Start with exactly: CLASSIFICATION: SUPPORTS_REVIEW, CLASSIFICATION: WATCH_ONLY, or CLASSIFICATION: NO_SUPPORT.")
     ov,oe=call_openai(independent,evidence); av,ae=call_anthropic(independent,evidence)
