@@ -36,6 +36,8 @@ def write_report(status: str, reason: str | None = None, stocks: list[dict] | No
         "paper_only": True,
         "min_move_pct": MIN_MOVE_PCT,
         "top_n": TOP_N,
+        "analysis_budget": max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", "1000") or 1000)),
+        "budget_rule": "Dhan available funds when available; otherwise ₹1,000 paper minimum",
         "universe_count": len(stocks or []),
         "stocks": stocks or [],
         "intraday_reconstruction": {
@@ -126,10 +128,16 @@ def main() -> int:
             all_rows.extend(normalise(payload, {s: universe[s] for s in batch}))
             if start + size < len(symbols):
                 time.sleep(0.25)
-        movers = [r for r in all_rows if abs(r["change_pct"]) >= MIN_MOVE_PCT]
+            analysis_budget = max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", "1000") or 1000))
+        movers = [
+            r for r in all_rows
+            if abs(r["change_pct"]) >= MIN_MOVE_PCT
+            and r.get("price") is not None
+            and float(r["price"]) <= analysis_budget
+        ]
         movers.sort(key=lambda r: abs(r["change_pct"]), reverse=True)
         write_report("READY", stocks=movers[:TOP_N])
-        print(f"Scanned {len(all_rows)} NSE equities; retained {min(len(movers), TOP_N)} EOD movers.")
+        print(f"Scanned {len(all_rows)} NSE equities; retained {min(len(movers), TOP_N)} budget-eligible EOD movers under ₹{analysis_budget:.0f}.")
         return 0
     except Exception as exc:
         write_report("DATA_UNAVAILABLE", str(exc))
