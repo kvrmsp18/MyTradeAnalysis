@@ -6,7 +6,7 @@ with Telegram getMe; Dhan/OpenAI/Anthropic operational state is derived from
 the already-published paper-cycle evidence.
 """
 from __future__ import annotations
-import json, os, urllib.request, urllib.error
+import json, os, urllib.request, urllib.error, urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -38,9 +38,17 @@ def telegram_status():
         )
         with urllib.request.urlopen(req,timeout=10) as response:
             payload=json.loads(response.read().decode("utf-8","replace"))
-        if payload.get("ok") is True:
-            return {"status":"READY","label":"Configured & reachable","detail":"Telegram bot credentials verified server-side."}
-        return {"status":"ERROR","label":"Configured but rejected","detail":"Telegram API rejected the configured bot token."}
+        if payload.get("ok") is not True:
+            return {"status":"ERROR","label":"Configured but rejected","detail":"Telegram API rejected the configured bot token."}
+        chat_req=urllib.request.Request(
+            f"https://api.telegram.org/bot{token}/getChat?chat_id={urllib.parse.quote(chat,safe='')}",
+            headers={"Accept":"application/json","User-Agent":"MyTradeAnalysis-health-check"},
+        )
+        with urllib.request.urlopen(chat_req,timeout=10) as chat_response:
+            chat_payload=json.loads(chat_response.read().decode("utf-8","replace"))
+        if chat_payload.get("ok") is True:
+            return {"status":"READY","label":"Configured & reachable","detail":"Telegram bot token and target chat were verified server-side."}
+        return {"status":"ERROR","label":"Token works; chat rejected","detail":"Telegram bot token is valid but the configured chat ID could not be verified."}
     except Exception as exc:
         return {"status":"ERROR","label":"Configured but unreachable","detail":f"Telegram API health check failed: {type(exc).__name__}."}
 
