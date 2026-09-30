@@ -45,7 +45,7 @@ SYMBOLS = [
 ]
 
 YAHOO = {symbol: symbol.replace("&", "%26") + ".NS" for symbol in SYMBOLS}
-YAHOO["M&M"] = "M%26M.NS"
+YAHOO["M&M"] = "M&M.NS"
 YAHOO_INDICES = {"nifty50":"%5ENSEI", "banknifty":"%5ENSEBANK", "sensex":"%5EBSESN"}
 
 
@@ -139,8 +139,11 @@ def resolve_ids() -> dict[str, str]:
             result[symbol] = sec_id
 
     missing = [symbol for symbol in SYMBOLS if symbol not in result]
-    if missing:
-        raise RuntimeError(f"Instrument IDs unavailable for: {', '.join(missing[:15])}")
+    # A single stale/demerger-affected symbol must not disable the entire
+    # Dhan universe. Require a broad majority, then carry the missing names
+    # through the explicitly-labelled fallback path.
+    if len(result) < max(40, int(len(SYMBOLS) * 0.80)):
+        raise RuntimeError(f"Instrument IDs unavailable for {len(missing)} symbols: {', '.join(missing[:15])}")
     return result
 
 
