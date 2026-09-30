@@ -17,6 +17,26 @@ const NAV=[
   ['notifications','Notifications',Bell],['settings','Settings',Settings]
 ];
 
+function deriveServiceState(snapshot,council,runtime){
+  const reason=snapshot?.reason||{};
+  const source=String(snapshot?.source||'');
+  const dhan=reason.dhan_error
+    ? {status:'UNAVAILABLE',label:'Dhan unavailable',detail:'Latest market cycle could not authenticate to Dhan; the GUI is using the explicitly labelled fallback feed.'}
+    : source.toLowerCase().includes('dhan')
+      ? {status:'READY',label:'Dhan feed ready',detail:'Latest market snapshot came from Dhan.'}
+      : {status:'CONFIGURED',label:'Fallback feed active',detail:'Latest market snapshot source: '+(source||'unknown')+'. Dhan is not the active market-data source.'};
+  const ai=(provider)=>{
+    const cfg=council?.config?.[provider]||{};
+    const err=council?.errors?.[provider];
+    const name=provider==='openai'?'OpenAI':'Anthropic';
+    if(!cfg.api_key_configured) return {status:'NOT_CONFIGURED',label:'Not configured',detail:name+' API key is not configured.'};
+    if(err) return {status:'UNAVAILABLE',label:'Configured but unavailable',detail:String(err).slice(0,180)};
+    if(council?.status==='COMPLETE') return {status:'READY',label:'Participating',detail:name+' completed the latest council run.'};
+    return {status:'CONFIGURED',label:'Configured; waiting',detail:name+' is configured; latest council status is '+(council?.status||'UNKNOWN')+'.'};
+  };
+  return {telegram:runtime?.telegram||{status:'UNKNOWN',label:'Verification pending',detail:'Telegram verification is performed server-side during Pages deployment.'},dhan,openai:ai('openai'),anthropic:ai('anthropic')};
+}
+
 function marketState(snapshot){
   const now=new Date();
   const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Kolkata',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(now);
@@ -90,6 +110,7 @@ export default function App(){
     return String(stock.symbol||'').toUpperCase().includes(q)||String(stock.sector||'').toUpperCase().includes(q);
   }),[stocks,search]);
   const market=marketState(snapshot);
+  const currentRuntimeStatus=useMemo(()=>deriveServiceState(snapshot,council,runtimeStatus),[snapshot,council,runtimeStatus]);
 
   function showNotice(text){setNotice(text);setTimeout(()=>setNotice(''),4500)}
   function runCycle(){
@@ -103,7 +124,7 @@ export default function App(){
   }
 
   function renderPage(){
-    if(tab==='dashboard')return <Dashboard snapshot={snapshot} eod={eod} scrap={scrap} council={council} paperState={paperState} runtimeStatus={runtimeStatus} loading={loading} stop={stop} paper={paper} setTab={setTab} runCycle={runCycle} market={market} marketIndex={marketIndex} setMarketIndex={setMarketIndex}/>;
+    if(tab==='dashboard')return <Dashboard snapshot={snapshot} eod={eod} scrap={scrap} council={council} paperState={paperState} runtimeStatus={currentRuntimeStatus} loading={loading} stop={stop} paper={paper} setTab={setTab} runCycle={runCycle} market={market} marketIndex={marketIndex} setMarketIndex={setMarketIndex}/>;
     if(tab==='screener')return <Screener stocks={filtered} scrap={scrap} status={snapshot&&snapshot.status} search={search} setSearch={setSearch}/>;
     if(tab==='stock360')return <Stock360 stock={filtered[0]||stocks[0]} scrap={scrap} status={snapshot&&snapshot.status}/>;
     if(tab==='regime')return <Regime live={market.live} snapshot={snapshot}/>;
