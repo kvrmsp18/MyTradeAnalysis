@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "generated_at": null,
+  "telegram": {
+    "status": "UNKNOWN",
+    "label": "Verification pending",
+    "detail": "Runtime health is generated during the GitHub Pages deployment; secrets are never exposed to the browser."
+  },
+  "dhan": {
+    "status": "UNKNOWN",
+    "label": "Verification pending",
+    "detail": "Waiting for the latest paper-cycle market evidence."
+  },
+  "openai": {
+    "status": "UNKNOWN",
+    "label": "Verification pending",
+    "detail": "Waiting for the latest AI council evidence."
+  },
+  "anthropic": {
+    "status": "UNKNOWN",
+    "label": "Verification pending",
+    "detail": "Waiting for the latest AI council evidence."
+  },
+  "paper_only": true,
+  "secrets_exposed": false
+}
