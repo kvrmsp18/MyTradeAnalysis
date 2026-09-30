@@ -78,7 +78,9 @@ export default function App(){
   useEffect(()=>{load();const timer=setInterval(load,30000);return()=>clearInterval(timer)},[]);
 
   const stocks=(snapshot&&snapshot.stocks)||[];
-  const filtered=useMemo(()=>stocks.filter(stock=>{
+  const analysisBudget=Number(paperState?.analysis_budget||1000);
+  const eligibleStocks=useMemo(()=>stocks.filter(stock=>Number(stock.price)>0&&Number(stock.price)<=analysisBudget),[stocks,analysisBudget]);
+  const filtered=useMemo(()=>eligibleStocks.filter(stock=>{
     const q=search.toUpperCase();
     return String(stock.symbol||'').toUpperCase().includes(q)||String(stock.sector||'').toUpperCase().includes(q);
   }),[stocks,search]);
