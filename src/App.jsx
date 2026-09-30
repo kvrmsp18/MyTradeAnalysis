@@ -117,7 +117,7 @@ export default function App(){
     if(tab==='supervisor')return <Supervisor live={market.live} paper={paper} council={council}/>;
     if(tab==='health')return <Health snapshot={snapshot} eod={eod} paper={paper} scrap={scrap} council={council} runtimeStatus={runtimeStatus}/>;
     if(tab==='notifications')return <Notifications council={council} paperState={paperState} runtimeStatus={runtimeStatus}/>;
-    return <SettingsPage paper={paper} setPaper={setPaper} council={council}/>;
+    return <SettingsPage paper={paper} setPaper={setPaper} council={council} runtimeStatus={runtimeStatus}/>;
   }
 
   return <div className="app">
