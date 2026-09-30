@@ -136,7 +136,7 @@ export default function App(){
     if(tab==='baskets')return <Baskets stocks={stocks}/>;
     if(tab==='postmortem')return <PostMortem report={eod}/>;
     if(tab==='supervisor')return <Supervisor live={market.live} paper={paper} council={council}/>;
-    if(tab==='health')return <Health snapshot={snapshot} eod={eod} paper={paper} scrap={scrap} council={council} runtimeStatus={runtimeStatus}/>;
+    if(tab==='health')return <Health snapshot={snapshot} eod={eod} paper={paper} scrap={scrap} council={council} runtimeStatus={currentRuntimeStatus}/>;
     if(tab==='notifications')return <Notifications council={council} paperState={paperState} runtimeStatus={runtimeStatus}/>;
     return <SettingsPage paper={paper} setPaper={setPaper} council={council} runtimeStatus={runtimeStatus}/>;
   }
