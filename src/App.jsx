@@ -186,6 +186,7 @@ function MarketMetric({title,value,sub,icon:Icon}){return <div className="market
 function StatusRow({name,value,blue,green,red,warn}){let cls=blue?'pillBlue':green?'greenText':red?'redText':warn?'warnText':'';return <div><span>{name}</span><b className={cls}>{value}</b></div>}
 function Event({time,text}){return <div className="event"><span className="time">{time}</span><span>{text}</span></div>}
 function HealthMini({label,value}){return <div className="healthMini"><span><i/> {label}</span><b>{value}</b></div>}
+function Connection({status,label}){const ok=status==='READY'||status==='CONFIGURED';const bad=status==='UNAVAILABLE'||status==='ERROR'||status==='NOT_CONFIGURED';return <span className={ok?'ok':bad?'bad':'muted'}>● {label}</span>}
 function MarketSnapshotChart({stocks,snapshot,live,selectedIndex,analysisBudget}){
   const rows=[...(stocks||[])].filter(x=>Number.isFinite(Number(x.change))).sort((a,b)=>Math.abs(Number(b.change))-Math.abs(Number(a.change))).slice(0,12);
   const max=Math.max(...rows.map(x=>Math.abs(Number(x.change))),1);
