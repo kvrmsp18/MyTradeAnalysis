@@ -1,1 +1,1 @@
-Manual paper-cycle trigger - 2026-09-30T12:45 IST
+Manual paper-cycle trigger - verify dashboard/index feed - 2026-09-30T13:05 IST
