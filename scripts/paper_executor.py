@@ -28,7 +28,8 @@ EVENTS = Path("data/paper/events")
 PUBLIC_STATE = Path("public/data/paper_state.json")
 SNAPSHOT = Path("public/data/market_snapshot.json")
 
-CAPITAL = float(os.getenv("PAPER_STARTING_CAPITAL", "10000"))
+CAPITAL = float(os.getenv("PAPER_STARTING_CAPITAL", os.getenv("PAPER_ANALYSIS_BUDGET", "1000")) or 1000)
+ANALYSIS_BUDGET = max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", "1000") or 1000))
 MAX_POS_PCT = float(os.getenv("PAPER_MAX_POSITION_PCT", "20"))
 TARGET_PCT = float(os.getenv("PAPER_TARGET_PCT", "2.0"))
 STOP_PCT = float(os.getenv("PAPER_STOP_PCT", "1.0"))
@@ -78,7 +79,9 @@ def publish_state(state):
         "realized_pnl": round(float(state.get("realized_pnl", 0)), 2),
         "trade_count": len(state.get("trades", [])),
         "last_processed_ledger": state.get("last_processed_ledger"),
-        "funds_check": "PASS" if FUNDS_STATUS == "READY" else "UNAVAILABLE",
+        "funds_check": "PASS" if FUNDS_STATUS == "READY" else "FALLBACK_MINIMUM",
+        "analysis_budget": round(ANALYSIS_BUDGET, 2),
+        "budget_rule": "Dhan available funds when available; otherwise ₹1,000 paper minimum",
         "live_orders_enabled": False,
         "generated_at": now(),
     }
@@ -190,11 +193,6 @@ def main():
 
     if not entry_allowed:
         candidates = []
-    elif FUNDS_STATUS != "READY":
-        candidates = []
-        ledger.setdefault("execution_blockers", []).append(
-            "DHAN_FUNDS_CHECK_UNAVAILABLE"
-        )
     else:
         candidates = [
             candidate
@@ -204,8 +202,8 @@ def main():
         ]
         candidates.sort(key=lambda candidate: candidate.get("ranking", 9999))
 
-    broker_available = AVAILABLE_FUNDS if FUNDS_STATUS == "READY" else 0.0
-    effective_buying_power = min(float(state["cash"]), broker_available)
+    broker_available = AVAILABLE_FUNDS if FUNDS_STATUS == "READY" else ANALYSIS_BUDGET
+    effective_buying_power = min(float(state["cash"]), broker_available, ANALYSIS_BUDGET)
     position_value_cap = effective_buying_power * MAX_POS_PCT / 100
 
     for candidate in candidates:
@@ -274,7 +272,8 @@ def main():
                 "order_submitted": bool(matching),
                 "paper_events": matching,
                 "live_order_sent": False,
-                "funds_check": "PASS" if FUNDS_STATUS == "READY" else "UNAVAILABLE",
+                "funds_check": "PASS" if FUNDS_STATUS == "READY" else "FALLBACK_MINIMUM",
+                "analysis_budget": round(ANALYSIS_BUDGET, 2),
                 "reason": (
                     "PAPER_SIMULATED_FILL"
                     if matching
