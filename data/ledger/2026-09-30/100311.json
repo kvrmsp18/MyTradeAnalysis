@@ -1,0 +1,5547 @@
+{
+  "schema_version": "4.0",
+  "timestamp": "2026-09-30T10:03:11.664373Z",
+  "mode": "PAPER",
+  "stage": "DHA\u039d_SNAPSHOT -> SCRAP_TECHNICAL -> STRATEGY_EVIDENCE -> AI_RESEARCH -> DETERMINISTIC_GATES",
+  "market_data_status": "LIVE_MARKET_DATA_FALLBACK",
+  "source": "Yahoo Finance chart feed",
+  "snapshot_timestamp": "2026-09-30T10:02:31.027111Z",
+  "scrap_status": "LIVE_TECHNICAL_DATA",
+  "scrap_timestamp": "2026-09-30T10:02:31.832490Z",
+  "universe_count": 21,
+  "source_universe_count": 50,
+  "analysis_budget": 1000.0,
+  "budget_rule": "Dhan available funds when available; otherwise \u20b91,000 paper minimum",
+  "budget_excluded_count": 29,
+  "review_candidates": 1,
+  "rejection_summary": {
+    "SCRAP_WATCH_ONLY": 10,
+    "SCRAP_BELOW_REVIEW_THRESHOLD": 10
+  },
+  "market_regime": {
+    "status": "BEARISH",
+    "breadth_pct": 23.8,
+    "confidence": 52.4
+  },
+  "strategy_frameworks_enabled": [
+    "buffett",
+    "jhunjhunwala",
+    "lynch",
+    "hundred_baggers",
+    "canslim"
+  ],
+  "ai_council_status": "QUORUM_UNAVAILABLE",
+  "candidates": [
+    {
+      "symbol": "MAXHEALTH",
+      "quote": {
+        "price": 929.8,
+        "change": -5.33,
+        "open": null,
+        "high": 976.3,
+        "low": 907.7,
+        "prev_close": 982.1,
+        "volume": 13815752,
+        "security_id": null
+      },
+      "features": {
+        "score": 65.28,
+        "factors": [
+          "negative_session_change",
+          "scrap_review",
+          "technical_scrap_gate_pass",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -5.33
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 30.0,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 920.955,
+          "ema20": 920.5635,
+          "ema50": 928.5574,
+          "rsi14": 57.94,
+          "atr14": 4.4546,
+          "atr_pct": 0.48,
+          "volume_ratio_20": 0.0,
+          "high20": 927.9000244140625,
+          "low20": 907.7000122070312
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "MAXHEALTH",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 920.955,
+          "ema20": 920.5635,
+          "ema50": 928.5574,
+          "rsi14": 57.94,
+          "atr14": 4.4546,
+          "atr_pct": 0.48,
+          "volume_ratio_20": 0.0,
+          "high20": 927.9000244140625,
+          "low20": 907.7000122070312
+        },
+        "components": {
+          "structure": 2,
+          "confirmation": 2,
+          "relative_strength": 3,
+          "actionability": 3,
+          "protection": 3
+        },
+        "score": 81.2,
+        "action": "REVIEW",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 1,
+      "analysis_pool_member": true,
+      "decision": "REVIEW",
+      "rejection_reason": null,
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "INDUSINDBK",
+      "quote": {
+        "price": 901.4,
+        "change": 2.67,
+        "open": null,
+        "high": 902.1,
+        "low": 885.0,
+        "prev_close": 878.0,
+        "volume": 2428820,
+        "security_id": null
+      },
+      "features": {
+        "score": 64.38,
+        "factors": [
+          "positive_session_change",
+          "upper_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "PASS",
+                "value": 2.67
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 1,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 75.0,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 896.1438,
+          "ema20": 896.9428,
+          "ema50": 896.5345,
+          "rsi14": 32.78,
+          "atr14": 2.0,
+          "atr_pct": 0.22,
+          "volume_ratio_20": 0.0,
+          "high20": 901.4000244140625,
+          "low20": 893.9000244140625
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "INDUSINDBK",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 896.1438,
+          "ema20": 896.9428,
+          "ema50": 896.5345,
+          "rsi14": 32.78,
+          "atr14": 2.0,
+          "atr_pct": 0.22,
+          "volume_ratio_20": 0.0,
+          "high20": 901.4000244140625,
+          "low20": 893.9000244140625
+        },
+        "components": {
+          "structure": 2,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 62.5,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 2,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "KOTAKBANK",
+      "quote": {
+        "price": 417.0,
+        "change": 2.71,
+        "open": null,
+        "high": 419.15,
+        "low": 405.95,
+        "prev_close": 406.0,
+        "volume": 32536479,
+        "security_id": null
+      },
+      "features": {
+        "score": 64.38,
+        "factors": [
+          "positive_session_change",
+          "upper_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "PASS",
+                "value": 2.71
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 1,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 75.0,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 415.7241,
+          "ema20": 416.0348,
+          "ema50": 415.2027,
+          "rsi14": 33.58,
+          "atr14": 1.1546,
+          "atr_pct": 0.28,
+          "volume_ratio_20": 0.0,
+          "high20": 417.8500061035156,
+          "low20": 414.3999938964844
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "KOTAKBANK",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 415.7241,
+          "ema20": 416.0348,
+          "ema50": 415.2027,
+          "rsi14": 33.58,
+          "atr14": 1.1546,
+          "atr_pct": 0.28,
+          "volume_ratio_20": 0.0,
+          "high20": 417.8500061035156,
+          "low20": 414.3999938964844
+        },
+        "components": {
+          "structure": 2,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 62.5,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 3,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "SHRIRAMFIN",
+      "quote": {
+        "price": 982.7,
+        "change": 1.15,
+        "open": null,
+        "high": 987.0,
+        "low": 965.1,
+        "prev_close": 971.5,
+        "volume": 5552283,
+        "security_id": null
+      },
+      "features": {
+        "score": 61.67,
+        "factors": [
+          "positive_session_change",
+          "upper_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "PASS",
+                "value": 1.15
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 1,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 64.2,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 982.7753,
+          "ema20": 982.2095,
+          "ema50": 979.9292,
+          "rsi14": 46.19,
+          "atr14": 2.7182,
+          "atr_pct": 0.28,
+          "volume_ratio_20": 0.0,
+          "high20": 986.4000244140625,
+          "low20": 976.2000122070312
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "SHRIRAMFIN",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 982.7753,
+          "ema20": 982.2095,
+          "ema50": 979.9292,
+          "rsi14": 46.19,
+          "atr14": 2.7182,
+          "atr_pct": 0.28,
+          "volume_ratio_20": 0.0,
+          "high20": 986.4000244140625,
+          "low20": 976.2000122070312
+        },
+        "components": {
+          "structure": 2,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 3,
+          "protection": 3
+        },
+        "score": 62.5,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 4,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "NTPC",
+      "quote": {
+        "price": 322.75,
+        "change": -0.23,
+        "open": null,
+        "high": 323.95,
+        "low": 318.9,
+        "prev_close": 323.5,
+        "volume": 6898477,
+        "security_id": null
+      },
+      "features": {
+        "score": 54.82,
+        "factors": [
+          "negative_session_change",
+          "upper_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -0.23
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 53.16,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 320.2486,
+          "ema20": 320.786,
+          "ema50": 321.4533,
+          "rsi14": 43.61,
+          "atr14": 0.7136,
+          "atr_pct": 0.22,
+          "volume_ratio_20": 0.0,
+          "high20": 322.20001220703125,
+          "low20": 319.0
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "NTPC",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 320.2486,
+          "ema20": 320.786,
+          "ema50": 321.4533,
+          "rsi14": 43.61,
+          "atr14": 0.7136,
+          "atr_pct": 0.22,
+          "volume_ratio_20": 0.0,
+          "high20": 322.20001220703125,
+          "low20": 319.0
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 56.2,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 5,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "HDFCLIFE",
+      "quote": {
+        "price": 521.2,
+        "change": -0.45,
+        "open": null,
+        "high": 521.2,
+        "low": 513.4,
+        "prev_close": 523.55,
+        "volume": 5062140,
+        "security_id": null
+      },
+      "features": {
+        "score": 54.38,
+        "factors": [
+          "negative_session_change",
+          "upper_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -0.45
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 51.4,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 516.6476,
+          "ema20": 517.0103,
+          "ema50": 517.409,
+          "rsi14": 40.64,
+          "atr14": 1.4727,
+          "atr_pct": 0.28,
+          "volume_ratio_20": 0.0,
+          "high20": 519.5499877929688,
+          "low20": 514.0
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "HDFCLIFE",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 516.6476,
+          "ema20": 517.0103,
+          "ema50": 517.409,
+          "rsi14": 40.64,
+          "atr14": 1.4727,
+          "atr_pct": 0.28,
+          "volume_ratio_20": 0.0,
+          "high20": 519.5499877929688,
+          "low20": 514.0
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 56.2,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 6,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "POWERGRID",
+      "quote": {
+        "price": 260.5,
+        "change": -0.38,
+        "open": null,
+        "high": 262.0,
+        "low": 258.1,
+        "prev_close": 261.5,
+        "volume": 9769058,
+        "security_id": null
+      },
+      "features": {
+        "score": 53.27,
+        "factors": [
+          "negative_session_change",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -0.38
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 46.96,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 259.1276,
+          "ema20": 259.4612,
+          "ema50": 260.0866,
+          "rsi14": 37.18,
+          "atr14": 0.4818,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 260.1000061035156,
+          "low20": 258.3500061035156
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "POWERGRID",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 259.1276,
+          "ema20": 259.4612,
+          "ema50": 260.0866,
+          "rsi14": 37.18,
+          "atr14": 0.4818,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 260.1000061035156,
+          "low20": 258.3500061035156
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 56.2,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 7,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "JIOFIN",
+      "quote": {
+        "price": 216.88,
+        "change": -0.31,
+        "open": null,
+        "high": 220.39,
+        "low": 215.64,
+        "prev_close": 217.56,
+        "volume": 14295737,
+        "security_id": null
+      },
+      "features": {
+        "score": 52.16,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -0.31
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 42.52,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 216.194,
+          "ema20": 216.5043,
+          "ema50": 217.0115,
+          "rsi14": 24.73,
+          "atr14": 0.4245,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 217.3300018310547,
+          "low20": 215.66000366210938
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "JIOFIN",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 216.194,
+          "ema20": 216.5043,
+          "ema50": 217.0115,
+          "rsi14": 24.73,
+          "atr14": 0.4245,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 217.3300018310547,
+          "low20": 215.66000366210938
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 56.2,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 8,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "BEL",
+      "quote": {
+        "price": 388.3,
+        "change": 0.14,
+        "open": null,
+        "high": 391.0,
+        "low": 385.0,
+        "prev_close": 387.75,
+        "volume": 9665364,
+        "security_id": null
+      },
+      "features": {
+        "score": 50.28,
+        "factors": [
+          "positive_session_change",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "PASS",
+                "value": 0.14
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 1,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 51.12,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 387.6241,
+          "ema20": 388.2173,
+          "ema50": 388.4655,
+          "rsi14": 31.97,
+          "atr14": 0.7773,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 389.8500061035156,
+          "low20": 386.70001220703125
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "BEL",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 387.6241,
+          "ema20": 388.2173,
+          "ema50": 388.4655,
+          "rsi14": 31.97,
+          "atr14": 0.7773,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 389.8500061035156,
+          "low20": 386.70001220703125
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 50.0,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 9,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "ONGC",
+      "quote": {
+        "price": 225.8,
+        "change": -1.83,
+        "open": null,
+        "high": 231.57,
+        "low": 223.6,
+        "prev_close": 230.0,
+        "volume": 11129854,
+        "security_id": null
+      },
+      "features": {
+        "score": 49.12,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -1.83
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 30.36,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 224.3404,
+          "ema20": 224.9375,
+          "ema50": 226.256,
+          "rsi14": 6.84,
+          "atr14": 0.2964,
+          "atr_pct": 0.13,
+          "volume_ratio_20": 0.0,
+          "high20": 225.58999633789062,
+          "low20": 223.8000030517578
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "ONGC",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 224.3404,
+          "ema20": 224.9375,
+          "ema50": 226.256,
+          "rsi14": 6.84,
+          "atr14": 0.2964,
+          "atr_pct": 0.13,
+          "volume_ratio_20": 0.0,
+          "high20": 225.58999633789062,
+          "low20": 223.8000030517578
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 56.2,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 10,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "ETERNAL",
+      "quote": {
+        "price": 320.0,
+        "change": -2.39,
+        "open": null,
+        "high": 329.0,
+        "low": 317.1,
+        "prev_close": 327.85,
+        "volume": 28839497,
+        "security_id": null
+      },
+      "features": {
+        "score": 48.0,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_watch",
+          "technical_scrap_watch",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -2.39
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 25.88,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 318.5731,
+          "ema20": 318.6493,
+          "ema50": 319.5771,
+          "rsi14": 46.67,
+          "atr14": 0.6318,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 320.04998779296875,
+          "low20": 317.20001220703125
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "ETERNAL",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 318.5731,
+          "ema20": 318.6493,
+          "ema50": 319.5771,
+          "rsi14": 46.67,
+          "atr14": 0.6318,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 320.04998779296875,
+          "low20": 317.20001220703125
+        },
+        "components": {
+          "structure": 1,
+          "confirmation": 0,
+          "relative_strength": 3,
+          "actionability": 2,
+          "protection": 3
+        },
+        "score": 56.2,
+        "action": "WATCH",
+        "reasons": [
+          "price_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 11,
+      "analysis_pool_member": false,
+      "decision": "WATCH",
+      "rejection_reason": "SCRAP_WATCH_ONLY",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "WIPRO",
+      "quote": {
+        "price": 158.5,
+        "change": 1.09,
+        "open": null,
+        "high": 161.73,
+        "low": 157.01,
+        "prev_close": 156.79,
+        "volume": 15951443,
+        "security_id": null
+      },
+      "features": {
+        "score": 39.96,
+        "factors": [
+          "positive_session_change",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "PASS",
+                "value": 1.09
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 1,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 58.72,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 158.8142,
+          "ema20": 159.0115,
+          "ema50": 159.4348,
+          "rsi14": 36.4,
+          "atr14": 0.3,
+          "atr_pct": 0.19,
+          "volume_ratio_20": 0.0,
+          "high20": 159.3699951171875,
+          "low20": 158.42999267578125
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "WIPRO",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 158.8142,
+          "ema20": 159.0115,
+          "ema50": 159.4348,
+          "rsi14": 36.4,
+          "atr14": 0.3,
+          "atr_pct": 0.19,
+          "volume_ratio_20": 0.0,
+          "high20": 159.3699951171875,
+          "low20": 158.42999267578125
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 12,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "COALINDIA",
+      "quote": {
+        "price": 425.0,
+        "change": 0.0,
+        "open": null,
+        "high": 432.9,
+        "low": 423.95,
+        "prev_close": 425.0,
+        "volume": 7435441,
+        "security_id": null
+      },
+      "features": {
+        "score": 36.53,
+        "factors": [
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": 0.0
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 45.0,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 425.4014,
+          "ema20": 426.3364,
+          "ema50": 427.5518,
+          "rsi14": 17.31,
+          "atr14": 0.7455,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 427.6000061035156,
+          "low20": 423.95001220703125
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "COALINDIA",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 425.4014,
+          "ema20": 426.3364,
+          "ema50": 427.5518,
+          "rsi14": 17.31,
+          "atr14": 0.7455,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 427.6000061035156,
+          "low20": 423.95001220703125
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 13,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "SBIN",
+      "quote": {
+        "price": 959.5,
+        "change": -0.54,
+        "open": null,
+        "high": 972.8,
+        "low": 959.5,
+        "prev_close": 964.7,
+        "volume": 8004673,
+        "security_id": null
+      },
+      "features": {
+        "score": 35.45,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -0.54
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 40.68,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 963.2075,
+          "ema20": 964.9197,
+          "ema50": 966.3853,
+          "rsi14": 26.09,
+          "atr14": 1.6182,
+          "atr_pct": 0.17,
+          "volume_ratio_20": 0.0,
+          "high20": 969.7000122070312,
+          "low20": 960.4000244140625
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "SBIN",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 963.2075,
+          "ema20": 964.9197,
+          "ema50": 966.3853,
+          "rsi14": 26.09,
+          "atr14": 1.6182,
+          "atr_pct": 0.17,
+          "volume_ratio_20": 0.0,
+          "high20": 969.7000122070312,
+          "low20": 960.4000244140625
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 14,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "ITC",
+      "quote": {
+        "price": 262.75,
+        "change": -0.89,
+        "open": null,
+        "high": 266.9,
+        "low": 261.4,
+        "prev_close": 265.1,
+        "volume": 14073985,
+        "security_id": null
+      },
+      "features": {
+        "score": 34.75,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -0.89
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 37.88,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 262.4603,
+          "ema20": 263.122,
+          "ema50": 264.1002,
+          "rsi14": 15.52,
+          "atr14": 0.4682,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 264.3500061035156,
+          "low20": 261.6000061035156
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "ITC",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 262.4603,
+          "ema20": 263.122,
+          "ema50": 264.1002,
+          "rsi14": 15.52,
+          "atr14": 0.4682,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 264.3500061035156,
+          "low20": 261.6000061035156
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 15,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "HINDALCO",
+      "quote": {
+        "price": 941.8,
+        "change": -1.4,
+        "open": null,
+        "high": 956.8,
+        "low": 941.1,
+        "prev_close": 955.2,
+        "volume": 4419479,
+        "security_id": null
+      },
+      "features": {
+        "score": 33.73,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -1.4
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 33.8,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 948.2915,
+          "ema20": 949.9269,
+          "ema50": 950.7649,
+          "rsi14": 17.42,
+          "atr14": 1.7273,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 952.9000244140625,
+          "low20": 941.9000244140625
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "HINDALCO",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 948.2915,
+          "ema20": 949.9269,
+          "ema50": 950.7649,
+          "rsi14": 17.42,
+          "atr14": 1.7273,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 952.9000244140625,
+          "low20": 941.9000244140625
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 16,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "BAJFINANCE",
+      "quote": {
+        "price": 959.4,
+        "change": -1.48,
+        "open": null,
+        "high": 981.5,
+        "low": 955.8,
+        "prev_close": 973.8,
+        "volume": 6625358,
+        "security_id": null
+      },
+      "features": {
+        "score": 33.57,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -1.48
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 33.16,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 959.5033,
+          "ema20": 960.8702,
+          "ema50": 962.9423,
+          "rsi14": 30.23,
+          "atr14": 1.7364,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 965.2000122070312,
+          "low20": 955.7999877929688
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "BAJFINANCE",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 959.5033,
+          "ema20": 960.8702,
+          "ema50": 962.9423,
+          "rsi14": 30.23,
+          "atr14": 1.7364,
+          "atr_pct": 0.18,
+          "volume_ratio_20": 0.0,
+          "high20": 965.2000122070312,
+          "low20": 955.7999877929688
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 17,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "TATACONSUM",
+      "quote": {
+        "price": 949.5,
+        "change": -1.88,
+        "open": null,
+        "high": 968.1,
+        "low": 949.5,
+        "prev_close": 967.7,
+        "volume": 1708219,
+        "security_id": null
+      },
+      "features": {
+        "score": 32.77,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -1.88
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 29.96,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 956.8452,
+          "ema20": 958.5492,
+          "ema50": 960.4724,
+          "rsi14": 29.14,
+          "atr14": 2.1727,
+          "atr_pct": 0.23,
+          "volume_ratio_20": 0.0,
+          "high20": 964.0,
+          "low20": 955.0
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "TATACONSUM",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 956.8452,
+          "ema20": 958.5492,
+          "ema50": 960.4724,
+          "rsi14": 29.14,
+          "atr14": 2.1727,
+          "atr_pct": 0.23,
+          "volume_ratio_20": 0.0,
+          "high20": 964.0,
+          "low20": 955.0
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 18,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "HDFCBANK",
+      "quote": {
+        "price": 708.7,
+        "change": -1.94,
+        "open": null,
+        "high": 720.3,
+        "low": 708.7,
+        "prev_close": 722.7,
+        "volume": 39304359,
+        "security_id": null
+      },
+      "features": {
+        "score": 32.65,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -1.94
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 29.48,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 714.2426,
+          "ema20": 715.0278,
+          "ema50": 715.6102,
+          "rsi14": 28.94,
+          "atr14": 1.6455,
+          "atr_pct": 0.23,
+          "volume_ratio_20": 0.0,
+          "high20": 718.5,
+          "low20": 711.7000122070312
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "HDFCBANK",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 714.2426,
+          "ema20": 715.0278,
+          "ema50": 715.6102,
+          "rsi14": 28.94,
+          "atr14": 1.6455,
+          "atr_pct": 0.23,
+          "volume_ratio_20": 0.0,
+          "high20": 718.5,
+          "low20": 711.7000122070312
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 19,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "INFY",
+      "quote": {
+        "price": 994.1,
+        "change": -2.1,
+        "open": null,
+        "high": 1024.0,
+        "low": 992.2,
+        "prev_close": 1015.4,
+        "volume": 13425887,
+        "security_id": null
+      },
+      "features": {
+        "score": 32.33,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -2.1
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 28.2,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 995.6836,
+          "ema20": 997.3602,
+          "ema50": 1000.7834,
+          "rsi14": 34.07,
+          "atr14": 2.0091,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 1001.5,
+          "low20": 992.5
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "INFY",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 995.6836,
+          "ema20": 997.3602,
+          "ema50": 1000.7834,
+          "rsi14": 34.07,
+          "atr14": 2.0091,
+          "atr_pct": 0.2,
+          "volume_ratio_20": 0.0,
+          "high20": 1001.5,
+          "low20": 992.5
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 2,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 31.2,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 20,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    },
+    {
+      "symbol": "TATASTEEL",
+      "quote": {
+        "price": 184.3,
+        "change": -1.97,
+        "open": null,
+        "high": 189.55,
+        "low": 184.3,
+        "prev_close": 188.0,
+        "volume": 32367764,
+        "security_id": null
+      },
+      "features": {
+        "score": 28.56,
+        "factors": [
+          "negative_session_change",
+          "lower_range_position",
+          "scrap_observe",
+          "technical_scrap_below_threshold",
+          "strategy_framework_mixed_or_review"
+        ],
+        "strategy_frameworks": [
+          {
+            "id": "buffett",
+            "name": "Warren Buffett",
+            "focus": "Quality, moat, capital preservation",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Free cash flow",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Debt discipline",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "jhunjhunwala",
+            "name": "Jhunjhunwala",
+            "focus": "Secular growth, earnings and operating leverage",
+            "checks": [
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sector growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Operating leverage",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "lynch",
+            "name": "Peter Lynch",
+            "focus": "Growth versus valuation",
+            "checks": [
+              {
+                "name": "PEG",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Earnings growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "P/E",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 3,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "hundred_baggers",
+            "name": "100 Baggers",
+            "focus": "Reinvestment and long growth runway",
+            "checks": [
+              {
+                "name": "ROIC / ROCE",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Reinvestment rate",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Growth runway",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Revenue growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 0,
+            "passed": 0,
+            "total": 4,
+            "evidence_completeness_pct": 0,
+            "status": "UNAVAILABLE"
+          },
+          {
+            "id": "canslim",
+            "name": "CANSLIM / O'Neil",
+            "focus": "Growth, momentum and leadership",
+            "checks": [
+              {
+                "name": "EPS growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Sales growth",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Price momentum",
+                "state": "REVIEW",
+                "value": -1.97
+              },
+              {
+                "name": "Relative strength",
+                "state": "UNAVAILABLE",
+                "value": null
+              },
+              {
+                "name": "Volume confirmation",
+                "state": "UNAVAILABLE",
+                "value": null
+              }
+            ],
+            "available": 1,
+            "passed": 0,
+            "total": 5,
+            "evidence_completeness_pct": 20,
+            "status": "PARTIAL"
+          }
+        ],
+        "quote_score": 29.24,
+        "framework_score": 50.0
+      },
+      "indicators": {
+        "intraday_return_pct": null,
+        "gap_pct": null,
+        "scrap": {
+          "ema9": 186.516,
+          "ema20": 187.0143,
+          "ema50": 187.4911,
+          "rsi14": 18.33,
+          "atr14": 0.4664,
+          "atr_pct": 0.25,
+          "volume_ratio_20": 0.0,
+          "high20": 188.13999938964844,
+          "low20": 185.27000427246094
+        }
+      },
+      "market_regime": {
+        "status": "BEARISH",
+        "breadth_pct": 23.8,
+        "confidence": 52.4
+      },
+      "scrap_result": {
+        "symbol": "TATASTEEL",
+        "status": "OK",
+        "candle_count": 1725,
+        "indicators": {
+          "ema9": 186.516,
+          "ema20": 187.0143,
+          "ema50": 187.4911,
+          "rsi14": 18.33,
+          "atr14": 0.4664,
+          "atr_pct": 0.25,
+          "volume_ratio_20": 0.0,
+          "high20": 188.13999938964844,
+          "low20": 185.27000427246094
+        },
+        "components": {
+          "structure": 0,
+          "confirmation": 0,
+          "relative_strength": 1,
+          "actionability": 0,
+          "protection": 3
+        },
+        "score": 25.0,
+        "action": "OBSERVE",
+        "reasons": [
+          "price_not_above_ema20",
+          "ema9_not_above_ema20",
+          "volume_not_confirmed",
+          "not_near_20d_high"
+        ],
+        "decision_time_only": true,
+        "stock_specific_rule_created": false,
+        "data_source": "Yahoo Finance 5-minute fallback"
+      },
+      "ranking": 21,
+      "analysis_pool_member": false,
+      "decision": "OBSERVE",
+      "rejection_reason": "SCRAP_BELOW_REVIEW_THRESHOLD",
+      "available_capital": 1000.0,
+      "required_capital": 200.0,
+      "risk_gate": "PAPER_ONLY_PASS",
+      "capacity_gate": "PAPER_REFERENCE_CAPACITY",
+      "ai_council": {
+        "status": "QUORUM_UNAVAILABLE",
+        "execution_authorized": false,
+        "consensus": {
+          "status": "QUORUM_UNAVAILABLE",
+          "classification": "HOLD_FOR_REVIEW"
+        },
+        "cross_review_available": true
+      },
+      "execution": {
+        "mode": "PAPER",
+        "order_submitted": false,
+        "reason": "PAPER_EXECUTION_PENDING_DETERMINISTIC_GATES",
+        "paper_events": [],
+        "live_order_sent": false,
+        "funds_check": "FALLBACK_MINIMUM",
+        "analysis_budget": 1000.0
+      }
+    }
+  ],
+  "safety": {
+    "live_orders_enabled": false,
+    "stock_specific_learning_enabled": false,
+    "auto_strategy_mutation_enabled": false,
+    "ai_can_bypass_risk_gates": false,
+    "scrap_is_deterministic_gate": true,
+    "funds_check_required": true
+  },
+  "paper_account": {
+    "cash": 10000.0,
+    "open_positions": {},
+    "realized_pnl": 0.0
+  },
+  "paper_events": []
+}
