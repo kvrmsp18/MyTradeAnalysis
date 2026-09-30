@@ -63,7 +63,10 @@ def main():
         errors=[]
         if openai_error: errors.append("OpenAI: "+openai_error)
         if anthropic_error: errors.append("Anthropic: "+anthropic_error)
-        report="# AI Development Council\n\n**BLOCKED — both mandatory providers did not complete.**\n\n"+ "\n".join(errors)+"\n"
+        completed=[]
+        if openai is not None: completed.append("OpenAI independent review: completed")
+        if anthropic is not None: completed.append("Anthropic independent review: completed")
+        report="# AI Development Council\n\n**BLOCKED — mandatory two-provider quorum was not achieved.**\n\n## Provider status\n\n"+"\n".join(completed+errors)+"\n\nThe council will not proceed to cross-review or synthesis until both OpenAI and Anthropic complete their independent reviews.\n"
         REPORT.parent.mkdir(parents=True,exist_ok=True); REPORT.write_text(report,encoding='utf-8'); print(report); raise SystemExit(1)
     critique='''Compare the peer software review against the same evidence. Identify missed defects, unsupported claims, and unsafe assumptions. Start with PEER_REVIEW: ACCEPT or PEER_REVIEW: CHALLENGE.\n\n'''+evidence
     oa_peer=oa(critique+'\n\nANTHROPIC REVIEW:\n'+anthropic)
