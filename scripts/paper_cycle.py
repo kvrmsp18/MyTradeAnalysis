@@ -20,7 +20,7 @@ from pathlib import Path
 SNAPSHOT = Path("public/data/market_snapshot.json")
 SCRAP = Path("public/data/scrap_analysis.json")
 COUNCIL = Path("public/data/ai_research_council.json")
-CAPITAL = float(os.getenv("PAPER_REFERENCE_CAPITAL", "1000"))
+CAPITAL = max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", os.getenv("PAPER_REFERENCE_CAPITAL", "1000")) or 1000))
 MAX_POSITION_PCT = float(os.getenv("PAPER_MAX_POSITION_PCT", "20"))
 MIN_SCORE = float(os.getenv("PAPER_REVIEW_SCORE", "65"))
 MIN_SCRAP_SCORE = float(os.getenv("PAPER_MIN_SCRAP_SCORE", "60"))
@@ -240,7 +240,12 @@ def main() -> int:
     day = now.strftime("%Y-%m-%d")
     stamp = now.strftime("%H%M%S")
     out = Path("data/ledger") / day / f"{stamp}.json"
-    stocks = snapshot.get("stocks", [])
+    all_stocks = snapshot.get("stocks", [])
+    analysis_budget = CAPITAL
+    stocks = [
+        stock for stock in all_stocks
+        if num(stock.get("price")) is not None and num(stock.get("price")) <= analysis_budget
+    ]
     regime = market_regime(stocks)
     max_position_value = round(CAPITAL * MAX_POSITION_PCT / 100.0, 2)
 
@@ -316,6 +321,10 @@ def main() -> int:
         "scrap_status": scrap_data.get("status", "NOT_RUN"),
         "scrap_timestamp": scrap_data.get("timestamp"),
         "universe_count": len(stocks),
+        "source_universe_count": len(all_stocks),
+        "analysis_budget": analysis_budget,
+        "budget_rule": "Dhan available funds when available; otherwise ₹1,000 paper minimum",
+        "budget_excluded_count": len(all_stocks) - len(stocks),
         "review_candidates": sum(1 for x in candidates if x["decision"] == "REVIEW"),
         "rejection_summary": dict(reason_counts),
         "market_regime": regime,
