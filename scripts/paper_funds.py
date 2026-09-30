@@ -48,8 +48,11 @@ def main() -> int:
     client = (os.getenv("DHAN_CLIENT_ID") or "").strip()
 
     if not token or not client:
-        set_env("PAPER_FUNDS_STATUS", "UNAVAILABLE")
-        print("PAPER_FUNDS_STATUS=UNAVAILABLE")
+        set_env("PAPER_FUNDS_STATUS", "FALLBACK_MINIMUM")
+        set_env("PAPER_AVAILABLE_CAPITAL", "1000.00")
+        set_env("PAPER_ANALYSIS_BUDGET", "1000.00")
+        print("PAPER_FUNDS_STATUS=FALLBACK_MINIMUM")
+        print("PAPER_ANALYSIS_BUDGET=1000.00")
         return 0
 
     request = urllib.request.Request(
@@ -67,18 +70,26 @@ def main() -> int:
             payload = json.loads(response.read().decode("utf-8", "replace"))
         available = find_available(payload)
         if available is None:
-            set_env("PAPER_FUNDS_STATUS", "UNAVAILABLE")
-            print("PAPER_FUNDS_STATUS=UNAVAILABLE")
+            set_env("PAPER_FUNDS_STATUS", "FALLBACK_MINIMUM")
+            set_env("PAPER_AVAILABLE_CAPITAL", "1000.00")
+            set_env("PAPER_ANALYSIS_BUDGET", "1000.00")
+            print("PAPER_FUNDS_STATUS=FALLBACK_MINIMUM")
+            print("PAPER_ANALYSIS_BUDGET=1000.00")
             return 0
 
+        budget = max(1000.0, available)
         set_env("PAPER_FUNDS_STATUS", "READY")
         set_env("PAPER_AVAILABLE_CAPITAL", f"{available:.2f}")
+        set_env("PAPER_ANALYSIS_BUDGET", f"{budget:.2f}")
         print("PAPER_FUNDS_STATUS=READY")
         print("PAPER_FUNDS_CHECK=PASS")
         return 0
     except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
-        set_env("PAPER_FUNDS_STATUS", "UNAVAILABLE")
-        print(f"PAPER_FUNDS_STATUS=UNAVAILABLE ({type(exc).__name__})")
+        set_env("PAPER_FUNDS_STATUS", "FALLBACK_MINIMUM")
+        set_env("PAPER_AVAILABLE_CAPITAL", "1000.00")
+        set_env("PAPER_ANALYSIS_BUDGET", "1000.00")
+        print(f"PAPER_FUNDS_STATUS=FALLBACK_MINIMUM ({type(exc).__name__})")
+        print("PAPER_ANALYSIS_BUDGET=1000.00")
         return 0
 
 
