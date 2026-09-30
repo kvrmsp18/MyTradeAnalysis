@@ -1,1 +1,1 @@
-Manual paper-cycle trigger - verify dashboard/index feed - 2026-09-30T13:05 IST
+Manual paper-cycle trigger - budget eligibility verification - 2026-09-30T13:30 IST
