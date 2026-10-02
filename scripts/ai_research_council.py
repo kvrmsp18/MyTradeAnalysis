@@ -1,118 +1,99 @@
 #!/usr/bin/env python3
-"""Paper-only AI research council with provider-agnostic graceful degradation."""
+"""Paper-only, provider-agnostic AI research council."""
 from __future__ import annotations
-import json, os, re, urllib.request
-from datetime import datetime, timezone
+import hashlib,json,os
+from datetime import datetime,timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
+from ai_clients import call_anthropic,call_openai,classify
 
-SNAPSHOT=Path("public/data/market_snapshot.json")
-SCRAP=Path("public/data/scrap_analysis.json")
-OUT=Path("public/data/ai_research_council.json")
-ALLOWED={"SUPPORTS_REVIEW","WATCH_ONLY","NO_SUPPORT"}
+SNAPSHOT=Path("public/data/market_snapshot.json"); SCRAP=Path("public/data/scrap_analysis.json")
+OUT=Path("public/data/ai_research_council.json"); CACHE=Path("public/data/ai_research_cache.json")
 VALID_MARKET={"LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE","LIVE_MARKET_DATA_NSE_PROXY","LIVE_MARKET_DATA_FALLBACK"}
-
 def now(): return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
-def load(p,f):
+def load(p,d):
     try:
-        x=json.loads(p.read_text(encoding="utf-8")); return x if isinstance(x,dict) else f
-    except (OSError,json.JSONDecodeError): return f
-def write(x):
-    OUT.parent.mkdir(parents=True,exist_ok=True); OUT.write_text(json.dumps(x,indent=2),encoding="utf-8")
-def config():
-    return {"openai":{"api_key_configured":bool(os.getenv("OPENAI_API_KEY")),"model":os.getenv("OPENAI_MODEL") or None},"anthropic":{"api_key_configured":bool(os.getenv("ANTHROPIC_API_KEY")),"model":os.getenv("ANTHROPIC_MODEL") or None}}
-def post(url,headers,payload):
-    req=urllib.request.Request(url,data=json.dumps(payload).encode(),headers={**headers,"Content-Type":"application/json"},method="POST")
-    with urllib.request.urlopen(req,timeout=60) as r: return json.loads(r.read().decode())
-def oa_text(x):
-    return "\n".join(c["text"] for i in x.get("output",[]) for c in (i.get("content",[]) if isinstance(i,dict) else []) if c.get("type") in ("output_text","text") and c.get("text")).strip()
-def an_text(x):
-    return "\n".join(i.get("text","") for i in x.get("content",[]) if isinstance(i,dict) and i.get("type")=="text").strip()
-def classify(t):
-    m=re.search(r"(?:^|\n)\s*CLASSIFICATION\s*:\s*(SUPPORTS_REVIEW|WATCH_ONLY|NO_SUPPORT)\b",t or "",re.I)
-    return m.group(1).upper() if m else None
-def call_openai(prompt,evidence):
-    key,model=os.getenv("OPENAI_API_KEY"),os.getenv("OPENAI_MODEL")
-    if not key or not model: return "","OpenAI not configured."
-    try:
-        x=post("https://api.openai.com/v1/responses",{"Authorization":f"Bearer {key}"},{"model":model,"input":prompt+"\n\nEVIDENCE:\n"+json.dumps(evidence,sort_keys=True),"store":False})
-        t=oa_text(x); return (t,None) if t else ("","OpenAI returned no text.")
-    except Exception as e: return "",f"OpenAI unavailable: {e}"
-def call_anthropic(prompt,evidence):
-    key,model=os.getenv("ANTHROPIC_API_KEY"),os.getenv("ANTHROPIC_MODEL")
-    if not key or not model: return "","Anthropic not configured."
-    try:
-        x=post("https://api.anthropic.com/v1/messages",{"x-api-key":key,"anthropic-version":"2023-06-01"},{"model":model,"max_tokens":1400,"messages":[{"role":"user","content":prompt+"\n\nEVIDENCE:\n"+json.dumps(evidence,sort_keys=True)}]})
-        t=an_text(x); return (t,None) if t else ("","Anthropic returned no text.")
-    except Exception as e: return "",f"Anthropic unavailable: {e}"
-
-def main():
-    if not SNAPSHOT.exists():
-        write({"status":"AI_UNAVAILABLE","paper_only":True,"reason":"Market snapshot missing.","execution_authorized":False})
-        return 0
-    market=load(SNAPSHOT,{"status":"DATA_UNAVAILABLE","stocks":[]})
-    scrap=load(SCRAP,{"status":"NOT_RUN","stocks":[]})
-    if market.get("status") not in VALID_MARKET:
-        write({"status":"AI_UNAVAILABLE","paper_only":True,"reason":"No validated market data available.","market_status":market.get("status"),"scrap_status":scrap.get("status"),"config":config(),"execution_authorized":False})
-        return 0
-
+        x=json.loads(p.read_text(encoding="utf-8")); return x if isinstance(x,dict) else d
+    except (OSError,json.JSONDecodeError): return d
+def write(x): OUT.parent.mkdir(parents=True,exist_ok=True); OUT.write_text(json.dumps(x,indent=2),encoding="utf-8")
+def config(): return {"openai":{"api_key_configured":bool(os.getenv("OPENAI_API_KEY")),"model":os.getenv("OPENAI_MODEL") or None},"anthropic":{"api_key_configured":bool(os.getenv("ANTHROPIC_API_KEY")),"model":os.getenv("ANTHROPIC_MODEL") or None}}
+def in_session():
+    if os.getenv("AI_COUNCIL_FORCE")=="1": return True
+    t=datetime.now(ZoneInfo("Asia/Kolkata")); m=t.hour*60+t.minute
+    return t.weekday()<5 and 9*60+15<=m<=15*60+30
+def minutes_since(ts):
+    try: return (datetime.now(timezone.utc)-datetime.fromisoformat(str(ts).replace("Z","+00:00"))).total_seconds()/60
+    except Exception: return 999999
+def affordable_evidence(market,scrap):
     budget=max(1000.0,float(os.getenv("PAPER_ANALYSIS_BUDGET","1000") or 1000))
-    affordable={str(q.get("symbol")) for q in market.get("stocks",[]) if q.get("price") is not None and float(q.get("price")) <= budget}
-    fm=dict(market); fm["stocks"]=[q for q in market.get("stocks",[]) if str(q.get("symbol")) in affordable]
-    fs=dict(scrap); fs["stocks"]=[q for q in scrap.get("stocks",[]) if str(q.get("symbol")) in affordable]
-    evidence={"analysis_budget":budget,"budget_rule":"Dhan available funds when available; otherwise ₹1,000 paper minimum","market_snapshot":fm,"scrap_analysis":fs}
-    prompt=("You are an advisory market-research analyst in a paper-trading system. Use only the supplied decision-time market and SCRAP evidence. Do not invent data. Assess technical evidence, contradictions, uncertainty and risk blind spots. Never issue an executable order. Start with exactly one line: CLASSIFICATION: SUPPORTS_REVIEW, WATCH_ONLY, or NO_SUPPORT.")
-
-    ov,oe=call_openai(prompt,evidence); av,ae=call_anthropic(prompt,evidence)
+    allowed={str(q.get("symbol")) for q in market.get("stocks",[]) if q.get("price") is not None and float(q.get("price"))<=budget}
+    fm=dict(market); fm["stocks"]=[q for q in market.get("stocks",[]) if str(q.get("symbol")) in allowed]
+    fs=dict(scrap); fs["stocks"]=[q for q in scrap.get("stocks",[]) if str(q.get("symbol")) in allowed]
+    return {"analysis_budget":budget,"budget_rule":"Dhan available funds when available; otherwise ₹1,000 paper minimum","market_snapshot":fm,"scrap_analysis":fs}
+def main():
+    if not in_session():
+        write({"status":"AI_OUT_OF_SESSION","timestamp":now(),"paper_only":True,"execution_authorized":False,"reason":"AI council runs only during NSE session unless AI_COUNCIL_FORCE=1."}); return 0
+    market=load(SNAPSHOT,{"status":"DATA_UNAVAILABLE","stocks":[]}); scrap=load(SCRAP,{"status":"NOT_RUN","stocks":[]})
+    if market.get("status") not in VALID_MARKET:
+        write({"status":"AI_UNAVAILABLE","timestamp":now(),"paper_only":True,"reason":"No validated market data available.","config":config(),"execution_authorized":False}); return 0
+    evidence=affordable_evidence(market,scrap)
+    fingerprint=hashlib.sha256(json.dumps(evidence,sort_keys=True).encode()).hexdigest()
+    cache=load(CACHE,{})
+    prompt=("You are an advisory market-research analyst. Use only the supplied decision-time evidence. "
+            "Do not invent data. Assess technical evidence, contradictions, uncertainty and risk blind spots. "
+            "Never issue an executable order. Start with exactly one line: CLASSIFICATION: SUPPORTS_REVIEW, WATCH_ONLY, or NO_SUPPORT.")
+    results={}; errors={}
+    for name,call in (("OpenAI",call_openai),("Anthropic",call_anthropic)):
+        c=cache.get(name,{})
+        if c.get("fingerprint")==fingerprint and minutes_since(c.get("timestamp"))<=30 and c.get("text"):
+            results[name]=c["text"]; continue
+        text,error=call(prompt,evidence,max_output_tokens=3000)
+        if text:
+            results[name]=text
+            CACHE.parent.mkdir(parents=True,exist_ok=True)
+            cache[name]={"timestamp":now(),"fingerprint":fingerprint,"text":text}
+        else: errors[name.lower()]=error
+    CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8")
+    ov,av=results.get("OpenAI",""),results.get("Anthropic","")
     oc,ac=classify(ov),classify(av)
-    available=[("OpenAI",ov,oc),("Anthropic",av,ac)]
-    available=[x for x in available if x[1]]
-
-    if len(available)==0:
+    if not ov and not av:
+        previous=load(OUT,{})
+        if previous.get("status")=="AI_UNAVAILABLE" and minutes_since(previous.get("timestamp"))<10:
+            errors["backoff"]="10-minute retry backoff after AI failure."
         write({"status":"AI_UNAVAILABLE","timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":True,
                "working_provider":None,"independent":{"openai":None,"anthropic":None},
-               "independent_classifications":{"openai":None,"anthropic":None},
-               "consensus":{"status":"AI_UNAVAILABLE","classification":None,"rule":"No AI is available; continue using deterministic paper gates without AI."},
-               "errors":{"openai":oe,"anthropic":ae},"execution_authorized":False})
-        return 0
-
-    if len(available)==1:
-        name,text_value,classification=available[0]
+               "independent_classifications":{"openai":None,"anthropic":None},"errors":errors,
+               "consensus":{"status":"AI_UNAVAILABLE","classification":None,"rule":"No AI available; deterministic paper analysis continues."},
+               "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}}); return 0
+    if bool(ov)!=bool(av):
+        name="OpenAI" if ov else "Anthropic"; cls=oc if ov else ac
         write({"status":"DEGRADED_ONE_AI","timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":True,
                "working_provider":name,"independent":{"openai":ov or None,"anthropic":av or None},
-               "independent_classifications":{"openai":oc,"anthropic":ac},
-               "cross_review":{"openai":None,"anthropic":None},
-               "final_positions":{"openai":ov if name=="OpenAI" else None,"anthropic":av if name=="Anthropic" else None},
-               "final_classifications":{"openai":oc,"anthropic":ac},
-               "consensus":{"status":"DEGRADED_AGREEMENT" if classification else "DEGRADED_UNCLASSIFIED","classification":classification,"provider":name,
-                            "rule":"Use every available AI provider; ignore unavailable providers for this cycle."},
-               "errors":{"openai":oe,"anthropic":ae},"execution_authorized":False,
-               "safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}})
-        return 0
+               "independent_classifications":{"openai":oc,"anthropic":ac},"final_classifications":{"openai":oc,"anthropic":ac},
+               "errors":errors,"consensus":{"status":"DEGRADED_ONE_AI","classification":cls,"provider":name,
+               "rule":"Use every available AI provider; ignore unavailable providers for this cycle."},
+               "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}}); return 0
 
-    critique="Review the peer analysis against the same evidence. Identify unsupported claims, missing evidence, contradictions and risk blind spots. Never issue an executable order."
-    ac_text,ace=call_anthropic(critique+"\n\nPEER OPENAI:\n"+ov,evidence)
-    oc_text,oce=call_openai(critique+"\n\nPEER ANTHROPIC:\n"+av,evidence)
-    final=("Reassess your classification using the peer analysis and critiques. State uncertainty and data gaps. Advisory only. Start with exactly one CLASSIFICATION line using SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT.")
-    of,ofe=call_openai(final+"\n\nYOUR ANALYSIS:\n"+ov+"\n\nPEER:\n"+av+"\n\nCRITIQUE:\n"+oc_text,evidence)
-    af,afe=call_anthropic(final+"\n\nYOUR ANALYSIS:\n"+av+"\n\nPEER:\n"+ov+"\n\nCRITIQUE:\n"+ac_text,evidence)
+    critique=("Review the peer analysis against the same evidence. Identify unsupported claims, missing evidence, contradictions and risk blind spots. Advisory only.")
+    ac_text,ace=call_anthropic(critique+"\n\nPEER OPENAI:\n"+ov,evidence,max_output_tokens=3000)
+    oc_text,oce=call_openai(critique+"\n\nPEER ANTHROPIC:\n"+av,evidence,max_output_tokens=3000)
+    final=("Reassess your classification using the peer analysis and critique. State uncertainty and data gaps. "
+           "Advisory only. Start with exactly one CLASSIFICATION line using SUPPORTS_REVIEW, WATCH_ONLY or NO_SUPPORT.")
+    of,ofe=call_openai(final+"\n\nYOUR ANALYSIS:\n"+ov+"\n\nPEER:\n"+av+"\n\nCRITIQUE:\n"+oc_text,evidence,max_output_tokens=3000)
+    af,afe=call_anthropic(final+"\n\nYOUR ANALYSIS:\n"+av+"\n\nPEER:\n"+ov+"\n\nCRITIQUE:\n"+ac_text,evidence,max_output_tokens=3000)
     fc1,fc2=classify(of),classify(af)
-    if of and af and fc1 and fc2 and fc1==fc2:
-        status,classification="COMPLETE",fc1
-    elif of and af and fc1 and fc2:
-        status,classification="DISAGREEMENT","HOLD_FOR_REVIEW"
-    elif of or af:
-        status,classification="DEGRADED_ONE_AI_FINAL","HOLD_FOR_REVIEW"
-    else:
-        status,classification="AI_UNAVAILABLE","HOLD_FOR_REVIEW"
+    if fc1 and fc2 and fc1==fc2: status,classification="COMPLETE",fc1
+    elif fc1 and fc2: status,classification="DISAGREEMENT","HOLD_FOR_REVIEW"
+    elif fc1 or fc2: status,classification="DEGRADED_ONE_AI_FINAL",fc1 or fc2
+    else: status,classification="AI_UNAVAILABLE",None
     write({"status":status,"timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":status.startswith("DEGRADED") or status=="AI_UNAVAILABLE",
-           "working_provider":None if status=="COMPLETE" else ("OpenAI" if of and not af else "Anthropic" if af and not of else None),
+           "working_provider":None if status=="COMPLETE" else ("OpenAI" if fc1 and not fc2 else "Anthropic" if fc2 and not fc1 else None),
            "independent":{"openai":ov,"anthropic":av},"independent_classifications":{"openai":oc,"anthropic":ac},
-           "cross_review":{"openai":oc_text,"anthropic":ac_text},"final_positions":{"openai":of or None,"anthropic":af or None},
+           "cross_review":{"openai":oc_text or None,"anthropic":ac_text or None},
+           "final_positions":{"openai":of or None,"anthropic":af or None},
            "final_classifications":{"openai":fc1,"anthropic":fc2},
-           "consensus":{"status":status,"classification":classification,"rule":"Use all available provider results; when providers disagree, default to HOLD_FOR_REVIEW; never require a specific vendor."},
-           "errors":{"openai":oe,"anthropic":ae,"openai_cross_review":oce,"anthropic_cross_review":ace,"openai_final":ofe,"anthropic_final":afe},
+           "errors":{"openai":errors.get("openai"),"anthropic":errors.get("anthropic"),"openai_cross_review":oce,"anthropic_cross_review":ace,"openai_final":ofe,"anthropic_final":afe},
+           "consensus":{"status":status,"classification":classification,"rule":"Use all available provider results; disagreements default to HOLD_FOR_REVIEW; no vendor is mandatory."},
            "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False,"disagreement_defaults_to_hold":True}})
     return 0
-
-if __name__=="__main__":
-    raise SystemExit(main())
+if __name__=="__main__": raise SystemExit(main())
