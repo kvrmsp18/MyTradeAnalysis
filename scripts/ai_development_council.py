@@ -42,10 +42,17 @@ def an(prompt):
     return '\n'.join(p.get('text','') for p in x.get('content',[]) if p.get('type')=='text').strip()
 
 def main():
-    required=["OPENAI_API_KEY","ANTHROPIC_API_KEY","OPENAI_MODEL","ANTHROPIC_MODEL"]
-    missing=[x for x in required if not os.environ.get(x)]
-    if missing:
-        raise SystemExit("AI DEVELOPMENT COUNCIL BLOCKED: missing "+", ".join(missing))
+    # Provider-agnostic policy: discover which configured AI providers are
+    # actually usable. No specific provider is mandatory.
+    configured=[]
+    if os.environ.get("OPENAI_API_KEY") and os.environ.get("OPENAI_MODEL"):
+        configured.append("OpenAI")
+    if os.environ.get("ANTHROPIC_API_KEY") and os.environ.get("ANTHROPIC_MODEL"):
+        configured.append("Anthropic")
+    if not configured:
+        REPORT.parent.mkdir(parents=True,exist_ok=True)
+        REPORT.write_text("# AI Development Council\n\nBLOCKED - no AI provider is configured.\n",encoding="utf-8")
+        raise SystemExit(1)
 
     diff=cmd("git","diff","HEAD^","HEAD") or cmd("git","show","--format=","HEAD")
     log=Path("artifacts/build.log").read_text(encoding="utf-8",errors="replace") if Path("artifacts/build.log").exists() else "No build log."
@@ -68,7 +75,7 @@ trading advice.\n\n"""+evidence
     except Exception as exc:
         anthropic_error=str(exc)
 
-    if openai_error and anthropic_error:
+    if not openai and not anthropic:
         REPORT.parent.mkdir(parents=True,exist_ok=True)
         REPORT.write_text(
             "# AI Development Council\n\nBLOCKED - both AI providers unavailable.\n\n"
@@ -77,9 +84,8 @@ trading advice.\n\n"""+evidence
         )
         raise SystemExit(1)
 
-    # Graceful single-AI development mode. The healthy provider is sufficient
-    # to continue; the failed provider is recorded but does not block paper
-    # development or readiness by itself.
+    # Graceful provider-agnostic mode. Any available provider can carry the
+    # development review. An unavailable provider is ignored for this run.
     if bool(openai) != bool(anthropic):
         working = "OpenAI" if openai else "Anthropic"
         review = openai or anthropic
