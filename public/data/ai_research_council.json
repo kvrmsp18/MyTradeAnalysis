@@ -1,6 +1,6 @@
 {
-  "status": "QUORUM_UNAVAILABLE",
-  "timestamp": "2026-10-01T16:54:23.892462Z",
+  "status": "DEGRADED_ONE_AI",
+  "timestamp": "2026-10-02T09:56:03.553006Z",
   "paper_only": true,
   "config": {
     "openai": {
@@ -12,21 +12,15 @@
       "model": "claude-sonnet-4-5"
     }
   },
-  "stages": {
-    "market_evidence": "READY",
-    "market_source": "Yahoo Finance chart feed",
-    "independent_analysis": "QUORUM_UNAVAILABLE",
-    "cross_review": "NOT_RUN",
-    "final_positions": "NOT_RUN",
-    "consensus": "NOT_RUN"
-  },
+  "degraded_mode": true,
+  "working_provider": "Anthropic",
   "independent": {
     "openai": null,
-    "anthropic": "# CLASSIFICATION: SUPPORTS_REVIEW\n\n## Market Context Assessment\n**Broad Market Status:** Mixed divergence with sector rotation evident\n- Nifty50: -1.3% (weak)\n- Sensex: -0.85% (weak)\n- BankNifty: +0.35% (relative strength in banking)\n\n**Data Integrity:** Paper-trading mode with Yahoo Finance fallback data. Authentication failures prevent live Dhan/NSE access. 30 high-value stocks excluded by \u20b91,000 budget constraint.\n\n## Technical Evidence Summary\n\n### REVIEW-Rated Candidates (7 stocks scoring 75.0-81.2):\n1. **BAJFINANCE** (\u20b9948.30, Score: 81.2)\n   - Components: Strong protection (3), actionability (3), relative strength (3)\n   - RSI: 68.15 (momentum without extreme overbought)\n   - Price above EMA20, near 20-day high\n   - **Risk:** Volume unconfirmed (volume_ratio: 0.0 - critical data gap)\n\n2. **HDFCBANK** (\u20b9721.20, Score: 75.0)\n   - RSI: 87.44 (extreme overbought - red flag)\n   - Strong upward structure (3/3 structure score)\n   - +1.76% daily gain against market weakness\n   - **Risk:** Overextended momentum, volume not confirmed\n\n3. **HDFCLIFE** (\u20b9534.20, Score: 81.2)\n   - RSI: 65.29 (healthier momentum zone)\n   - Best protection score (3) with confirmation (2)\n   - +2.49% gain showing sector strength\n\n4. **INDUSINDBK** (\u20b9886.85, Score: 81.2)\n   - RSI: 61.9 (controlled momentum)\n   - Banking sector alignment with BankNifty strength\n   - -1.61% suggests lagging recovery potential\n\n5. **POWERGRID** (\u20b9254.55, Score: 75.0)\n   - RSI: 71.74 (elevated but manageable)\n   - Defensive utility play\n\n6. **SBIN** (\u20b9954.10, Score: 75.0)\n   - RSI: 67.11 (balanced)\n   - Banking sector beneficiary\n   - Lower relative strength (2) vs peers\n\n7. **TATACONSUM** (\u20b9957.00, Score: 75.0)\n   - Best structure score (3), RSI: 71.67\n   - Defensive consumer play\n\n8. **TATASTEEL** (\u20b9178.00, Score: 75.0)\n   - RSI: 73.3, ATR: 0.35%\n   - -3.42% daily - potential reversal or continued weakness\n\n9. **WIPRO** (\u20b9159.35, Score: 75.0)\n   - Best structure (3), RSI: 84.4 (overbought)\n   - IT sector divergence from broader market\n\n## Critical Risk Factors\n\n### Volume Data Blindspot\n**ALL stocks show volume_ratio_20: 0.0** - this is a systematic data failure, not actual zero volume. Intraday volumes are recorded (e.g., KOTAKBANK: 76.6M shares), but the 20-period comparison metric failed. This removes a crucial confirmation signal.\n\n### Contradictory Signals\n- **HDFCBANK RSI 87.44** vs **WIPRO RSI 84.4**: Extreme momentum suggests late-stage moves\n- **BankNifty +0.35%** supports banking names but contradicts INDUSINDBK's -1.61% decline\n- **Market divergence**: Banking strength vs broader weakness creates sectoral concentration risk\n\n### Data Source Limitations\n- No open prices available (all null)\n- 1650 5-minute candles = ~5.7 trading days of data depth\n- Paper-only environment limits real execution validation\n- 30 stocks excluded means missing potential leaders (RELIANCE, TCS, INFY all >\u20b91000)\n\n## Uncertainty Assessment\n**High uncertainty factors:**\n1. Volume confirmation completely unavailable\n2. Overbought RSI readings (5 stocks >70, 3 stocks >80) suggest timing risk\n3. Market divergence creates false signals in correlation-dependent strategies\n4. Authentication failures suggest ongoing data infrastructure issues\n\n**Moderate confidence areas:**\n- Price/EMA relationships appear consistent\n- ATR calculations provide usable volatility context\n- Banking sector thesis supported by BankNifty outperformance\n\n## Deterministic Findings\n- **7 stocks meet REVIEW threshold** (75.0+ scores)\n- **Zero stocks have confirmed volume support** (systematic data gap)\n- **Average RSI of REVIEW stocks: 73.3** (momentum stretched)\n- **Banking concentration**: 4 of 7 REVIEW stocks are financials\n\n## Advisory Conclusion\nThe SCRAP system identifies technically eligible candidates, but **volume confirmation failure** and **extreme RSI readings** significantly elevate execution risk. HDFCLIFE (\u20b9534.20, RSI 65.29) and INDUSINDBK (\u20b9886.85, RSI 61.9) show least momentum extension among REVIEW stocks if banking sector thesis holds. \n\n**Proceed with heightened caution**: All positions would require manual volume verification and tighter stop-losses given data gaps. The \u20b91,000 budget constraint eliminates 59% of universe, potentially excluding better setups."
+    "anthropic": "CLASSIFICATION: SUPPORTS_REVIEW\n\n## ANALYSIS SUMMARY\n\n### Data Quality & Limitations\n- **Paper-trading environment only** - multiple API failures (Dhan 401 auth, NSE 403 forbidden)\n- Yahoo Finance 5-minute fallback data active for all stocks\n- **30 of 51 stocks excluded** due to price > \u20b91,000 analysis budget constraint\n- Missing open prices across all securities\n- Volume ratio data questionable (many stocks showing 0.0 despite actual volume)\n- No security_id fields populated\n\n### Market Context\n- **Broad market weakness**: Nifty50 -0.88%, Sensex -0.79%, BankNifty -0.33%\n- Analysis conducted at 09:55:26 IST (early trading session)\n- Risk-off environment evident in major indices\n\n### Technical Assessment - REVIEW Candidates\n\n**Strong Technical Alignment (Score 87.5+):**\n1. **BAJFINANCE** (93.8) - Price \u20b9948.3\n   - All trend signals positive, volume 2.53x average\n   - Near 20-day high, RSI 68 (not overheated)\n   - ATR 0.25% suggests controlled volatility\n   - \u26a0\ufe0f Stock down -1.16% against positive technicals (contradiction)\n\n2. **HDFCBANK** (87.5) - Price \u20b9721.2\n   - Strong momentum: +1.76%, RSI 87.44 (overextended warning)\n   - Volume 1.9x confirmed, at 20-day high\n   - \u26a0\ufe0f **RSI extremely overbought** - reversion risk\n\n3. **SBIN** (87.5) - Price \u20b9954.1\n   - Volume 2.65x confirmed, RSI 67 (healthy)\n   - Down -0.56% but holding above EMA support\n   - Better RSI positioning than HDFCBANK\n\n4. **TATACONSUM** (87.5) - Price \u20b9957.0\n   - +0.79%, volume 2.18x, RSI 71.67\n   - \u26a0\ufe0f Elevated RSI approaching overbought\n\n**Moderate Scores (75.0-81.2):**\n- ETERNAL, HDFCLIFE, HINDALCO, INDUSINDBK, ONGC, POWERGRID, TATASTEEL, WIPRO\n- Common issues: Volume not confirmed (0.0 readings likely data errors) OR contradictory price action\n\n### Critical Risk Factors\n\n1. **Volume Data Integrity**: 11 of 12 REVIEW stocks show volume_ratio 0.0 despite \"volume_confirmed\" flags - **systematic data error**\n\n2. **Momentum Divergence**: Several stocks (BAJFINANCE, ETERNAL) show technical buy signals while price declining - suggests intraday reversal or stale data\n\n3. **Overbought Conditions**: BEL (RSI 79), HDFCBANK (RSI 87), WIPRO (RSI 84) at extreme levels\n\n4. **Budget Constraint Impact**: Missing high-value financials (ICICIBANK \u20b91,310), large caps (RELIANCE \u20b91,167) creates incomplete market view\n\n5. **Early Session Timing**: 09:55 data may not reflect established intraday trends; opening volatility still present\n\n### Uncertainty Assessment\n- **Data source reliability**: MODERATE - fallback system operational but volume calculations suspect\n- **Signal consistency**: LOW - price action contradicts technicals in multiple cases\n- **Execution viability**: NONE - paper-trading only, no live execution possible\n- **Budget realism**: The \u20b91,000 constraint eliminates 59% of universe\n\n### Recommendation\nThe SCRAP analysis identifies 12 stocks for REVIEW, but **critical data quality issues** undermine confidence:\n- Volume confirmations appear algorithmically generated despite 0.0 readings\n- Intraday price weakness conflicts with bullish technical scores\n- Early session timing increases false signal probability\n\n**Actionable only for paper simulation purposes.** If this were live trading, recommend:\n1. Wait until 10:30+ for trend establishment\n2. Verify volume data independently\n3. Focus on SBIN (best RSI/volume balance) and avoid HDFCBANK (overextended)\n4. Ignore signals from stocks with volume_ratio = 0.0"
   },
-  "classifications": {
+  "independent_classifications": {
     "openai": null,
-    "anthropic": null
+    "anthropic": "SUPPORTS_REVIEW"
   },
   "cross_review": {
     "openai": null,
@@ -34,15 +28,26 @@
   },
   "final_positions": {
     "openai": null,
-    "anthropic": null
+    "anthropic": "CLASSIFICATION: SUPPORTS_REVIEW\n\n## ANALYSIS SUMMARY\n\n### Data Quality & Limitations\n- **Paper-trading environment only** - multiple API failures (Dhan 401 auth, NSE 403 forbidden)\n- Yahoo Finance 5-minute fallback data active for all stocks\n- **30 of 51 stocks excluded** due to price > \u20b91,000 analysis budget constraint\n- Missing open prices across all securities\n- Volume ratio data questionable (many stocks showing 0.0 despite actual volume)\n- No security_id fields populated\n\n### Market Context\n- **Broad market weakness**: Nifty50 -0.88%, Sensex -0.79%, BankNifty -0.33%\n- Analysis conducted at 09:55:26 IST (early trading session)\n- Risk-off environment evident in major indices\n\n### Technical Assessment - REVIEW Candidates\n\n**Strong Technical Alignment (Score 87.5+):**\n1. **BAJFINANCE** (93.8) - Price \u20b9948.3\n   - All trend signals positive, volume 2.53x average\n   - Near 20-day high, RSI 68 (not overheated)\n   - ATR 0.25% suggests controlled volatility\n   - \u26a0\ufe0f Stock down -1.16% against positive technicals (contradiction)\n\n2. **HDFCBANK** (87.5) - Price \u20b9721.2\n   - Strong momentum: +1.76%, RSI 87.44 (overextended warning)\n   - Volume 1.9x confirmed, at 20-day high\n   - \u26a0\ufe0f **RSI extremely overbought** - reversion risk\n\n3. **SBIN** (87.5) - Price \u20b9954.1\n   - Volume 2.65x confirmed, RSI 67 (healthy)\n   - Down -0.56% but holding above EMA support\n   - Better RSI positioning than HDFCBANK\n\n4. **TATACONSUM** (87.5) - Price \u20b9957.0\n   - +0.79%, volume 2.18x, RSI 71.67\n   - \u26a0\ufe0f Elevated RSI approaching overbought\n\n**Moderate Scores (75.0-81.2):**\n- ETERNAL, HDFCLIFE, HINDALCO, INDUSINDBK, ONGC, POWERGRID, TATASTEEL, WIPRO\n- Common issues: Volume not confirmed (0.0 readings likely data errors) OR contradictory price action\n\n### Critical Risk Factors\n\n1. **Volume Data Integrity**: 11 of 12 REVIEW stocks show volume_ratio 0.0 despite \"volume_confirmed\" flags - **systematic data error**\n\n2. **Momentum Divergence**: Several stocks (BAJFINANCE, ETERNAL) show technical buy signals while price declining - suggests intraday reversal or stale data\n\n3. **Overbought Conditions**: BEL (RSI 79), HDFCBANK (RSI 87), WIPRO (RSI 84) at extreme levels\n\n4. **Budget Constraint Impact**: Missing high-value financials (ICICIBANK \u20b91,310), large caps (RELIANCE \u20b91,167) creates incomplete market view\n\n5. **Early Session Timing**: 09:55 data may not reflect established intraday trends; opening volatility still present\n\n### Uncertainty Assessment\n- **Data source reliability**: MODERATE - fallback system operational but volume calculations suspect\n- **Signal consistency**: LOW - price action contradicts technicals in multiple cases\n- **Execution viability**: NONE - paper-trading only, no live execution possible\n- **Budget realism**: The \u20b91,000 constraint eliminates 59% of universe\n\n### Recommendation\nThe SCRAP analysis identifies 12 stocks for REVIEW, but **critical data quality issues** undermine confidence:\n- Volume confirmations appear algorithmically generated despite 0.0 readings\n- Intraday price weakness conflicts with bullish technical scores\n- Early session timing increases false signal probability\n\n**Actionable only for paper simulation purposes.** If this were live trading, recommend:\n1. Wait until 10:30+ for trend establishment\n2. Verify volume data independently\n3. Focus on SBIN (best RSI/volume balance) and avoid HDFCBANK (overextended)\n4. Ignore signals from stocks with volume_ratio = 0.0"
+  },
+  "final_classifications": {
+    "openai": null,
+    "anthropic": "SUPPORTS_REVIEW"
   },
   "consensus": {
-    "status": "QUORUM_UNAVAILABLE",
-    "classification": "HOLD_FOR_REVIEW"
+    "status": "DEGRADED_AGREEMENT",
+    "classification": "SUPPORTS_REVIEW",
+    "provider": "Anthropic",
+    "rule": "Use every available AI provider; ignore unavailable providers for this cycle."
   },
   "errors": {
     "openai": "OpenAI unavailable: HTTP Error 429: Too Many Requests",
     "anthropic": null
   },
-  "execution_authorized": false
+  "execution_authorized": false,
+  "safety": {
+    "live_orders_enabled": false,
+    "ai_can_override_deterministic_gates": false,
+    "stock_specific_rules_allowed": false
+  }
 }

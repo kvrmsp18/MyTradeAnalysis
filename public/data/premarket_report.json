@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "status": "READY",
-  "timestamp": "2026-10-01T10:18:29.029860Z",
+  "timestamp": "2026-10-02T09:56:03.995525Z",
   "market_phase": "PREMARKET",
   "market_open_ist": "09:15",
   "market_close_ist": "15:30",
@@ -13,14 +13,14 @@
     "reason": "HTTP Error 401: "
   },
   "market_data_status": "LIVE_MARKET_DATA_FALLBACK",
-  "ai_council_status": "QUORUM_UNAVAILABLE",
+  "ai_council_status": "DEGRADED_ONE_AI",
   "suggested_watchlist": [
     {
       "symbol": "HDFCLIFE",
       "latest_price": 534.2,
       "latest_change_pct": 2.49,
-      "scrap_score": 68.8,
-      "watch_score": 66.85,
+      "scrap_score": 81.2,
+      "watch_score": 73.05,
       "reasons": [
         "positive_latest_change",
         "SCRAP_available"
@@ -31,8 +31,20 @@
       "symbol": "HDFCBANK",
       "latest_price": 721.2,
       "latest_change_pct": 1.76,
-      "scrap_score": 75.0,
-      "watch_score": 66.3,
+      "scrap_score": 87.5,
+      "watch_score": 72.55,
+      "reasons": [
+        "positive_latest_change",
+        "SCRAP_available"
+      ],
+      "status": "WATCHLIST_ONLY"
+    },
+    {
+      "symbol": "TATACONSUM",
+      "latest_price": 957.0,
+      "latest_change_pct": 0.79,
+      "scrap_score": 87.5,
+      "watch_score": 67.7,
       "reasons": [
         "positive_latest_change",
         "SCRAP_available"
@@ -51,25 +63,13 @@
       "status": "WATCHLIST_ONLY"
     },
     {
-      "symbol": "WIPRO",
-      "latest_price": 159.35,
-      "latest_change_pct": 0.54,
-      "scrap_score": 75.0,
-      "watch_score": 60.2,
+      "symbol": "BAJFINANCE",
+      "latest_price": 948.3,
+      "latest_change_pct": -1.16,
+      "scrap_score": 93.8,
+      "watch_score": 61.1,
       "reasons": [
-        "positive_latest_change",
-        "SCRAP_available"
-      ],
-      "status": "WATCHLIST_ONLY"
-    },
-    {
-      "symbol": "TATACONSUM",
-      "latest_price": 957.0,
-      "latest_change_pct": 0.79,
-      "scrap_score": 68.8,
-      "watch_score": 58.35,
-      "reasons": [
-        "positive_latest_change",
+        "latest_change_not_positive",
         "SCRAP_available"
       ],
       "status": "WATCHLIST_ONLY"
