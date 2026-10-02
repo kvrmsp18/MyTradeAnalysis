@@ -1,7 +1,7 @@
 {
   "schema_version": "1.1",
   "status": "DATA_UNAVAILABLE",
-  "generated_at": "2026-10-01T17:03:50.763468Z",
+  "generated_at": "2026-10-02T16:18:00.785996Z",
   "source": "Dhan NSE equity LTP feed",
   "paper_only": true,
   "min_move_pct": 2.0,
