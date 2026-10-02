@@ -76,7 +76,10 @@ def main():
                "independent_classifications":{"openai":oc,"anthropic":ac},"final_classifications":{"openai":oc,"anthropic":ac},
                "errors":errors,"consensus":{"status":"DEGRADED_ONE_AI","classification":cls,"provider":name,
                "rule":"Use every available AI provider; ignore unavailable providers for this cycle."},
-               "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}}); return 0
+               "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}})
+        cache["council_result"]={"timestamp":now(),"fingerprint":fingerprint,"result":load(OUT,{})}
+        CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8")
+        return 0
 
     critique=("Review the peer analysis against the same evidence. Identify unsupported claims, missing evidence, contradictions and risk blind spots. Advisory only.")
     ac_text,ace=call_anthropic(critique+"\n\nPEER OPENAI:\n"+ov,evidence,max_output_tokens=3000)
