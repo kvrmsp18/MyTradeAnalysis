@@ -17,6 +17,10 @@ def extract_anthropic_text(payload):
         if isinstance(item,dict) and item.get("type")=="text" and item.get("text")
     ).strip()
 
+def development_classification(text):
+    match=re.search(r"(?im)^\s*DEVELOPMENT_CLASSIFICATION\s*:\s*(PASS|CHANGES_REQUIRED)\s*$", text or "")
+    return match.group(1).upper() if match else None
+
 def classify(text):
     # Accept Claude/OpenAI formatting such as:
     # CLASSIFICATION:, # CLASSIFICATION:, **CLASSIFICATION:**, or "- CLASSIFICATION:".
