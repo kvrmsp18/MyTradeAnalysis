@@ -218,6 +218,10 @@ def main():
 
     if not entry_allowed or not fresh:
         candidates = []
+        skip_reason = "STALE_MARKET_DATA" if not fresh else "MARKET_CLOSED"
+        for item in ledger.get("candidates", []):
+            if item.get("decision") == "REVIEW":
+                item.setdefault("execution", {})["reason"] = skip_reason
         if not fresh and entry_allowed:
             print("Market snapshot is stale; entries and target/stop exits are blocked.")
     else:
