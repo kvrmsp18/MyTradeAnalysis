@@ -18,11 +18,10 @@ concurrency:
   group: paper-cycle
   cancel-in-progress: false
 
-timeout-minutes: 8
-
 jobs:
   collect-and-ledger:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - name: Checkout
         uses: actions/checkout@v5
