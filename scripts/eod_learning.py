@@ -55,6 +55,7 @@ def analyze_ledger(day: str, ledgers: list[dict]) -> tuple[list[dict], Counter[s
 
     misses: list[dict] = []
     reason_counts: Counter[str] = Counter()
+    reason_symbols: dict[str, set[str]] = defaultdict(set)
     realized_candidates = 0
     for symbol, observations in by_symbol.items():
         observations.sort(key=lambda x: x[0])
@@ -76,6 +77,7 @@ def analyze_ledger(day: str, ledgers: list[dict]) -> tuple[list[dict], Counter[s
                 continue
             reason = current.get("rejection_reason") or "UNKNOWN"
             reason_counts[reason] += 1
+            reason_symbols[reason].add(symbol)
             misses.append({
                 "source": "paper_observation",
                 "symbol": symbol,
@@ -177,15 +179,21 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
     all_misses = ledger_misses + market_misses
 
     if market_misses:
-        reason_counts.update(x["reason"] for x in market_misses)
+        for x in market_misses:
+            reason = x["reason"]
+            reason_counts[reason] += 1
+            reason_symbols[reason].add(str(x.get("symbol")))
+
+    pattern_candidates = [(reason, len(symbols)) for reason, symbols in reason_symbols.items() if len(symbols) >= 3]
 
     patterns = [
         {
             "pattern": reason,
-            "occurrences": count,
+            "distinct_symbols": distinct_symbols,
+            "occurrences": reason_counts[reason],
             "action": "Review the generalized universe/threshold/feature interaction across multiple symbols; do not create a symbol-specific rule.",
         }
-        for reason, count in reason_counts.most_common()
+        for reason, distinct_symbols in sorted(pattern_candidates, key=lambda x: (-x[1], -reason_counts[x[0]], x[0]))
     ]
 
     reconstructed_setups = sum(1 for x in market_misses if x.get("intraday_reconstruction", {}).get("status") == "FOUND_SETUP")
