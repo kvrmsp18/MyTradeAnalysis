@@ -179,8 +179,10 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
     all_misses = ledger_misses + market_misses
 
     reason_symbols: dict[str, set[str]] = defaultdict(set)
+    all_reason_counts: Counter[str] = Counter()
     for item in all_misses:
         reason = str(item.get("reason") or "UNKNOWN")
+        all_reason_counts[reason] += 1
         reason_symbols[reason].add(str(item.get("symbol") or "UNKNOWN"))
     pattern_candidates = [(reason, len(symbols)) for reason, symbols in reason_symbols.items() if len(symbols) >= 3]
 
@@ -188,7 +190,7 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
         {
             "pattern": reason,
             "distinct_symbols": distinct_symbols,
-            "occurrences": reason_counts[reason],
+            "occurrences": all_reason_counts[reason],
             "action": "Review the generalized universe/threshold/feature interaction across multiple symbols; do not create a symbol-specific rule.",
         }
         for reason, distinct_symbols in sorted(pattern_candidates, key=lambda x: (-x[1], -reason_counts[x[0]], x[0]))
