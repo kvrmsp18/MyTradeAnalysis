@@ -11,11 +11,12 @@ import json
 import os
 import urllib.request
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 OPPORTUNITIES = Path("public/data/eod_market_opportunities.json")
 OUT = Path("public/data/eod_intraday_reconstruction.json")
-HISTORICAL_URL = "https://api.dhan.co/v2/charts/historical"
+INTRADAY_URL = "https://api.dhan.co/v2/charts/intraday"
 TOP_N = int(os.getenv("EOD_RECONSTRUCTION_TOP_N", "20"))
 INTERVAL_MIN = int(os.getenv("EOD_RECONSTRUCTION_INTERVAL", "5"))
 
@@ -50,12 +51,12 @@ def fetch_candles(token: str, client_id: str, security_id: str, day: str) -> dic
         "securityId": str(security_id),
         "exchangeSegment": "NSE_EQ",
         "instrument": "EQUITY",
-        "fromDate": day,
-        "toDate": day,
-        "interval": str(INTERVAL_MIN),
+        "fromDate": f"{day} 09:15:00",
+        "toDate": f"{day} 15:30:00",
+        "interval": "5",
     }
     req = urllib.request.Request(
-        HISTORICAL_URL,
+        INTRADAY_URL,
         data=json.dumps(body).encode("utf-8"),
         headers={
             "access-token": token,
@@ -179,7 +180,7 @@ def main() -> int:
         if report.get("status") != "READY":
             write("PENDING", [], "EOD opportunity scan is not ready.")
             return 0
-        day = datetime.now(timezone.utc).date().isoformat()
+        day = datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
         rows = []
         for stock in report.get("stocks", [])[:TOP_N]:
             symbol = stock.get("symbol")
