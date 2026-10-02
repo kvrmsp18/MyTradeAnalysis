@@ -3,6 +3,11 @@ name: MyTradeAnalysis Validation
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "data/**"
+      - "public/data/**"
+      - "artifacts/**"
+      - "package-lock.json"
   workflow_dispatch:
 
 permissions:
