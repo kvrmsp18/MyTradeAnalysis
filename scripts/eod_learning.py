@@ -178,12 +178,10 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
     market_misses = external_misses(movers, reconstruction, evaluated_symbols)
     all_misses = ledger_misses + market_misses
 
-    if market_misses:
-        for x in market_misses:
-            reason = x["reason"]
-            reason_counts[reason] += 1
-            reason_symbols[reason].add(str(x.get("symbol")))
-
+    reason_symbols: dict[str, set[str]] = defaultdict(set)
+    for item in all_misses:
+        reason = str(item.get("reason") or "UNKNOWN")
+        reason_symbols[reason].add(str(item.get("symbol") or "UNKNOWN"))
     pattern_candidates = [(reason, len(symbols)) for reason, symbols in reason_symbols.items() if len(symbols) >= 3]
 
     patterns = [
