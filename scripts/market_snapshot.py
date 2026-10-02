@@ -222,7 +222,7 @@ def nse_quote(opener, symbol: str) -> dict:
     return {
         "symbol": symbol,
         "price": float(price),
-        "change": float(price_info.get("pChange") or 0),
+        "change": float(price_info["pChange"]) if price_info.get("pChange") is not None else None,
         "open": price_info.get("open"),
         "high": price_info.get("intraDayHighLow", {}).get("max"),
         "low": price_info.get("intraDayHighLow", {}).get("min"),
