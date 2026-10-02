@@ -67,7 +67,8 @@ def main():
                "working_provider":None,"independent":{"openai":None,"anthropic":None},
                "independent_classifications":{"openai":None,"anthropic":None},"errors":errors,
                "consensus":{"status":"AI_UNAVAILABLE","classification":None,"rule":"No AI available; deterministic paper analysis continues."},
-               "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}}); return 0
+               "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}})
+        cache["council_result"]={"timestamp":now(),"fingerprint":fingerprint,"result":load(OUT,{})}; CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8"); return 0
     if bool(ov)!=bool(av):
         name="OpenAI" if ov else "Anthropic"; cls=oc if ov else ac
         write({"status":"DEGRADED_ONE_AI","timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":True,
