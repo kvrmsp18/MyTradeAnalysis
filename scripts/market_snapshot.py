@@ -260,6 +260,8 @@ def nse_fallback() -> tuple[list[dict], list[str]]:
             rows.append(nse_quote(opener, symbol))
         except Exception as exc:
             errors.append(f"{symbol}: {exc}")
+            if "HTTP 403" in str(exc):
+                raise RuntimeError("NSE India access blocked (HTTP 403); stopping fallback early.")
     if not rows:
         raise RuntimeError("NSE India fallback failed: " + "; ".join(errors[:10]))
     return rows, errors
@@ -273,6 +275,8 @@ def nse_proxy_fallback() -> tuple[list[dict], list[str]]:
             rows.append(nse_proxy_quote(symbol))
         except Exception as exc:
             errors.append(f"{symbol}: {exc}")
+            if "HTTP 403" in str(exc):
+                raise RuntimeError("NSE proxy access blocked (HTTP 403); stopping fallback early.")
     if not rows:
         raise RuntimeError("NSE proxy fallback failed: " + "; ".join(errors[:10]))
     return rows, errors
