@@ -91,6 +91,7 @@ def main():
             assert payload["live_trading_enabled"] is False
             assert payload["event"].get("live_order_sent") is False
 
+        print("PAPER ENGINE SELF-TEST: PASS")
         print("PAPER ENGINE ACCEPTANCE TEST: PASS")
         print("BUY: PASS | TARGET SELL/P&L: PASS | STOP LOSS: PASS | BUDGET GATE: PASS | LIVE BROKER LOCK: PASS")
     return 0
