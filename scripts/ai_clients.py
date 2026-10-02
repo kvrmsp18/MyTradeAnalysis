@@ -74,3 +74,19 @@ def call_anthropic(system_prompt, evidence, *, max_output_tokens=3000):
         text=extract_anthropic_text(request_json("https://api.anthropic.com/v1/messages",{"x-api-key":key,"anthropic-version":"2023-06-01"},payload,"Anthropic"))
         return (text,None) if text else ("","Anthropic returned no text.")
     except Exception as exc: return "",str(exc)
+
+
+def resolve_advisory(openai_text, anthropic_text):
+    """Pure runtime policy helper used by tests and the research council."""
+    oc, ac = classify(openai_text), classify(anthropic_text)
+    available = [x for x in (("OpenAI", openai_text, oc), ("Anthropic", anthropic_text, ac)) if x[1]]
+    if not available:
+        return {"status":"AI_UNAVAILABLE","classification":None,"working_provider":None}
+    if len(available)==1:
+        name, _, cls = available[0]
+        return {"status":"DEGRADED_ONE_AI","classification":cls,"working_provider":name}
+    if oc and ac and oc==ac:
+        return {"status":"COMPLETE","classification":oc,"working_provider":"OpenAI + Anthropic"}
+    if oc and ac:
+        return {"status":"DISAGREEMENT","classification":"HOLD_FOR_REVIEW","working_provider":None}
+    return {"status":"DEGRADED_UNCLASSIFIED","classification":None,"working_provider":None}
