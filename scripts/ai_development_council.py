@@ -68,9 +68,37 @@ trading advice.\n\n"""+evidence
     except Exception as exc:
         anthropic_error=str(exc)
 
-    if openai_error or anthropic_error:
-        write_blocked(openai_error,anthropic_error,openai,anthropic)
+    if openai_error and anthropic_error:
+        REPORT.parent.mkdir(parents=True,exist_ok=True)
+        REPORT.write_text(
+            "# AI Development Council\n\nBLOCKED - both AI providers unavailable.\n\n"
+            "OpenAI: "+str(openai_error)+"\n\nAnthropic: "+str(anthropic_error),
+            encoding="utf-8"
+        )
         raise SystemExit(1)
+
+    # Graceful single-AI development mode. The healthy provider is sufficient
+    # to continue; the failed provider is recorded but does not block paper
+    # development or readiness by itself.
+    if bool(openai) != bool(anthropic):
+        working = "OpenAI" if openai else "Anthropic"
+        review = openai or anthropic
+        REPORT.parent.mkdir(parents=True,exist_ok=True)
+        REPORT.write_text(
+            "# AI Development Council\n\n"
+            "## Mode\nDEGRADED_SINGLE_AI\n"
+            "Working provider: "+working+"\n"
+            "Unavailable provider: "+("Anthropic" if openai else "OpenAI")+"\n\n"
+            "## Working AI review\n\n"+review+"\n\n"
+            "## Unavailable provider error\n"+str(anthropic_error if openai else openai_error)+"\n\n"
+            "Single-AI policy: use the available AI review and ignore the unavailable AI for this run.\n"
+            "Live broker execution remains disabled. Deterministic safety gates remain authoritative.\n",
+            encoding="utf-8"
+        )
+        print(REPORT.read_text(encoding="utf-8"))
+        if "CHANGES_REQUIRED" in review.upper() or "DEVELOPMENT_CLASSIFICATION: PASS" not in review.upper():
+            raise SystemExit("AI DEVELOPMENT COUNCIL: single-AI review requires changes or lacks explicit PASS")
+        return
 
     critique="""Compare the peer software review against the same evidence.
 Identify missed defects, unsupported claims, and unsafe assumptions.
