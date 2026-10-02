@@ -18,7 +18,7 @@ OPPORTUNITIES = Path("public/data/eod_market_opportunities.json")
 OUT = Path("public/data/eod_intraday_reconstruction.json")
 INTRADAY_URL = "https://api.dhan.co/v2/charts/intraday"
 TOP_N = int(os.getenv("EOD_RECONSTRUCTION_TOP_N", "20"))
-INTERVAL_MIN = int(os.getenv("EOD_RECONSTRUCTION_INTERVAL", "5"))
+INTERVAL_MIN = 5
 
 
 def utc_now() -> str:
@@ -53,7 +53,7 @@ def fetch_candles(token: str, client_id: str, security_id: str, day: str) -> dic
         "instrument": "EQUITY",
         "fromDate": f"{day} 09:15:00",
         "toDate": f"{day} 15:30:00",
-        "interval": "5",
+        "interval": str(INTERVAL_MIN),
     }
     req = urllib.request.Request(
         INTRADAY_URL,
