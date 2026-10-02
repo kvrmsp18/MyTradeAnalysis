@@ -37,7 +37,7 @@ jobs:
           checks = {
               'scripts/ai_research_council.py': [
                   'HOLD_FOR_REVIEW', 'paper_only', 'OPENAI_MODEL', 'ANTHROPIC_MODEL',
-                  'cross_review', 'execution_authorized'
+                  'cross_review', 'execution_authorized', 'DEGRADED_ONE_AI', 'AI_UNAVAILABLE'
               ],
               'scripts/eod_learning.py': ['stock_specific_rules_allowed', 'automatic_strategy_mutation'],
               'scripts/eod_intraday_reconstruction.py': ['paper_only', 'automatic_strategy_mutation'],
@@ -51,7 +51,7 @@ jobs:
               ],
               '.github/workflows/watchdog.yml': ['PAPER ONLY', 'AI council output', 'market closed'],
               '.github/workflows/ai-development-council.yml': ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'ai_development_council.py', 'Enforce GUI build success'],
-              'scripts/ai_development_council.py': ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OpenAI', 'Anthropic', 'DEVELOPMENT_CLASSIFICATION'],
+              'scripts/ai_development_council.py': ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'OpenAI', 'Anthropic', 'DEVELOPMENT_CLASSIFICATION', 'DEGRADED_SINGLE_AI'],
           }
           for path, needles in checks.items():
               text = Path(path).read_text(encoding='utf-8')
@@ -78,7 +78,7 @@ jobs:
           echo 'Python syntax: OK'
           echo 'Paper-only safeguards: OK'
           echo 'Technical/SCRAP wiring: OK'
-          echo 'OpenAI + Anthropic council wiring: OK'
+          echo 'OpenAI + Anthropic council wiring: OK (single-AI degraded fallback supported)'
           echo 'Market-aware heartbeat/watchdog: OK'
           echo 'GUI production build: OK'
           echo 'Live trading execution remains disabled.'
