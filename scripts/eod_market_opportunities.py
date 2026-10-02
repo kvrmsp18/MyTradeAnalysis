@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 MASTER_URL = "https://images.dhan.co/api-data/api-scrip-master.csv"
-MARKETFEED_URL = "https://api.dhan.co/v2/marketfeed/ltp"
+MARKETFEED_URL = "https://api.dhan.co/v2/marketfeed/quote"
 OUT = Path("public/data/eod_market_opportunities.json")
 TOP_N = int(os.getenv("EOD_OPPORTUNITY_TOP_N", "50"))
 MIN_MOVE_PCT = float(os.getenv("EOD_OPPORTUNITY_MIN_MOVE_PCT", "2.0"))
@@ -93,8 +93,9 @@ def normalise(payload: dict, ids: dict[str, dict[str, str]]) -> list[dict]:
         quote = by_id.get(str(meta["security_id"]))
         if not isinstance(quote, dict):
             continue
+        ohlc = quote.get("ohlc") if isinstance(quote.get("ohlc"), dict) else {}
         price = quote.get("last_price", quote.get("ltp"))
-        close = quote.get("close")
+        close = ohlc.get("close", quote.get("close"))
         if price is None or close in (None, 0):
             continue
         try:
@@ -105,11 +106,13 @@ def normalise(payload: dict, ids: dict[str, dict[str, str]]) -> list[dict]:
         rows.append({
             "symbol": symbol, "security_id": str(meta["security_id"]),
             "price": round(price_f, 4), "prev_close": round(close_f, 4),
-            "change_pct": round(change_pct, 3), "open": quote.get("open"),
-            "high": quote.get("high"), "low": quote.get("low"), "volume": quote.get("volume"),
+            "change_pct": round(change_pct, 3),
+            "open": ohlc.get("open", quote.get("open")),
+            "high": ohlc.get("high", quote.get("high")),
+            "low": ohlc.get("low", quote.get("low")),
+            "volume": quote.get("volume"),
         })
     return rows
-
 
 def main() -> int:
     token = os.getenv("DHAN_ACCESS_TOKEN") or os.getenv("DHAN_API_KEY")
