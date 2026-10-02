@@ -193,7 +193,7 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
             "occurrences": all_reason_counts[reason],
             "action": "Review the generalized universe/threshold/feature interaction across multiple symbols; do not create a symbol-specific rule.",
         }
-        for reason, distinct_symbols in sorted(pattern_candidates, key=lambda x: (-x[1], -reason_counts[x[0]], x[0]))
+        for reason, distinct_symbols in sorted(pattern_candidates, key=lambda x: (-x[1], -all_reason_counts[x[0]], x[0]))
     ]
 
     reconstructed_setups = sum(1 for x in market_misses if x.get("intraday_reconstruction", {}).get("status") == "FOUND_SETUP")
