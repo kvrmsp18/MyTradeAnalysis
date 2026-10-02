@@ -19,7 +19,7 @@ def main():
     base=os.getenv("GITHUB_EVENT_BEFORE")
     head=os.getenv("GITHUB_SHA") or cmd("git","rev-parse","HEAD").strip()
     if not base or set(base)=={"0"}: base=cmd("git","rev-parse","HEAD^").strip()
-    diff=cmd("git","diff",base,head,"--","."," :(exclude)data/**"," :(exclude)public/data/**"," :(exclude)package-lock.json")
+    diff=cmd("git","diff",base,head,"--",".",":(exclude)data/**",":(exclude)public/data/**",":(exclude)package-lock.json")
     if not diff.strip(): diff=cmd("git","show","--format=",head)
     log=Path("artifacts/build.log").read_text(encoding="utf-8",errors="replace") if Path("artifacts/build.log").exists() else "No build log."
     evidence="BASE: "+base+"\nHEAD: "+head+"\n\nCHANGED CODE:\n"+diff[-80000:]+"\n\nBUILD LOG:\n"+log[-30000:]
