@@ -273,7 +273,7 @@ def main():
     result = {
         "status": "UNAVAILABLE",
         "timestamp": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
-        "source": "Dhan historical candles + deterministic technical calculations",
+        "source": "Dhan historical candles when available; Yahoo Finance 5-minute fallback otherwise + deterministic technical calculations",
         "paper_only": True,
         "stock_specific_rule_created": False,
         "analysis_budget": analysis_budget,
@@ -281,10 +281,8 @@ def main():
         "excluded_by_budget": [],
         "stocks": [],
     }
-    if not token or not client_id:
-        result["reason"] = "Dhan credentials are not configured."
-    elif snapshot.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_FALLBACK"):
-        result["reason"] = "Fresh market snapshot is unavailable."
+    if snapshot.get("status") not in ("LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE","LIVE_MARKET_DATA_NSE_PROXY","LIVE_MARKET_DATA_FALLBACK"):
+        result["reason"] = "Fresh validated market snapshot is unavailable."
     else:
         to_date = datetime.now(timezone.utc).date()
         from_date = to_date - timedelta(days=LOOKBACK_DAYS)
@@ -309,7 +307,7 @@ def main():
                 if not candles:
                     candles = fetch_yahoo_history(symbol)
                 row = analyse(symbol, quote, candles)
-                row["data_source"] = "Dhan historical candles" if quote.get("security_id") and snapshot.get("status") == "LIVE_MARKET_DATA" else "Yahoo Finance 5-minute fallback"
+                row["data_source"] = "Dhan historical candles" if candles and quote.get("security_id") and snapshot.get("status") == "LIVE_MARKET_DATA" else "Yahoo Finance 5-minute fallback"
                 result["stocks"].append(row)
             except Exception as exc:
                 result["stocks"].append({
