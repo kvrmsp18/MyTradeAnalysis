@@ -314,7 +314,7 @@ def yahoo_quote(symbol: str) -> dict:
     if price is None:
         raise RuntimeError("Yahoo price unavailable")
 
-    change = (float(price) - float(close)) / float(close) * 100 if close else 0
+    change = (float(price) - float(close)) / float(close) * 100 if close else None
     return {
         "symbol": symbol,
         "price": float(price),
