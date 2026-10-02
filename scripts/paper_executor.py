@@ -221,12 +221,7 @@ def main():
         if not fresh and entry_allowed:
             print("Market snapshot is stale; entries and target/stop exits are blocked.")
     else:
-        candidates = [
-            candidate
-            for candidate in ledger.get("candidates", [])
-            if candidate.get("decision") == "REVIEW"
-            and candidate.get("features", {}).get("score", 0) >= MIN_SCORE
-        ]
+        candidates = [candidate for candidate in ledger.get("candidates", []) if candidate.get("decision") == "REVIEW"]
         candidates.sort(key=lambda candidate: candidate.get("ranking", 9999))
 
     broker_available = AVAILABLE_FUNDS if FUNDS_STATUS == "READY" else ANALYSIS_BUDGET
@@ -241,6 +236,14 @@ def main():
 
         symbol = str(candidate.get("symbol"))
         current = price(candidate)
+        try:
+            feature_score = float(candidate.get("features", {}).get("score"))
+        except (TypeError, ValueError):
+            execution["reason"] = "FEATURE_SCORE_UNAVAILABLE"
+            continue
+        if feature_score < MIN_SCORE:
+            execution["reason"] = "FEATURE_SCORE_BELOW_THRESHOLD"
+            continue
 
         if not symbol:
             execution["reason"] = "INVALID_SYMBOL"
