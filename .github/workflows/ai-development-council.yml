@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -45,12 +45,15 @@ jobs:
           echo "GUI_BUILD_EXIT=$status" >> artifacts/build.log
           exit $status
 
-      - name: Run mandatory OpenAI + Anthropic development council
+      - name: Run provider-agnostic AI client self-test
+        run: python scripts/ai_council_self_test.py
+
+      - name: Run provider-agnostic AI development council
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
-          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5' }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-5-5' }}
         run: python scripts/ai_development_council.py
 
       - name: Upload AI development council report
