@@ -43,12 +43,29 @@ def main():
     assert body["interval"] == "5"
     assert body["securityId"] == "11536"
 
+    fixture = {
+        "data": {
+            "timestamp": [1727869500, 1727869800],
+            "open": [100, 101],
+            "high": [102, 103],
+            "low": [99, 100],
+            "close": [101, 102.5],
+            "volume": [1000, 1250],
+        }
+    }
+    candles = module.series(fixture)
+    assert len(candles) == 2
+    assert candles[0]["open"] == 100.0
+    assert candles[1]["high"] == 103.0
+    assert candles[1]["close"] == 102.5
+    assert candles[1]["volume"] == 1250.0
+
     utc_near_midnight = datetime(2026, 10, 1, 23, 45, tzinfo=timezone.utc)
     expected_ist_date = utc_near_midnight.astimezone(ZoneInfo("Asia/Kolkata")).date().isoformat()
     assert expected_ist_date == "2026-10-02"
 
     print("EOD INTRADAY RECONSTRUCTION SELF-TEST: PASS")
-    print("Dhan URL: PASS | IST date: PASS | Session window: PASS | Interval 5: PASS")
+    print("Dhan URL: PASS | IST date: PASS | Session window: PASS | Interval 5: PASS | Response parsing: PASS")
 
 
 if __name__ == "__main__":
