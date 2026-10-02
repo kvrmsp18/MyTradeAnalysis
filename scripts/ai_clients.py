@@ -25,7 +25,7 @@ def classify(text):
     # Accept Claude/OpenAI formatting such as:
     # CLASSIFICATION:, # CLASSIFICATION:, **CLASSIFICATION:**, or "- CLASSIFICATION:".
     match=re.search(
-        r"(?im)^\s*(?:[-*#>]\s*)?(?:\*\*\s*)?CLASSIFICATION(?:\s*\*\*)?\s*:\s*"
+        r"(?im)^\s*(?:[-#>]\s*|\*\s*)?(?:\*\*\s*)?CLASSIFICATION(?:\s*\*\*)?\s*:\s*"
         r"(SUPPORTS_REVIEW|WATCH_ONLY|NO_SUPPORT)\b", text or ""
     )
     return match.group(1).upper() if match else None
