@@ -31,7 +31,7 @@ function deriveServiceState(snapshot,council,runtime){
     const name=provider==='openai'?'OpenAI':'Anthropic';
     if(!cfg.api_key_configured) return {status:'NOT_CONFIGURED',label:'Not configured',detail:name+' API key is not configured.'};
     if(err) return {status:'UNAVAILABLE',label:'Configured but unavailable',detail:String(err).slice(0,180)};
-    if(council?.status==='COMPLETE') return {status:'READY',label:'Participating',detail:name+' completed the latest council run.'};
+    if(['COMPLETE','DEGRADED_ONE_AI','DEGRADED_ONE_AI_FINAL'].includes(council?.status) && (council?.final_classifications?.[provider] || council?.independent_classifications?.[provider])) return {status:'READY',label:'Participating',detail:name+' contributed to the latest available council result.'};
     return {status:'CONFIGURED',label:'Configured; waiting',detail:name+' is configured; latest council status is '+(council?.status||'UNKNOWN')+'.'};
   };
   return {telegram:runtime?.telegram||{status:'UNKNOWN',label:'Verification pending',detail:'Telegram verification is performed server-side during Pages deployment.'},dhan,openai:ai('openai'),anthropic:ai('anthropic')};
@@ -47,9 +47,9 @@ function marketState(snapshot){
   const minutes=hour*60+minute;
   const session=weekday!=='Sat'&&weekday!=='Sun'&&minutes>=555&&minutes<930;
   const live=['LIVE_MARKET_DATA','LIVE_MARKET_DATA_NSE','LIVE_MARKET_DATA_NSE_PROXY','LIVE_MARKET_DATA_FALLBACK'].includes(snapshot?.status);
-  const stamp=snapshot?.timestamp?new Date(snapshot.timestamp):null;
+  const stamp=snapshot?.data_as_of?new Date(snapshot.data_as_of):(snapshot?.timestamp?new Date(snapshot.timestamp):null);
   const age=stamp&&!Number.isNaN(stamp.getTime())?(Date.now()-stamp.getTime())/60000:null;
-  const fresh=age!==null&&age<=10;
+  const fresh=age!==null&&age>=0&&age<=30;
   if(session&&live&&fresh){
     const fallback=snapshot?.status==='LIVE_MARKET_DATA_FALLBACK';
     return {label:fallback?'MARKET OPEN • LIVE DATA (YAHOO FALLBACK)':'MARKET OPEN • LIVE DATA',tone:fallback?'warn':'live',live:true};
