@@ -245,8 +245,17 @@ function PostMortem({report}){const misses=report&&report.missed_opportunities||
 function Supervisor({live,paper,council,snapshot,runtimeStatus}){
   const marketReady=!!live;
   const marketStatus=marketReady?['PASS','Validated current market snapshot']:['WAITING','Fresh validated market data required'];
-  const aiReady=council?.status==='READY'||council?.status==='COMPLETE';
-  const aiStatus=aiReady?['PASS','OpenAI + Anthropic quorum available']:['WAITING',runtimeStatus?.openai?.detail||council?.errors?.openai||'AI quorum is waiting for both providers'];
+  const aiClassification=council?.consensus?.classification;
+  const aiReady=['COMPLETE','DEGRADED_ONE_AI','DEGRADED_ONE_AI_FINAL'].includes(council?.status) &&
+    (council?.status!=='COMPLETE' || aiClassification || council?.final_classifications?.openai || council?.final_classifications?.anthropic);
+  const workingProvider=council?.working_provider || (
+    council?.status==='COMPLETE' ? 'OpenAI + Anthropic' :
+    council?.config?.openai?.api_key_configured && !council?.errors?.openai ? 'OpenAI' :
+    council?.config?.anthropic?.api_key_configured && !council?.errors?.anthropic ? 'Anthropic' : null
+  );
+  const aiStatus=aiReady
+    ?['PASS',workingProvider+' advisory available'+(council?.degraded_mode?' (degraded single-AI mode)':'')]
+    :['WAITING',runtimeStatus?.openai?.detail||council?.errors?.openai||runtimeStatus?.anthropic?.detail||council?.errors?.anthropic||'No usable AI advisory result'];
   const rows=[
     ['Market data',marketStatus[0],marketStatus[1]],
     ['Paper mode',paper?'PASS':'WAITING',paper?'Paper simulation enabled':'Paper mode must be enabled'],
