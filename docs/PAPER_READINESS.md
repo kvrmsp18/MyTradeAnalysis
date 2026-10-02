@@ -21,7 +21,7 @@
 2. Until Dhan market data is subscribed, the paper cycle uses the explicitly labelled NSE/Yahoo fallback path.
 3. The fallback validation universe is a broad Nifty-50 basket, not the entire NSE equity universe.
 4. GitHub Pages is static. A browser button cannot securely dispatch a GitHub Action with the repository's credentials. Therefore **Run Cycle Now opens the GitHub Actions workflow page**; the scheduled engine remains the actual unattended cycle.
-5. The AI council uses both providers when available. If exactly one provider is unavailable, the available provider is used in DEGRADED_SINGLE_AI mode and the paper cycle continues. If both are unavailable, the cycle continues on deterministic paper gates without AI evidence. If both are available but disagree, the AI advisory result defaults to HOLD_FOR_REVIEW.
+5. AI is optional advisory assistance and is provider-agnostic. At each cycle the bot detects all available configured AI providers and uses every provider that responds. Any unavailable provider is ignored for that cycle. If no AI provider is available, the bot continues entirely on its own deterministic market/SCRAP/risk/capital analysis. If available AI providers disagree, the advisory result defaults to HOLD_FOR_REVIEW; no provider can bypass deterministic safety gates.
 6. A paper session is considered operationally validated only after at least one market-hours cycle has produced a persisted paper decision and the self-test plus GUI build are green.
 
 ## Do not call the bot ready until
@@ -42,7 +42,7 @@ No live trading is authorized by this document.
 3. A market-hours cycle completes with a persisted decision ledger.
 4. At least one cycle produces an auditable paper BUY/SELL simulation or an auditable risk/capital skip.
 5. EOD reconciliation completes against the paper ledger.
-6. At least one of OpenAI or Anthropic completes the development/review council with an explicit PASS; if both are available, both must complete and the synthesized council result must be PASS. A single unavailable provider alone must not block paper readiness.
+6. AI is not a runtime prerequisite. If one or more AI providers are available, their review may be used; unavailable providers do not block the cycle. If no AI providers are available, deterministic paper analysis must still pass its own validation. Development review must verify this provider-agnostic behavior.
 7. No live broker endpoint is invoked by any test or paper cycle.
 
 Until all seven conditions are evidenced, the GUI/documentation must not describe the bot as `READY`.
