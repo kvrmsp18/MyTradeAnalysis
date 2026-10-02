@@ -25,7 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 MASTER_URL = "https://images.dhan.co/api-data/api-scrip-master.csv"
-MARKETFEED_URL = "https://api.dhan.co/v2/marketfeed/ltp"
+MARKETFEED_URL = "https://api.dhan.co/v2/marketfeed/quote"
 OUT = Path("public/data/market_snapshot.json")
 
 # Validation universe only. It is deliberately broad and sector-diverse.
@@ -40,12 +40,13 @@ SYMBOLS = [
     "ITC","JIOFIN","JSWSTEEL","KOTAKBANK","LT",
     "M&M","MARUTI","MAXHEALTH","NESTLEIND","NTPC",
     "ONGC","POWERGRID","RELIANCE","SBILIFE","SBIN",
-    "SHRIRAMFIN","SUNPHARMA","TATACONSUM","TATAMOTORS","TATASTEEL",
+    "SHRIRAMFIN","SUNPHARMA","TATACONSUM","TMPV","TATASTEEL",
     "TCS","TECHM","TITAN","TRENT","ULTRACEMCO","WIPRO",
 ]
 
 YAHOO = {symbol: symbol.replace("&", "%26") + ".NS" for symbol in SYMBOLS}
 YAHOO["M&M"] = "M&M.NS"
+YAHOO["TMPV"] = "TMPV.NS"
 YAHOO_INDICES = {"nifty50":"%5ENSEI", "banknifty":"%5ENSEBANK", "sensex":"%5EBSESN"}
 
 
@@ -84,6 +85,7 @@ def write_report(status: str, source: str, reason: object, stocks: list[dict]) -
             {
                 "status": status,
                 "timestamp": utc_now(),
+                "data_as_of": utc_now(),
                 "source": source,
                 "reason": reason,
                 "paper_only": True,
@@ -151,36 +153,32 @@ def normalise_dhan(payload: dict, ids: dict[str, str]) -> list[dict]:
     data = payload.get("data", {}) if isinstance(payload, dict) else {}
     segment = data.get("NSE_EQ", data.get("NSE", {})) if isinstance(data, dict) else {}
     rows: list[dict] = []
-
+    as_of = utc_now()
     for symbol, sec_id in ids.items():
         quote = segment.get(str(sec_id)) if isinstance(segment, dict) else None
         if not isinstance(quote, dict):
             continue
-
         ltp = quote.get("last_price", quote.get("ltp"))
-        close = quote.get("close")
+        ohlc = quote.get("ohlc") if isinstance(quote.get("ohlc"), dict) else {}
+        close = ohlc.get("close", quote.get("close"))
         if ltp is None:
             continue
-
         change = quote.get("change_percent")
         if change is None and close not in (None, 0):
             change = (float(ltp) - float(close)) / float(close) * 100
-
-        rows.append(
-            {
-                "symbol": symbol,
-                "price": float(ltp),
-                "change": round(float(change or 0), 2),
-                "open": quote.get("open"),
-                "high": quote.get("high"),
-                "low": quote.get("low"),
-                "prev_close": close,
-                "volume": quote.get("volume"),
-                "security_id": str(sec_id),
-            }
-        )
+        rows.append({
+            "symbol": symbol,
+            "price": float(ltp),
+            "change": round(float(change), 2) if change is not None else None,
+            "open": ohlc.get("open", quote.get("open")),
+            "high": ohlc.get("high", quote.get("high")),
+            "low": ohlc.get("low", quote.get("low")),
+            "prev_close": close,
+            "volume": quote.get("volume"),
+            "security_id": str(sec_id),
+            "data_as_of": as_of,
+        })
     return rows
-
 
 NSE_HOME = "https://www.nseindia.com/"
 NSE_QUOTE_URL = "https://www.nseindia.com/api/quote-equity?symbol="
@@ -307,8 +305,9 @@ def yahoo_quote(symbol: str) -> dict:
     return {
         "symbol": symbol,
         "price": float(price),
-        "change": round(change, 2),
+        "change": round(change, 2) if change is not None else None,
         "open": meta.get("regularMarketDayOpen"),
+        "data_as_of": utc_now(),
         "high": meta.get("regularMarketDayHigh"),
         "low": meta.get("regularMarketDayLow"),
         "prev_close": close,
