@@ -67,7 +67,11 @@ def main():
         if openai is not None: completed.append("OpenAI independent review: completed")
         if anthropic is not None: completed.append("Anthropic independent review: completed")
         report="# AI Development Council\n\n**BLOCKED — mandatory two-provider quorum was not achieved.**\n\n## Provider status\n\n"+"\n".join(completed+errors)+"\n\nThe council will not proceed to cross-review or synthesis until both OpenAI and Anthropic complete their independent reviews.\n"
-        REPORT.parent.mkdir(parents=True,exist_ok=True); REPORT.write_text(report,encoding='utf-8'); print(report); raise SystemExit(1)
+        REPORT.parent.mkdir(parents=True,exist_ok=True); REPORT.write_text(report,encoding='utf-8'); print(report)
+    # The council is a validation gate, not a decorative report.
+    normalized = synthesis.upper()
+    if "CHANGES_REQUIRED" in normalized:
+        raise SystemExit("AI DEVELOPMENT COUNCIL: CHANGES_REQUIRED"); raise SystemExit(1)
     critique='''Compare the peer software review against the same evidence. Identify missed defects, unsupported claims, and unsafe assumptions. Start with PEER_REVIEW: ACCEPT or PEER_REVIEW: CHALLENGE.\n\n'''+evidence
     oa_peer=oa(critique+'\n\nANTHROPIC REVIEW:\n'+anthropic)
     an_peer=an(critique+'\n\nOPENAI REVIEW:\n'+openai)
