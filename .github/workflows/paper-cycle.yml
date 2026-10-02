@@ -18,6 +18,8 @@ concurrency:
   group: paper-cycle
   cancel-in-progress: false
 
+timeout-minutes: 8
+
 jobs:
   collect-and-ledger:
     runs-on: ubuntu-latest
@@ -56,12 +58,12 @@ jobs:
           SCRAP_LOOKBACK_DAYS: '45'
         run: python scripts/scrap_analysis.py
 
-      - name: Run OpenAI + Anthropic research council
+      - name: Run provider-agnostic AI research council
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
-          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5' }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-5-5' }}
         run: python scripts/ai_research_council.py
 
       - name: Persist decision-time observation ledger
@@ -87,5 +89,9 @@ jobs:
             exit 0
           fi
           git commit -m "chore: update paper market technical analysis"
-          git pull --rebase origin main
-          git push
+          for attempt in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "Push attempt $attempt failed; retrying..."
+            sleep $((attempt * 5))
+          done
+          exit 1
