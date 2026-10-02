@@ -41,6 +41,10 @@ def write(status: str, rows: list[dict], reason: str | None = None) -> None:
     OUT.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
 
+def ist_today() -> str:
+    return datetime.now(ZoneInfo("Asia/Kolkata")).date().isoformat()
+
+
 def fetch_candles(token: str, client_id: str, security_id: str, day: str) -> dict:
     body = {
         "securityId": str(security_id),
