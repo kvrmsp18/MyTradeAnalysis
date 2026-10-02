@@ -318,7 +318,7 @@ def main() -> int:
                 "degraded_mode": bool(council.get("degraded_mode")),
                 "working_provider": council.get("working_provider"),
                 "cross_review_available": bool(council.get("cross_review")),
-                "fallback_policy": "One available AI may guide the paper decision; unavailable AI is ignored for the cycle; deterministic gates remain mandatory.",
+                "fallback_policy": "Any available AI may guide the paper decision; unavailable AI providers are ignored for the cycle; if no AI is available, deterministic analysis continues; deterministic gates remain mandatory.",
             },
             "execution": {
                 "mode": "PAPER",
