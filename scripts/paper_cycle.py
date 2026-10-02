@@ -249,12 +249,30 @@ def main() -> int:
     regime = market_regime(stocks)
     max_position_value = round(CAPITAL * MAX_POSITION_PCT / 100.0, 2)
 
+    ai_status = str(council.get("status", "NOT_RUN"))
+    ai_consensus = council.get("consensus") if isinstance(council.get("consensus"), dict) else {}
+    ai_classification = ai_consensus.get("classification")
+    ai_available = ai_classification in {"SUPPORTS_REVIEW", "WATCH_ONLY", "NO_SUPPORT"} and ai_status in {
+        "COMPLETE", "DEGRADED_ONE_AI", "DEGRADED_ONE_AI_FINAL"
+    }
+
     candidates = []
     for stock in stocks:
         symbol = stock.get("symbol")
         scrap_row = scrap_map.get(symbol, {"symbol": symbol, "status": "UNAVAILABLE", "action": "OBSERVE", "score": None})
         score, factors, decision, research = score_stock(stock, scrap_row)
         rejection = None
+        # AI is advisory. One working AI can guide the paper decision; an
+        # unavailable AI is ignored for this cycle. AI cannot create a REVIEW
+        # candidate or bypass SCRAP, capital or risk gates.
+        if decision == "REVIEW" and ai_available and ai_classification in {"WATCH_ONLY", "NO_SUPPORT"}:
+            decision = "WATCH"
+            factors.append("ai_advisory_" + ai_classification.lower())
+        elif decision == "REVIEW" and ai_available and ai_classification == "SUPPORTS_REVIEW":
+            factors.append("ai_advisory_supports_review")
+        elif decision == "REVIEW" and not ai_available:
+            factors.append("ai_advisory_unavailable_deterministic_path")
+
         if decision == "INSUFFICIENT_DATA":
             rejection = "SCRAP_DATA_UNAVAILABLE"
         elif decision == "WATCH":
@@ -296,7 +314,11 @@ def main() -> int:
                 "status": council.get("status", "NOT_RUN"),
                 "execution_authorized": False,
                 "consensus": council.get("consensus"),
+                "classification": ai_classification,
+                "degraded_mode": bool(council.get("degraded_mode")),
+                "working_provider": council.get("working_provider"),
                 "cross_review_available": bool(council.get("cross_review")),
+                "fallback_policy": "One available AI may guide the paper decision; unavailable AI is ignored for the cycle; deterministic gates remain mandatory.",
             },
             "execution": {
                 "mode": "PAPER",
