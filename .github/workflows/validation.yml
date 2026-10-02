@@ -27,6 +27,9 @@ jobs:
       - name: Python syntax validation
         run: python -m compileall -q scripts
 
+      - name: Run paper engine acceptance test
+        run: python scripts/paper_engine_self_test.py
+
       - name: Validate required paper-only safeguards and AI council wiring
         run: |
           python - <<'PY'
