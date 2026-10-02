@@ -7,6 +7,8 @@
 - Deterministic SCRAP analysis is persisted.
 - Decision-time ledgers are persisted.
 - Paper BUY/SELL simulation engine exists and never calls a broker order endpoint.
+- Offline acceptance tests cover BUY, target SELL/P&L, stop loss, affordability/budget exclusion, state persistence, and the live-order lock.
+- The AI Development Council is a mandatory validation gate; a synthesized `CHANGES_REQUIRED` result fails the workflow.
 - Paper entries are gated by a Dhan fund-limit check when Dhan credentials are configured.
 - There is no stock-price ceiling; insufficient capital produces an explicit skip.
 - EOD reverse engineering is research-only and cannot mutate strategy code automatically.
@@ -32,3 +34,15 @@
 - EOD reconciliation runs successfully.
 
 No live trading is authorized by this document.
+
+## Acceptance evidence required before calling the system ready
+
+1. Paper engine acceptance test is green.
+2. GUI build is green and all dashboard health states are sourced from runtime evidence rather than hard-coded claims.
+3. A market-hours cycle completes with a persisted decision ledger.
+4. At least one cycle produces an auditable paper BUY/SELL simulation or an auditable risk/capital skip.
+5. EOD reconciliation completes against the paper ledger.
+6. OpenAI and Anthropic both complete the development/review council and the synthesized council result is PASS.
+7. No live broker endpoint is invoked by any test or paper cycle.
+
+Until all seven conditions are evidenced, the GUI/documentation must not describe the bot as `READY`.
