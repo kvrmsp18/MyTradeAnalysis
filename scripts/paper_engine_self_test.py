@@ -38,14 +38,16 @@ def main():
         assert state(r)["positions"]["TARGET"]["quantity"]==2
         run(r,m,"100500.json",[cand("TARGET",102)],[{"symbol":"TARGET","price":102}],"2026-01-01 10:05")
         assert "TARGET" not in state(r)["positions"] and round(state(r)["realized_pnl"],2)==4
-        assert ledger(r,"100500.json")["candidates"][0]["execution"]["reason"]=="EXITED_THIS_CYCLE"
+        events=ledger(r,"100500.json")["paper_events"]
+        assert [e["side"] for e in events]==["SELL"] and ledger(r,"100500.json")["paper_account"]["open_positions"]=={}
 
     with tempfile.TemporaryDirectory() as td:
         r=Path(td); m=load(r)
         run(r,m,"110000.json",[cand("STOP",100)],[{"symbol":"STOP","price":100}],"2026-01-01 10:00")
         run(r,m,"110500.json",[cand("STOP",98)],[{"symbol":"STOP","price":98}],"2026-01-01 10:05")
         assert "STOP" not in state(r)["positions"] and round(state(r)["realized_pnl"],2)==-4
-        assert ledger(r,"110500.json")["candidates"][0]["execution"]["reason"]=="EXITED_THIS_CYCLE"
+        events=ledger(r,"110500.json")["paper_events"]
+        assert [e["side"] for e in events]==["SELL"] and ledger(r,"110500.json")["paper_account"]["open_positions"]=={}
 
     with tempfile.TemporaryDirectory() as td:
         r=Path(td); m=load(r)
