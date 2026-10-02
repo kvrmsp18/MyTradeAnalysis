@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Paper-only AI research council with graceful single-provider fallback."""
+"""Paper-only AI research council with provider-agnostic graceful degradation."""
 from __future__ import annotations
 import json, os, re, urllib.request
 from datetime import datetime, timezone
@@ -71,7 +71,7 @@ def main():
         write({"status":"AI_UNAVAILABLE","timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":True,
                "working_provider":None,"independent":{"openai":None,"anthropic":None},
                "independent_classifications":{"openai":None,"anthropic":None},
-               "consensus":{"status":"AI_UNAVAILABLE","classification":None,"rule":"Continue deterministic paper gates without AI."},
+               "consensus":{"status":"AI_UNAVAILABLE","classification":None,"rule":"No AI is available; continue using deterministic paper gates without AI."},
                "errors":{"openai":oe,"anthropic":ae},"execution_authorized":False})
         return 0
 
@@ -84,7 +84,7 @@ def main():
                "final_positions":{"openai":ov if name=="OpenAI" else None,"anthropic":av if name=="Anthropic" else None},
                "final_classifications":{"openai":oc,"anthropic":ac},
                "consensus":{"status":"DEGRADED_AGREEMENT" if classification else "DEGRADED_UNCLASSIFIED","classification":classification,"provider":name,
-                            "rule":"Use the single available AI advisory result; ignore the unavailable AI for this cycle."},
+                            "rule":"Use every available AI provider; ignore unavailable providers for this cycle."},
                "errors":{"openai":oe,"anthropic":ae},"execution_authorized":False,
                "safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}})
         return 0
@@ -109,7 +109,7 @@ def main():
            "independent":{"openai":ov,"anthropic":av},"independent_classifications":{"openai":oc,"anthropic":ac},
            "cross_review":{"openai":oc_text,"anthropic":ac_text},"final_positions":{"openai":of or None,"anthropic":af or None},
            "final_classifications":{"openai":fc1,"anthropic":fc2},
-           "consensus":{"status":status,"classification":classification,"rule":"Exact agreement required when both final analyses exist; a single working final analysis may be used only in degraded mode."},
+           "consensus":{"status":status,"classification":classification,"rule":"Use all available provider results; when providers disagree, default to HOLD_FOR_REVIEW; never require a specific vendor."},
            "errors":{"openai":oe,"anthropic":ae,"openai_cross_review":oce,"anthropic_cross_review":ace,"openai_final":ofe,"anthropic_final":afe},
            "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False,"disagreement_defaults_to_hold":True}})
     return 0
