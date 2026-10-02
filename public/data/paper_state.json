@@ -5,10 +5,10 @@
   "positions": {},
   "realized_pnl": 0.0,
   "trade_count": 0,
-  "last_processed_ledger": "data/ledger/2026-10-02/102332.json",
-  "funds_check": "FALLBACK_MINIMUM",
+  "last_processed_ledger": "data/ledger/2026-10-02/160611.json",
+  "funds_check": "PASS",
   "analysis_budget": 1000.0,
   "budget_rule": "Dhan available funds when available; otherwise \u20b91,000 paper minimum",
   "live_orders_enabled": false,
-  "generated_at": "2026-10-02T10:23:32.953285Z"
+  "generated_at": "2026-10-02T16:06:11.624502Z"
 }

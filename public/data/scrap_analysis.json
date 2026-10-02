@@ -1,7 +1,7 @@
 {
   "status": "LIVE_TECHNICAL_DATA",
-  "timestamp": "2026-10-02T10:23:01.749703Z",
-  "source": "Dhan historical candles + deterministic technical calculations",
+  "timestamp": "2026-10-02T16:06:09.178255Z",
+  "source": "Dhan historical candles when available; Yahoo Finance 5-minute fallback otherwise + deterministic technical calculations",
   "paper_only": true,
   "stock_specific_rule_created": false,
   "analysis_budget": 1000.0,
@@ -794,6 +794,40 @@
         "protection": 1
       },
       "score": 31.2,
+      "action": "OBSERVE",
+      "reasons": [
+        "price_above_ema20",
+        "ema9_above_ema20",
+        "volume_not_confirmed",
+        "not_near_20d_high"
+      ],
+      "decision_time_only": true,
+      "stock_specific_rule_created": false,
+      "data_source": "Yahoo Finance 5-minute fallback"
+    },
+    {
+      "symbol": "TMPV",
+      "status": "OK",
+      "candle_count": 1650,
+      "indicators": {
+        "ema9": 277.5564,
+        "ema20": 276.6964,
+        "ema50": 276.934,
+        "rsi14": 80.98,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
+      },
+      "components": {
+        "structure": 2,
+        "confirmation": 1,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
+      },
+      "score": 25.0,
       "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",

@@ -1,53 +1,7 @@
 {
-  "status": "DEGRADED_ONE_AI",
-  "timestamp": "2026-10-02T10:23:32.657138Z",
+  "status": "AI_OUT_OF_SESSION",
+  "timestamp": "2026-10-02T16:06:11.491262Z",
   "paper_only": true,
-  "config": {
-    "openai": {
-      "api_key_configured": true,
-      "model": "gpt-5"
-    },
-    "anthropic": {
-      "api_key_configured": true,
-      "model": "claude-sonnet-4-5"
-    }
-  },
-  "degraded_mode": true,
-  "working_provider": "Anthropic",
-  "independent": {
-    "openai": null,
-    "anthropic": "CLASSIFICATION: WATCH_ONLY\n\n## ANALYSIS SUMMARY\n\n### Data Quality & Reliability Assessment\n**Critical Limitations Identified:**\n- **No 20-day historical context**: All ATR14, ATR%, high20, low20, and volume_ratio_20 fields are NULL\n- **Authentication failures**: Dhan API unavailable (HTTP 401)\n- **NSE data blocked**: HTTP 403 errors, proxy failures across multiple symbols\n- **Fallback data only**: Relying exclusively on Yahoo Finance 5-minute intraday data\n- **Missing OHLC data**: \"open\" field is NULL for all 20 stocks\n- **Decision-time snapshots only**: Analysis explicitly flagged as \"decision_time_only: true\"\n\n### Market Context\n- **Broad weakness**: Nifty50 -0.88%, Sensex -0.79%, BankNifty -0.33%\n- **Paper trading only**: System operating in simulation mode due to data access failures\n- **Budget constraint**: \u20b91,000 analysis limit excludes 30 of 51 universe stocks (58.8%)\n\n### Technical Evidence Review\n\n**Stocks with Highest Scores (37.5/100):**\n- BAJFINANCE, HDFCLIFE, INDUSINDBK, SBIN\n- All show: price > EMA20, EMA9 > EMA20, RSI 61.9-68.15 (mildly overbought zone)\n- **Issue**: \"volume_not_confirmed\" cited for ALL candidates\n\n**Structural Weaknesses Across Universe:**\n1. **Zero volume confirmation**: Not a single stock shows validated volume support\n2. **No proximity to 20-day highs**: Universal \"not_near_20d_high\" flag without actual high20 data\n3. **Incomplete protection metrics**: Cannot assess stop-loss levels without ATR% data\n4. **RSI extremes without context**: BEL (81.02), HDFCBANK (87.44), HINDALCO (83.6), WIPRO (84.4) show overbought readings but lack historical reference\n\n### Risk & Contradiction Analysis\n\n**Critical Blind Spots:**\n1. **Volatility measurement impossible**: No ATR data means no position sizing capability\n2. **Trend strength unverifiable**: Cannot distinguish between genuine breakouts vs. intraday noise without daily/weekly context\n3. **Relative strength claims unsupported**: All \"relative_strength: 0\" scores indicate no comparative analysis performed\n4. **Protection component inconsistency**: Some stocks show protection=1 without ATR-based stop levels\n\n**Contradictory Signals:**\n- KOTAKBANK: Price NOT above EMA20, EMA9 NOT above EMA20, yet shows confirmation=2 and protection=1\n- ITC & SHRIRAMFIN: Show confirmation=2 and protection=1 despite EMA9 NOT above EMA20\n- Scoring methodology unclear: Similar technical setups yield different scores (25.0 vs 31.2 vs 37.5)\n\n### Uncertainty Factors\n- **Unknown market phase**: Intraday EMAs don't reveal whether stocks are in consolidation, trending, or distribution\n- **Volume context missing**: High absolute volumes (KOTAKBANK: 76.6M) lack 20-day average comparison\n- **Sector rotation unclear**: Mix of financials, commodities, pharma without relative performance context\n- **Gap risk**: Missing daily open prices prevent gap analysis\n\n## CONCLUSION\n\n**No executable insights can be derived** from this evidence set. The analysis relies entirely on:\n- Incomplete intraday indicators without historical anchors\n- Unconfirmed volume across 100% of candidates  \n- Missing volatility metrics essential for risk management\n- Fallback data sources with acknowledged gaps\n\nAll 20 analyzed stocks correctly classified as \"OBSERVE\" with scores \u226437.5/100. The system appropriately flags this as paper-only due to authentication failures and data integrity issues.\n\n**Recommendation**: Await restoration of:\n1. Authenticated Dhan API access for reliable OHLC data\n2. 20-day historical datasets for ATR/volume/high-low calculations  \n3. Daily timeframe confirmation before considering any position initiation"
-  },
-  "independent_classifications": {
-    "openai": null,
-    "anthropic": "WATCH_ONLY"
-  },
-  "cross_review": {
-    "openai": null,
-    "anthropic": null
-  },
-  "final_positions": {
-    "openai": null,
-    "anthropic": "CLASSIFICATION: WATCH_ONLY\n\n## ANALYSIS SUMMARY\n\n### Data Quality & Reliability Assessment\n**Critical Limitations Identified:**\n- **No 20-day historical context**: All ATR14, ATR%, high20, low20, and volume_ratio_20 fields are NULL\n- **Authentication failures**: Dhan API unavailable (HTTP 401)\n- **NSE data blocked**: HTTP 403 errors, proxy failures across multiple symbols\n- **Fallback data only**: Relying exclusively on Yahoo Finance 5-minute intraday data\n- **Missing OHLC data**: \"open\" field is NULL for all 20 stocks\n- **Decision-time snapshots only**: Analysis explicitly flagged as \"decision_time_only: true\"\n\n### Market Context\n- **Broad weakness**: Nifty50 -0.88%, Sensex -0.79%, BankNifty -0.33%\n- **Paper trading only**: System operating in simulation mode due to data access failures\n- **Budget constraint**: \u20b91,000 analysis limit excludes 30 of 51 universe stocks (58.8%)\n\n### Technical Evidence Review\n\n**Stocks with Highest Scores (37.5/100):**\n- BAJFINANCE, HDFCLIFE, INDUSINDBK, SBIN\n- All show: price > EMA20, EMA9 > EMA20, RSI 61.9-68.15 (mildly overbought zone)\n- **Issue**: \"volume_not_confirmed\" cited for ALL candidates\n\n**Structural Weaknesses Across Universe:**\n1. **Zero volume confirmation**: Not a single stock shows validated volume support\n2. **No proximity to 20-day highs**: Universal \"not_near_20d_high\" flag without actual high20 data\n3. **Incomplete protection metrics**: Cannot assess stop-loss levels without ATR% data\n4. **RSI extremes without context**: BEL (81.02), HDFCBANK (87.44), HINDALCO (83.6), WIPRO (84.4) show overbought readings but lack historical reference\n\n### Risk & Contradiction Analysis\n\n**Critical Blind Spots:**\n1. **Volatility measurement impossible**: No ATR data means no position sizing capability\n2. **Trend strength unverifiable**: Cannot distinguish between genuine breakouts vs. intraday noise without daily/weekly context\n3. **Relative strength claims unsupported**: All \"relative_strength: 0\" scores indicate no comparative analysis performed\n4. **Protection component inconsistency**: Some stocks show protection=1 without ATR-based stop levels\n\n**Contradictory Signals:**\n- KOTAKBANK: Price NOT above EMA20, EMA9 NOT above EMA20, yet shows confirmation=2 and protection=1\n- ITC & SHRIRAMFIN: Show confirmation=2 and protection=1 despite EMA9 NOT above EMA20\n- Scoring methodology unclear: Similar technical setups yield different scores (25.0 vs 31.2 vs 37.5)\n\n### Uncertainty Factors\n- **Unknown market phase**: Intraday EMAs don't reveal whether stocks are in consolidation, trending, or distribution\n- **Volume context missing**: High absolute volumes (KOTAKBANK: 76.6M) lack 20-day average comparison\n- **Sector rotation unclear**: Mix of financials, commodities, pharma without relative performance context\n- **Gap risk**: Missing daily open prices prevent gap analysis\n\n## CONCLUSION\n\n**No executable insights can be derived** from this evidence set. The analysis relies entirely on:\n- Incomplete intraday indicators without historical anchors\n- Unconfirmed volume across 100% of candidates  \n- Missing volatility metrics essential for risk management\n- Fallback data sources with acknowledged gaps\n\nAll 20 analyzed stocks correctly classified as \"OBSERVE\" with scores \u226437.5/100. The system appropriately flags this as paper-only due to authentication failures and data integrity issues.\n\n**Recommendation**: Await restoration of:\n1. Authenticated Dhan API access for reliable OHLC data\n2. 20-day historical datasets for ATR/volume/high-low calculations  \n3. Daily timeframe confirmation before considering any position initiation"
-  },
-  "final_classifications": {
-    "openai": null,
-    "anthropic": "WATCH_ONLY"
-  },
-  "consensus": {
-    "status": "DEGRADED_AGREEMENT",
-    "classification": "WATCH_ONLY",
-    "provider": "Anthropic",
-    "rule": "Use every available AI provider; ignore unavailable providers for this cycle."
-  },
-  "errors": {
-    "openai": "OpenAI unavailable: HTTP Error 429: Too Many Requests",
-    "anthropic": null
-  },
   "execution_authorized": false,
-  "safety": {
-    "live_orders_enabled": false,
-    "ai_can_override_deterministic_gates": false,
-    "stock_specific_rules_allowed": false
-  }
+  "reason": "AI council runs only during NSE session unless AI_COUNCIL_FORCE=1."
 }
