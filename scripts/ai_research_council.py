@@ -39,6 +39,9 @@ def main():
     evidence=affordable_evidence(market,scrap)
     fingerprint=hashlib.sha256(json.dumps(evidence,sort_keys=True).encode()).hexdigest()
     cache=load(CACHE,{})
+    cached_council=cache.get("council_result") if isinstance(cache.get("council_result"),dict) else None
+    if cached_council and cached_council.get("fingerprint")==fingerprint and minutes_since(cached_council.get("timestamp"))<=30:
+        result=dict(cached_council.get("result",{})); result["reused_within_30m"]=True; write(result); return 0
     prompt=("You are an advisory market-research analyst. Use only the supplied decision-time evidence. "
             "Do not invent data. Assess technical evidence, contradictions, uncertainty and risk blind spots. "
             "Never issue an executable order. Start with exactly one line: CLASSIFICATION: SUPPORTS_REVIEW, WATCH_ONLY, or NO_SUPPORT.")
@@ -95,5 +98,8 @@ def main():
            "errors":{"openai":errors.get("openai"),"anthropic":errors.get("anthropic"),"openai_cross_review":oce,"anthropic_cross_review":ace,"openai_final":ofe,"anthropic_final":afe},
            "consensus":{"status":status,"classification":classification,"rule":"Use all available provider results; disagreements default to HOLD_FOR_REVIEW; no vendor is mandatory."},
            "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False,"disagreement_defaults_to_hold":True}})
+    final_result=load(OUT,{})
+    cache["council_result"]={"timestamp":now(),"fingerprint":fingerprint,"result":final_result}
+    CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8")
     return 0
 if __name__=="__main__": raise SystemExit(main())
