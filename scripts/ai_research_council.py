@@ -8,7 +8,7 @@ from zoneinfo import ZoneInfo
 from ai_clients import call_anthropic,call_openai,classify
 
 SNAPSHOT=Path("public/data/market_snapshot.json"); SCRAP=Path("public/data/scrap_analysis.json")
-OUT=Path("public/data/ai_research_council.json"); CACHE=Path("public/data/ai_research_cache.json")
+OUT=Path("public/data/ai_research_council.json")
 VALID_MARKET={"LIVE_MARKET_DATA","LIVE_MARKET_DATA_NSE","LIVE_MARKET_DATA_NSE_PROXY","LIVE_MARKET_DATA_FALLBACK"}
 def now(): return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
 def load(p,d):
@@ -38,25 +38,19 @@ def main():
         write({"status":"AI_UNAVAILABLE","timestamp":now(),"paper_only":True,"reason":"No validated market data available.","config":config(),"execution_authorized":False}); return 0
     evidence=affordable_evidence(market,scrap)
     fingerprint=hashlib.sha256(json.dumps(evidence,sort_keys=True).encode()).hexdigest()
-    cache=load(CACHE,{})
-    cached_council=cache.get("council_result") if isinstance(cache.get("council_result"),dict) else None
-    if cached_council and cached_council.get("fingerprint")==fingerprint and minutes_since(cached_council.get("timestamp"))<=30:
-        result=dict(cached_council.get("result",{})); result["reused_within_30m"]=True; write(result); return 0
+    previous=load(OUT,{})
+    if previous.get("evidence_fingerprint")==fingerprint and previous.get("status") in {"COMPLETE","DEGRADED_ONE_AI","DEGRADED_ONE_AI_FINAL"} and minutes_since(previous.get("timestamp"))<=30:
+        previous["reused_within_30m"]=True; write(previous); return 0
     prompt=("You are an advisory market-research analyst. Use only the supplied decision-time evidence. "
             "Do not invent data. Assess technical evidence, contradictions, uncertainty and risk blind spots. "
             "Never issue an executable order. Start with exactly one line: CLASSIFICATION: SUPPORTS_REVIEW, WATCH_ONLY, or NO_SUPPORT.")
     results={}; errors={}
     for name,call in (("OpenAI",call_openai),("Anthropic",call_anthropic)):
-        c=cache.get(name,{})
-        if c.get("fingerprint")==fingerprint and minutes_since(c.get("timestamp"))<=30 and c.get("text"):
-            results[name]=c["text"]; continue
+
         text,error=call(prompt,evidence,max_output_tokens=3000)
         if text:
             results[name]=text
-            CACHE.parent.mkdir(parents=True,exist_ok=True)
-            cache[name]={"timestamp":now(),"fingerprint":fingerprint,"text":text}
         else: errors[name.lower()]=error
-    CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8")
     ov,av=results.get("OpenAI",""),results.get("Anthropic","")
     oc,ac=classify(ov),classify(av)
     if not ov and not av:
@@ -68,10 +62,10 @@ def main():
                "independent_classifications":{"openai":None,"anthropic":None},"errors":errors,
                "consensus":{"status":"AI_UNAVAILABLE","classification":None,"rule":"No AI available; deterministic paper analysis continues."},
                "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False}})
-        cache["council_result"]={"timestamp":now(),"fingerprint":fingerprint,"result":load(OUT,{})}; CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8"); return 0
+        return 0
     if bool(ov)!=bool(av):
         name="OpenAI" if ov else "Anthropic"; cls=oc if ov else ac
-        write({"status":"DEGRADED_ONE_AI","timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":True,
+        write({"evidence_fingerprint":fingerprint,"status":"DEGRADED_ONE_AI","timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":True,
                "working_provider":name,"independent":{"openai":ov or None,"anthropic":av or None},
                "independent_classifications":{"openai":oc,"anthropic":ac},"final_classifications":{"openai":oc,"anthropic":ac},
                "errors":errors,"consensus":{"status":"DEGRADED_ONE_AI","classification":cls,"provider":name,
@@ -93,7 +87,7 @@ def main():
     elif fc1 and fc2: status,classification="DISAGREEMENT","HOLD_FOR_REVIEW"
     elif fc1 or fc2: status,classification="DEGRADED_ONE_AI_FINAL",fc1 or fc2
     else: status,classification="AI_UNAVAILABLE",None
-    write({"status":status,"timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":status.startswith("DEGRADED") or status=="AI_UNAVAILABLE",
+    write({"evidence_fingerprint":fingerprint,"status":status,"timestamp":now(),"paper_only":True,"config":config(),"degraded_mode":status.startswith("DEGRADED") or status=="AI_UNAVAILABLE",
            "working_provider":None if status=="COMPLETE" else ("OpenAI" if fc1 and not fc2 else "Anthropic" if fc2 and not fc1 else None),
            "independent":{"openai":ov,"anthropic":av},"independent_classifications":{"openai":oc,"anthropic":ac},
            "cross_review":{"openai":oc_text or None,"anthropic":ac_text or None},
@@ -102,8 +96,5 @@ def main():
            "errors":{"openai":errors.get("openai"),"anthropic":errors.get("anthropic"),"openai_cross_review":oce,"anthropic_cross_review":ace,"openai_final":ofe,"anthropic_final":afe},
            "consensus":{"status":status,"classification":classification,"rule":"Use all available provider results; disagreements default to HOLD_FOR_REVIEW; no vendor is mandatory."},
            "execution_authorized":False,"safety":{"live_orders_enabled":False,"ai_can_override_deterministic_gates":False,"stock_specific_rules_allowed":False,"disagreement_defaults_to_hold":True}})
-    final_result=load(OUT,{})
-    cache["council_result"]={"timestamp":now(),"fingerprint":fingerprint,"result":final_result}
-    CACHE.write_text(json.dumps(cache,indent=2),encoding="utf-8")
     return 0
 if __name__=="__main__": raise SystemExit(main())
