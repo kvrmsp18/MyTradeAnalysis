@@ -78,6 +78,14 @@ def yahoo_index_snapshot() -> dict:
     return indices
 
 
+
+def derive_regime(stocks: list[dict]) -> dict:
+    changes=[float(x["change"]) for x in stocks if x.get("change") is not None]
+    if not changes: return {"label":"UNAVAILABLE","breadth":None,"confidence":0}
+    breadth=round(sum(1 for x in changes if x>0)/len(changes)*100,1)
+    label="BULLISH" if breadth>=65 else "BEARISH" if breadth<=35 else "MIXED"
+    return {"label":label,"breadth":breadth,"confidence":round(abs(breadth-50)*2,1)}
+
 def write_report(status: str, source: str, reason: object, stocks: list[dict]) -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(
@@ -92,6 +100,7 @@ def write_report(status: str, source: str, reason: object, stocks: list[dict]) -
                 "universe": "NIFTY50_VALIDATION_BASKET",
                 "universe_count": len(SYMBOLS),
                 "indices": yahoo_index_snapshot(),
+                "regime": derive_regime(stocks),
                 "stocks": stocks,
             },
             indent=2,
