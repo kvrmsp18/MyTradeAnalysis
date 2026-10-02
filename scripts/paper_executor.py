@@ -133,12 +133,6 @@ def main():
         return 0
 
     fresh = snapshot_is_fresh(snapshot)
-    if not fresh:
-        print("Market snapshot is stale or missing data_as_of; no intraday execution.")
-        state = read(STATE, {"schema_version":"1.0","cash":CAPITAL,"positions":{},"realized_pnl":0.0,"trades":[],"last_processed_ledger":None}, strict=True)
-        publish_state(state)
-        return 0
-
     state = read(
         STATE,
         {
@@ -192,12 +186,9 @@ def main():
         quantity = int(position["quantity"])
         return_pct = (current - entry) / entry * 100
         reason = (
-            "EOD_EXIT"
-            if eod_exit
-            else "TARGET"
-            if return_pct >= TARGET_PCT
-            else "STOP_LOSS"
-            if return_pct <= -STOP_PCT
+            "EOD_EXIT" if eod_exit
+            else "TARGET" if fresh and return_pct >= TARGET_PCT
+            else "STOP_LOSS" if fresh and return_pct <= -STOP_PCT
             else None
         )
 
@@ -225,8 +216,10 @@ def main():
 
     open_count = len(state["positions"])
 
-    if not entry_allowed:
+    if not entry_allowed or not fresh:
         candidates = []
+        if not fresh and entry_allowed:
+            print("Market snapshot is stale; entries and target/stop exits are blocked.")
     else:
         candidates = [
             candidate
