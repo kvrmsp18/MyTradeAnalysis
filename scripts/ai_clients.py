@@ -41,7 +41,8 @@ def request_json(url, headers, payload, provider, *, retries=3, timeout=90):
         except urllib.error.HTTPError as exc:
             detail=exc.read().decode("utf-8",errors="replace")[:4000]
             last_error=f"{provider} HTTP {exc.code}: {detail}"
-            retryable=exc.code==429 or 500<=exc.code<600
+            credit_quota_billing = exc.code == 429 and any(term in detail.lower() for term in ("credit", "quota", "billing"))
+            retryable=(exc.code==429 and not credit_quota_billing) or 500<=exc.code<600
             if not retryable or attempt==retries: break
             retry_after=exc.headers.get("Retry-After")
             try: delay=max(1,min(60,int(float(retry_after)))) if retry_after else 10*attempt
