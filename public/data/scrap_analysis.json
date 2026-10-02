@@ -1,6 +1,6 @@
 {
   "status": "LIVE_TECHNICAL_DATA",
-  "timestamp": "2026-10-02T09:55:27.214686Z",
+  "timestamp": "2026-10-02T10:04:15.110714Z",
   "source": "Dhan historical candles + deterministic technical calculations",
   "paper_only": true,
   "stock_specific_rule_created": false,
@@ -162,32 +162,32 @@
     {
       "symbol": "BAJFINANCE",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 944.6608,
         "ema20": 943.8543,
         "ema50": 946.0771,
         "rsi14": 68.15,
-        "atr14": 2.3643,
-        "atr_pct": 0.25,
-        "volume_ratio_20": 2.53,
-        "high20": 948.2999877929688,
-        "low20": 938.0
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
-        "confirmation": 3,
-        "relative_strength": 3,
-        "actionability": 4,
-        "protection": 3
+        "confirmation": 2,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 93.8,
-      "action": "REVIEW",
+      "score": 37.5,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
-        "volume_confirmed",
-        "near_20d_high"
+        "volume_not_confirmed",
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -196,32 +196,32 @@
     {
       "symbol": "BEL",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 381.8435,
-        "ema20": 381.2255,
-        "ema50": 381.7462,
-        "rsi14": 79.03,
-        "atr14": 0.7679,
-        "atr_pct": 0.2,
-        "volume_ratio_20": 0.0,
-        "high20": 383.1000061035156,
-        "low20": 378.6499938964844
+        "ema9": 381.5293,
+        "ema20": 381.0282,
+        "ema50": 381.691,
+        "rsi14": 81.02,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
         "confirmation": 1,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 2
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 68.8,
-      "action": "WATCH",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -230,27 +230,27 @@
     {
       "symbol": "COALINDIA",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 421.3817,
-        "ema20": 421.2468,
-        "ema50": 421.4005,
-        "rsi14": 62.73,
-        "atr14": 0.8036,
-        "atr_pct": 0.19,
-        "volume_ratio_20": 0.0,
-        "high20": 423.20001220703125,
-        "low20": 416.45001220703125
+        "ema9": 421.6271,
+        "ema20": 421.336,
+        "ema50": 421.4413,
+        "rsi14": 66.1,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 0,
         "confirmation": 2,
-        "relative_strength": 2,
+        "relative_strength": 0,
         "actionability": 1,
-        "protection": 3
+        "protection": 1
       },
-      "score": 50.0,
-      "action": "WATCH",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_not_above_ema20",
         "ema9_above_ema20",
@@ -264,32 +264,32 @@
     {
       "symbol": "ETERNAL",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 312.5457,
-        "ema20": 312.2411,
-        "ema50": 313.3418,
-        "rsi14": 74.64,
-        "atr14": 0.9607,
-        "atr_pct": 0.31,
-        "volume_ratio_20": 0.0,
-        "high20": 313.8999938964844,
-        "low20": 309.79998779296875
+        "ema9": 312.2071,
+        "ema20": 312.0665,
+        "ema50": 313.319,
+        "rsi14": 76.82,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
         "confirmation": 1,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 75.0,
-      "action": "REVIEW",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -298,32 +298,32 @@
     {
       "symbol": "HDFCBANK",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 719.3271,
         "ema20": 717.7989,
         "ema50": 716.8342,
         "rsi14": 87.44,
-        "atr14": 1.4179,
-        "atr_pct": 0.2,
-        "volume_ratio_20": 1.9,
-        "high20": 721.2999877929688,
-        "low20": 711.5499877929688
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 3,
-        "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 4,
-        "protection": 2
+        "confirmation": 1,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 87.5,
-      "action": "REVIEW",
+      "score": 31.2,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
-        "volume_confirmed",
-        "near_20d_high"
+        "volume_not_confirmed",
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -332,32 +332,32 @@
     {
       "symbol": "HDFCLIFE",
       "status": "OK",
-      "candle_count": 1574,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 534.406,
-        "ema20": 533.3129,
-        "ema50": 531.4038,
-        "rsi14": 64.26,
-        "atr14": 1.2893,
-        "atr_pct": 0.24,
-        "volume_ratio_20": 0.0,
-        "high20": 536.5499877929688,
-        "low20": 528.25
+        "ema9": 534.4575,
+        "ema20": 533.2195,
+        "ema50": 531.2897,
+        "rsi14": 65.29,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
         "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 81.2,
-      "action": "REVIEW",
+      "score": 37.5,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -366,32 +366,32 @@
     {
       "symbol": "HINDALCO",
       "status": "OK",
-      "candle_count": 1574,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 938.6782,
-        "ema20": 935.8239,
-        "ema50": 935.5187,
-        "rsi14": 82.44,
-        "atr14": 2.5536,
-        "atr_pct": 0.27,
-        "volume_ratio_20": 0.0,
-        "high20": 942.5999755859375,
-        "low20": 923.75
+        "ema9": 937.8852,
+        "ema20": 935.1895,
+        "ema50": 935.2603,
+        "rsi14": 83.6,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
-        "structure": 3,
+        "structure": 2,
         "confirmation": 1,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 2
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 75.0,
-      "action": "REVIEW",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -400,32 +400,32 @@
     {
       "symbol": "INDUSINDBK",
       "status": "OK",
-      "candle_count": 1574,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 886.2882,
-        "ema20": 885.9399,
-        "ema50": 887.9814,
-        "rsi14": 60.0,
-        "atr14": 2.0036,
-        "atr_pct": 0.23,
-        "volume_ratio_20": 0.0,
-        "high20": 888.0,
-        "low20": 880.2999877929688
+        "ema9": 886.1477,
+        "ema20": 885.8442,
+        "ema50": 888.0276,
+        "rsi14": 61.9,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
         "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 81.2,
-      "action": "REVIEW",
+      "score": 37.5,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -434,32 +434,32 @@
     {
       "symbol": "ITC",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 255.7475,
         "ema20": 255.8431,
         "ema50": 256.9205,
         "rsi14": 62.0,
-        "atr14": 0.3571,
-        "atr_pct": 0.14,
-        "volume_ratio_20": 1.07,
-        "high20": 256.1499938964844,
-        "low20": 254.75
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 1,
         "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 2,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 0,
+        "protection": 1
       },
-      "score": 68.8,
-      "action": "WATCH",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_not_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -468,32 +468,32 @@
     {
       "symbol": "JIOFIN",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 211.6528,
         "ema20": 211.2894,
         "ema50": 211.7901,
         "rsi14": 79.73,
-        "atr14": 0.5836,
-        "atr_pct": 0.27,
-        "volume_ratio_20": 0.51,
-        "high20": 212.5,
-        "low20": 208.5399932861328
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
         "confirmation": 1,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 2
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 68.8,
-      "action": "WATCH",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -502,32 +502,32 @@
     {
       "symbol": "KOTAKBANK",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 418.0372,
         "ema20": 418.3517,
         "ema50": 420.1056,
         "rsi14": 62.89,
-        "atr14": 1.0429,
-        "atr_pct": 0.25,
-        "volume_ratio_20": 1.06,
-        "high20": 420.25,
-        "low20": 416.04998779296875
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 0,
         "confirmation": 2,
-        "relative_strength": 2,
-        "actionability": 2,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 0,
+        "protection": 1
       },
-      "score": 56.2,
-      "action": "WATCH",
+      "score": 18.8,
+      "action": "OBSERVE",
       "reasons": [
         "price_not_above_ema20",
         "ema9_not_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -536,27 +536,27 @@
     {
       "symbol": "MAXHEALTH",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 935.6547,
-        "ema20": 933.8945,
-        "ema50": 932.2823,
-        "rsi14": 77.55,
-        "atr14": 2.5643,
-        "atr_pct": 0.27,
-        "volume_ratio_20": 0.0,
-        "high20": 948.25,
-        "low20": 927.7000122070312
+        "ema9": 934.3308,
+        "ema20": 933.1518,
+        "ema50": 931.9285,
+        "rsi14": 80.89,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 3,
         "confirmation": 1,
-        "relative_strength": 2,
+        "relative_strength": 0,
         "actionability": 1,
-        "protection": 2
+        "protection": 0
       },
-      "score": 56.2,
-      "action": "WATCH",
+      "score": 31.2,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
@@ -570,31 +570,31 @@
     {
       "symbol": "NTPC",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 316.3676,
         "ema20": 316.1799,
         "ema50": 316.8753,
         "rsi14": 56.02,
-        "atr14": 0.8071,
-        "atr_pct": 0.26,
-        "volume_ratio_20": 3.35,
-        "high20": 318.25,
-        "low20": 313.1000061035156
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 0,
-        "confirmation": 3,
-        "relative_strength": 2,
-        "actionability": 2,
-        "protection": 3
+        "confirmation": 2,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 62.5,
-      "action": "WATCH",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_not_above_ema20",
         "ema9_above_ema20",
-        "volume_confirmed",
+        "volume_not_confirmed",
         "not_near_20d_high"
       ],
       "decision_time_only": true,
@@ -604,32 +604,32 @@
     {
       "symbol": "ONGC",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 221.996,
         "ema20": 221.8427,
         "ema50": 222.3465,
         "rsi14": 80.16,
-        "atr14": 0.3321,
-        "atr_pct": 0.15,
-        "volume_ratio_20": 2.58,
-        "high20": 222.86000061035156,
-        "low20": 220.64999389648438
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
-        "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 4,
-        "protection": 2
+        "confirmation": 1,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 81.2,
-      "action": "REVIEW",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
-        "volume_confirmed",
-        "near_20d_high"
+        "volume_not_confirmed",
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -638,32 +638,32 @@
     {
       "symbol": "POWERGRID",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 254.1278,
-        "ema20": 253.9796,
-        "ema50": 254.726,
-        "rsi14": 68.29,
-        "atr14": 0.4607,
-        "atr_pct": 0.18,
-        "volume_ratio_20": 0.0,
-        "high20": 255.1999969482422,
-        "low20": 252.5
+        "ema9": 254.0223,
+        "ema20": 253.9196,
+        "ema50": 254.7332,
+        "rsi14": 71.74,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
-        "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 3
+        "confirmation": 1,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 81.2,
-      "action": "REVIEW",
+      "score": 31.2,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -672,32 +672,32 @@
     {
       "symbol": "SBIN",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 953.6935,
         "ema20": 952.824,
         "ema50": 954.7967,
         "rsi14": 67.11,
-        "atr14": 2.0,
-        "atr_pct": 0.21,
-        "volume_ratio_20": 2.65,
-        "high20": 957.8499755859375,
-        "low20": 945.9000244140625
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
-        "confirmation": 3,
-        "relative_strength": 2,
-        "actionability": 4,
-        "protection": 3
+        "confirmation": 2,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 87.5,
-      "action": "REVIEW",
+      "score": 37.5,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
-        "volume_confirmed",
-        "near_20d_high"
+        "volume_not_confirmed",
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -706,32 +706,32 @@
     {
       "symbol": "SHRIRAMFIN",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 941.0108,
         "ema20": 941.9891,
         "ema50": 948.5606,
         "rsi14": 56.48,
-        "atr14": 2.9357,
-        "atr_pct": 0.31,
-        "volume_ratio_20": 0.9,
-        "high20": 945.0,
-        "low20": 936.2000122070312
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 1,
         "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 2,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 0,
+        "protection": 1
       },
-      "score": 68.8,
-      "action": "WATCH",
+      "score": 25.0,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_not_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -740,32 +740,32 @@
     {
       "symbol": "TATACONSUM",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 951.8096,
         "ema20": 951.5123,
         "ema50": 953.6154,
         "rsi14": 71.67,
-        "atr14": 2.5321,
-        "atr_pct": 0.26,
-        "volume_ratio_20": 2.18,
-        "high20": 957.0,
-        "low20": 945.2000122070312
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
-        "confirmation": 2,
-        "relative_strength": 3,
-        "actionability": 4,
-        "protection": 3
+        "confirmation": 1,
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 87.5,
-      "action": "REVIEW",
+      "score": 31.2,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
-        "volume_confirmed",
-        "near_20d_high"
+        "volume_not_confirmed",
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -774,32 +774,32 @@
     {
       "symbol": "TATASTEEL",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
         "ema9": 177.8037,
         "ema20": 177.7019,
         "ema50": 178.9895,
         "rsi14": 73.3,
-        "atr14": 0.61,
-        "atr_pct": 0.34,
-        "volume_ratio_20": 1.05,
-        "high20": 178.88999938964844,
-        "low20": 175.77000427246094
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 2,
         "confirmation": 1,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 3
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 1
       },
-      "score": 75.0,
-      "action": "REVIEW",
+      "score": 31.2,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,
@@ -808,32 +808,32 @@
     {
       "symbol": "WIPRO",
       "status": "OK",
-      "candle_count": 1573,
+      "candle_count": 1650,
       "indicators": {
-        "ema9": 159.0854,
-        "ema20": 158.7819,
-        "ema50": 158.7319,
-        "rsi14": 83.61,
-        "atr14": 0.3386,
-        "atr_pct": 0.21,
-        "volume_ratio_20": 0.0,
-        "high20": 159.5800018310547,
-        "low20": 157.47999572753906
+        "ema9": 159.0193,
+        "ema20": 158.7221,
+        "ema50": 158.7067,
+        "rsi14": 84.4,
+        "atr14": null,
+        "atr_pct": null,
+        "volume_ratio_20": null,
+        "high20": null,
+        "low20": null
       },
       "components": {
         "structure": 3,
         "confirmation": 1,
-        "relative_strength": 3,
-        "actionability": 3,
-        "protection": 2
+        "relative_strength": 0,
+        "actionability": 1,
+        "protection": 0
       },
-      "score": 75.0,
-      "action": "REVIEW",
+      "score": 31.2,
+      "action": "OBSERVE",
       "reasons": [
         "price_above_ema20",
         "ema9_above_ema20",
         "volume_not_confirmed",
-        "near_20d_high"
+        "not_near_20d_high"
       ],
       "decision_time_only": true,
       "stock_specific_rule_created": false,

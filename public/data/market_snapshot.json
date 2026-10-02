@@ -1,6 +1,6 @@
 {
   "status": "LIVE_MARKET_DATA_FALLBACK",
-  "timestamp": "2026-10-02T09:55:26.828664Z",
+  "timestamp": "2026-10-02T10:04:14.548150Z",
   "source": "Yahoo Finance chart feed",
   "reason": {
     "dhan_error": "HTTP 401: {\"data\":{\"808\":\"Authentication Failed - Client ID or Token invalid\"},\"status\":\"failed\"}",
