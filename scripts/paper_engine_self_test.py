@@ -20,7 +20,7 @@ def asof(clock):
 def cand(symbol,price,score=80,scrap=75,ranking=1):
     return {"symbol":symbol,"ranking":ranking,"decision":"REVIEW","features":{"score":score},"scrap_result":{"status":"OK","score":scrap},"quote":{"price":price}}
 def run(root,m,name,cands,stocks,clock,status="LIVE_MARKET_DATA",data_as_of=None):
-    stamp=data_as_of or asof(clock)
+    stamp=data_as_of or datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
     write(root/"data/ledger/2026-01-01"/name,{"mode":"PAPER","timestamp":"2026-01-01T04:00:00Z","safety":{"live_orders_enabled":False},"candidates":cands})
     write(root/"public/data/market_snapshot.json",{"status":status,"timestamp":stamp,"data_as_of":stamp,"stocks":stocks})
     env(PAPER_ENGINE_TEST_TIME_IST=clock); assert m.main()==0
