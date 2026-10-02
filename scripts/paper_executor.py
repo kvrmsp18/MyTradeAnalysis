@@ -19,6 +19,7 @@ from __future__ import annotations
 import json
 import os
 from datetime import datetime, timezone
+import tempfile
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -30,6 +31,9 @@ SNAPSHOT = Path("public/data/market_snapshot.json")
 
 CAPITAL = float(os.getenv("PAPER_STARTING_CAPITAL", os.getenv("PAPER_ANALYSIS_BUDGET", "1000")) or 1000)
 ANALYSIS_BUDGET = max(1000.0, float(os.getenv("PAPER_ANALYSIS_BUDGET", "1000") or 1000))
+MIN_SCORE = float(os.getenv("PAPER_REVIEW_SCORE", "65"))
+MIN_SCRAP_SCORE = float(os.getenv("PAPER_MIN_SCRAP_SCORE", "60"))
+STALE_MINUTES = float(os.getenv("PAPER_MAX_DATA_AGE_MINUTES", "30"))
 MAX_POS_PCT = float(os.getenv("PAPER_MAX_POSITION_PCT", "20"))
 TARGET_PCT = float(os.getenv("PAPER_TARGET_PCT", "2.0"))
 STOP_PCT = float(os.getenv("PAPER_STOP_PCT", "1.0"))
@@ -42,18 +46,36 @@ def now():
     return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
-def read(path, default):
+def read(path, default, *, strict=False):
+    if not path.exists(): return default
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
-        return value if isinstance(value, dict) else default
+        if not isinstance(value, dict): raise ValueError("expected JSON object")
+        return value
     except Exception:
+        if strict: raise RuntimeError(f"Corrupt or invalid JSON state: {path}")
         return default
-
 
 def save(path, value):
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2), encoding="utf-8")
+    payload = json.dumps(value, indent=2)
+    fd, temp_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=str(path.parent), text=True)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as handle:
+            handle.write(payload); handle.flush(); os.fsync(handle.fileno())
+        os.replace(temp_name, path)
+    finally:
+        try: os.unlink(temp_name)
+        except FileNotFoundError: pass
 
+def snapshot_is_fresh(snapshot):
+    raw = snapshot.get("data_as_of")
+    if not raw: return False
+    try:
+        ts = datetime.fromisoformat(str(raw).replace("Z","+00:00"))
+        age = (datetime.now(timezone.utc) - ts).total_seconds() / 60.0
+        return 0 <= age <= STALE_MINUTES
+    except (TypeError, ValueError): return False
 
 def latest_ledger():
     files = sorted(LEDGER_ROOT.glob("*/[0-9]*.json"))
@@ -110,6 +132,13 @@ def main():
         print("No validated market snapshot; no execution.")
         return 0
 
+    fresh = snapshot_is_fresh(snapshot)
+    if not fresh:
+        print("Market snapshot is stale or missing data_as_of; no intraday execution.")
+        state = read(STATE, {"schema_version":"1.0","cash":CAPITAL,"positions":{},"realized_pnl":0.0,"trades":[],"last_processed_ledger":None}, strict=True)
+        publish_state(state)
+        return 0
+
     state = read(
         STATE,
         {
@@ -120,6 +149,7 @@ def main():
             "trades": [],
             "last_processed_ledger": None,
         },
+        strict=True,
     )
     state.setdefault("cash", CAPITAL)
     state.setdefault("positions", {})
@@ -132,6 +162,7 @@ def main():
         return 0
 
     events = []
+    exited_symbols = set()
     quote_map = {
         str(item.get("symbol")): item
         for item in snapshot.get("stocks", [])
@@ -170,7 +201,10 @@ def main():
             else None
         )
 
+        overnight = str(position.get("entry_time",""))[:10] != str(ist.date())
+        reason = "OVERNIGHT_EXIT" if overnight else reason
         if reason:
+            exited_symbols.add(symbol)
             proceeds = current * quantity
             pnl = (current - entry) * quantity
             state["cash"] = round(state["cash"] + proceeds, 2)
@@ -198,7 +232,7 @@ def main():
             candidate
             for candidate in ledger.get("candidates", [])
             if candidate.get("decision") == "REVIEW"
-            and candidate.get("features", {}).get("score", 0) >= 65
+            and candidate.get("features", {}).get("score", 0) >= MIN_SCORE
         ]
         candidates.sort(key=lambda candidate: candidate.get("ranking", 9999))
 
@@ -207,26 +241,37 @@ def main():
     position_value_cap = effective_buying_power * MAX_POS_PCT / 100
 
     for candidate in candidates:
+        execution = candidate.setdefault("execution", {})
         if open_count >= MAX_POSITIONS:
-            break
+            execution["reason"] = "MAX_POSITIONS_REACHED"
+            continue
 
         symbol = str(candidate.get("symbol"))
         current = price(candidate)
 
-        if not symbol or current is None or symbol in state["positions"] or current <= 0:
+        if not symbol:
+            execution["reason"] = "INVALID_SYMBOL"
+            continue
+        if symbol in exited_symbols:
+            execution["reason"] = "EXITED_THIS_CYCLE"
+            continue
+        if current is None or current <= 0:
+            execution["reason"] = "PRICE_UNAVAILABLE"
             continue
 
         try:
             scrap_score = float(candidate.get("scrap_result", {}).get("score"))
         except (TypeError, ValueError):
+            execution["reason"] = "SCRAP_SCORE_UNAVAILABLE"
             continue
 
-        if scrap_score < 60:
+        if scrap_score < MIN_SCRAP_SCORE:
+            execution["reason"] = "SCRAP_SCORE_BELOW_THRESHOLD"
             continue
 
         quantity = int(position_value_cap // current)
         if quantity < 1:
-            candidate.setdefault("execution", {})["reason"] = "INSUFFICIENT_CAPITAL"
+            execution["reason"] = "INSUFFICIENT_CAPITAL"
             continue
 
         cost = quantity * current
