@@ -5,7 +5,8 @@ import concurrent.futures,csv,json,os,sys,time,urllib.error,urllib.parse,urllib.
 from datetime import datetime,timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
-from universe import load_master,select_candidates,save_selected,load_carried,bhavcopy_universe
+import universe
+from universe import load_master,save_selected,load_carried,bhavcopy_universe
 
 MARKETFEED_URL="https://api.dhan.co/v2/marketfeed/quote"
 OUT=Path("public/data/market_snapshot.json")
@@ -126,7 +127,7 @@ def dhan_scan(client_id,token):
         payload=json.loads(fetch(MARKETFEED_URL,{"access-token":token,"client-id":client_id,"Content-Type":"application/json","Accept":"application/json"},body).decode())
         rows.extend(normalise_dhan(payload,chunk)); time.sleep(1.1)
     if not rows:raise RuntimeError("Dhan returned no usable NSE equity quotes")
-    selected,stats=select_candidates(rows,top_n=TOP_N,max_price=BUDGET)
+    selected,stats=universe.select_candidates(rows,top_n=TOP_N,max_price=BUDGET)
     save_selected([x["symbol"] for x in selected],ids,"DHAN_FULL_MARKET_SCAN")
     info={"mode":"DYNAMIC_FULL_NSE_SCAN","source":source,"instruments":len(ids),"scanned":stats["scanned"],"selected":stats["selected"],"ranking":stats}
     return report("LIVE_MARKET_DATA","Dhan market feed",{"universe_source":source},selected,info,rows)
