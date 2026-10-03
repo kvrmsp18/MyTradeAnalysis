@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Dhan live-order adapter.
 
-This module is the ONLY code path allowed to submit broker orders.
-It is deliberately fail-closed:
-- DHAN_CLIENT_ID, DHAN_ACCESS_TOKEN and DHAN_API_KEY must be present.
-- LIVE_TRADING_ENABLED must be exactly "1".
-- LIVE_TRADING_CONFIRMATION must be exactly "I_UNDERSTAND_LIVE_ORDERS".
-- Every order carries a client-generated idempotency reference.
-- No credentials are ever written to logs or output.
+This is the only code path allowed to submit broker orders.  It is fail-closed:
+- DHAN_CLIENT_ID, DHAN_ACCESS_TOKEN and DHAN_API_KEY must exist.
+- TRADING_MODE must be LIVE.
+- LIVE_KILL_SWITCH must not be 1.
+- No browser code can reach this module.
+- Every order is followed by broker-status capture for reconciliation.
 
-The Dhan order API is called only from the server-side GitHub Actions runner.
+The Dhan REST API is authenticated with access-token/client-id.  DHAN_API_KEY
+is required as an application readiness credential, but is not guessed into an
+undocumented HTTP header.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ BASE_URL = "https://api.dhan.co/v2"
 ORDERS_URL = BASE_URL + "/orders"
 ORDER_DETAIL_URL = BASE_URL + "/orders/{order_id}"
 POSITIONS_URL = BASE_URL + "/positions"
+FUNDS_URL = BASE_URL + "/fundlimit"
 
 
 class LiveOrderBlocked(RuntimeError):
@@ -41,19 +43,18 @@ def config_from_env() -> DhanConfig:
     client_id = (os.getenv("DHAN_CLIENT_ID") or "").strip()
     access_token = (os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
     api_key = (os.getenv("DHAN_API_KEY") or "").strip()
+
     if not client_id or not access_token or not api_key:
         raise LiveOrderBlocked("Dhan live credentials are incomplete; live orders are blocked.")
-    if os.getenv("LIVE_TRADING_ENABLED") != "1":
-        raise LiveOrderBlocked("LIVE_TRADING_ENABLED is not 1; live orders are blocked.")
-    if os.getenv("LIVE_TRADING_CONFIRMATION") != "I_UNDERSTAND_LIVE_ORDERS":
-        raise LiveOrderBlocked("Explicit live-order confirmation is missing; live orders are blocked.")
+    if os.getenv("TRADING_MODE", "PAPER").upper() != "LIVE":
+        raise LiveOrderBlocked("TRADING_MODE is not LIVE; live orders are blocked.")
+    if os.getenv("LIVE_KILL_SWITCH", "0") == "1":
+        raise LiveOrderBlocked("LIVE_KILL_SWITCH=1; live orders are blocked.")
+
     return DhanConfig(client_id, access_token, api_key)
 
 
 def _headers(cfg: DhanConfig) -> dict[str, str]:
-    # Dhan's authenticated REST calls use the access-token/client-id headers.
-    # DHAN_API_KEY is a required application-level readiness credential but is
-    # intentionally not guessed into an undocumented HTTP header.
     return {
         "access-token": cfg.access_token,
         "client-id": cfg.client_id,
@@ -62,7 +63,12 @@ def _headers(cfg: DhanConfig) -> dict[str, str]:
     }
 
 
-def _request(method: str, url: str, cfg: DhanConfig, payload: dict[str, Any] | None = None) -> Any:
+def _request(
+    method: str,
+    url: str,
+    cfg: DhanConfig,
+    payload: dict[str, Any] | None = None,
+) -> Any:
     body = json.dumps(payload).encode("utf-8") if payload is not None else None
     request = urllib.request.Request(url, data=body, headers=_headers(cfg), method=method)
     try:
@@ -90,6 +96,45 @@ def safe_error(value: Any) -> str:
             clean[key] = item
         return json.dumps(clean, separators=(",", ":"))[:700]
     return str(value)[:700]
+
+
+def _find_available(value: Any) -> float | None:
+    """Find a numeric available cash field without assuming one response shape."""
+    if isinstance(value, dict):
+        for key in (
+            "availabelBalance",
+            "availableBalance",
+            "available_cash",
+            "availableCash",
+            "withdrawableBalance",
+        ):
+            raw = value.get(key)
+            try:
+                number = float(raw)
+                if number >= 0:
+                    return number
+            except (TypeError, ValueError):
+                pass
+        for child in value.values():
+            found = _find_available(child)
+            if found is not None:
+                return found
+    elif isinstance(value, list):
+        for child in value:
+            found = _find_available(child)
+            if found is not None:
+                return found
+    return None
+
+
+def available_funds() -> float:
+    """Fetch the current broker-available cash; fail closed if unreadable."""
+    cfg = config_from_env()
+    payload = _request("GET", FUNDS_URL, cfg)
+    available = _find_available(payload)
+    if available is None:
+        raise RuntimeError("Dhan fundlimit response did not contain available cash")
+    return float(available)
 
 
 def submit_order(
