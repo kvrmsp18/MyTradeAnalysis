@@ -19,7 +19,7 @@
 
 1. The current Dhan marketfeed request returns "Data APIs not Subscribed" in the observed cloud run. The Dhan fund-limit endpoint can still be used separately for the funds gate.
 2. Until Dhan market data is subscribed, the paper cycle uses the explicitly labelled NSE/Yahoo fallback path.
-3. The fallback validation universe is a broad Nifty-50 basket, not the entire NSE equity universe.
+3. There is no fixed share list. `scripts/universe.py` loads every NSE EQ-series instrument from Dhan's instrument master, `scripts/market_snapshot.py` quotes the whole list each cycle (1000 ids per request) and a generic turnover/momentum/range ranking picks the shares for deep analysis. If Dhan market data is unavailable the last live-discovered list is re-quoted via NSE/Yahoo; with no discovery at all the bot reports DATA_UNAVAILABLE and does not trade.
 4. GitHub Pages is static. A browser button cannot securely dispatch a GitHub Action with the repository's credentials. Therefore **Run Cycle Now opens the GitHub Actions workflow page**; the scheduled engine remains the actual unattended cycle.
 5. AI is optional advisory assistance and is provider-agnostic. At each cycle the bot detects all available configured AI providers and uses every provider that responds. Any unavailable provider is ignored for that cycle. If no AI provider is available, the bot continues entirely on its own deterministic market/SCRAP/risk/capital analysis. If available AI providers disagree, the advisory result defaults to HOLD_FOR_REVIEW; no provider can bypass deterministic safety gates.
 6. A paper session is considered operationally validated only after at least one market-hours cycle has produced a persisted paper decision and the self-test plus GUI build are green.
