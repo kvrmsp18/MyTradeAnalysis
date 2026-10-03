@@ -3,13 +3,14 @@
 from __future__ import annotations
 import json, os
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 EVENTS=Path("data/paper/events")
 STATE=Path("data/paper/state.json")
 
 def day():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return datetime.now(ZoneInfo("Asia/Kolkata")).strftime("%Y-%m-%d")
 
 def load_events():
     rows=[]
@@ -17,7 +18,8 @@ def load_events():
     for p in sorted(EVENTS.glob("*.json")):
         try:
             x=json.loads(p.read_text(encoding="utf-8"))
-            ts=str(x.get("timestamp",""))
+            x=x.get("event", x) if isinstance(x,dict) else {}
+            ts=str(x.get("timestamp") or x.get("submitted_at") or "")
             if ts.startswith(day()): rows.append(x)
         except (OSError,json.JSONDecodeError): pass
     return rows
