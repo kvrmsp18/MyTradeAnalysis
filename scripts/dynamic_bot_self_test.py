@@ -34,12 +34,12 @@ def test_master_and_generic_ranking():
 def test_learning_bounds():
     lp=load("learning_policy")
     with tempfile.TemporaryDirectory() as td:
-        old=lp.POLICY; lp.POLICY=Path(td)/"policy.json"
+        old=lp.POLICY; old_enabled=lp.LEARNING_ENABLED; lp.LEARNING_ENABLED=True; lp.POLICY=Path(td)/"policy.json"
         r=lp.apply_learning({"net_pnl":0,"stop_losses":0},[{"pattern":"SCRAP_WATCH_ONLY","action":"LOOSEN"}])
         assert r["effective"]["scrap_review_cutoff"]==69
         r=lp.apply_learning({"net_pnl":-10,"stop_losses":2},[{"pattern":"SCRAP_WATCH_ONLY","action":"LOOSEN"}])
         assert r["effective"]["scrap_review_cutoff"]==69
-        lp.POLICY=old
+        lp.POLICY=old; lp.LEARNING_ENABLED=old_enabled
 
 def test_ai_parser():
     a=load("ai_clients")
