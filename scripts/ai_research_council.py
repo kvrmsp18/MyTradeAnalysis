@@ -79,7 +79,8 @@ def main():
         final_verdicts=combine_symbol_verdicts([parse_symbol_verdicts(x,shortlist) for x in (of,af) if x])
         if final_verdicts:verdicts=final_verdicts
     write({"status":status,"timestamp":now(),"paper_only":True,"execution_authorized":False,"config":{
-        "openai_api_key_configured":bool(os.getenv("OPENAI_API_KEY")),"anthropic_api_key_configured":bool(os.getenv("ANTHROPIC_API_KEY"))},
+        "openai_api_key_configured":bool(os.getenv("OPENAI_API_KEY")),"anthropic_api_key_configured":bool(os.getenv("ANTHROPIC_API_KEY")),
+        "OPENAI_MODEL":os.getenv("OPENAI_MODEL"),"ANTHROPIC_MODEL":os.getenv("ANTHROPIC_MODEL")},
         "evidence_fingerprint":fp,"shortlist":shortlist,"independent":{"openai":ov or None,"anthropic":av or None},
         "independent_classifications":{"openai":oc,"anthropic":ac},"candidate_verdicts":{s:{"verdict":verdicts[s]} for s in sorted(verdicts)},
         "working_provider":working,"cross_review":cross,"errors":errors,
