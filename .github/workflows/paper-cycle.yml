@@ -1,96 +1,115 @@
-name: Paper Market Cycle
+name: MyTradeAnalysis Trading Engine
 
 on:
   push:
     paths:
       - '.github/paper-cycle.trigger'
   schedule:
-    # NSE cash session: 09:15-15:30 IST = 03:45-10:00 UTC.
     - cron: '45-59/5 3 * * 1-5'
     - cron: '*/5 4-9 * * 1-5'
     - cron: '0 10 * * 1-5'
   workflow_dispatch:
+    inputs:
+      trading_mode:
+        description: 'Execution mode'
+        required: true
+        type: choice
+        options: [PAPER, LIVE]
+        default: PAPER
 
 permissions:
   contents: write
 
 concurrency:
-  group: paper-cycle
+  group: mytradeanalysis-trading-engine
   cancel-in-progress: false
 
 jobs:
-  collect-and-ledger:
+  engine:
     runs-on: ubuntu-latest
     timeout-minutes: 8
+    env:
+      TRADING_MODE: ${{ inputs.trading_mode || vars.TRADING_MODE || 'PAPER' }}
+      DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+      DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+      DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5' }}
+      ANTHROPIC_MODEL: 'claude-sonnet-5-5'
+      LIVE_TRADING_ENABLED: ${{ secrets.LIVE_TRADING_ENABLED || '0' }}
+      LIVE_TRADING_CONFIRMATION: ${{ secrets.LIVE_TRADING_CONFIRMATION || '' }}
+      LIVE_KILL_SWITCH: ${{ vars.LIVE_KILL_SWITCH || '0' }}
+      LIVE_MAX_POSITION_PCT: ${{ vars.LIVE_MAX_POSITION_PCT || '20' }}
+      LIVE_MAX_POSITIONS: ${{ vars.LIVE_MAX_POSITIONS || '2' }}
+      LIVE_TARGET_PCT: ${{ vars.LIVE_TARGET_PCT || '2.0' }}
+      LIVE_STOP_PCT: ${{ vars.LIVE_STOP_PCT || '1.0' }}
+      LIVE_MAX_DAILY_LOSS: ${{ vars.LIVE_MAX_DAILY_LOSS || '500' }}
+      PAPER_STARTING_CAPITAL: '10000'
+      PAPER_MAX_POSITION_PCT: '20'
+      PAPER_TARGET_PCT: '2.0'
+      PAPER_STOP_PCT: '1.0'
+      PAPER_MAX_POSITIONS: '2'
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-
-      - name: Validate Dhan access token
-        env:
-          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
-          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+      - name: Validate broker credentials
         run: python scripts/dhan_auth_check.py
-
-      - name: Check available Dhan funds for paper-entry gating
-        env:
-          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
-          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+      - name: Check available broker funds
         run: python scripts/paper_funds.py
-
-      - name: Scan the whole NSE equity market and select shares dynamically (no fixed list)
-        env:
-          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
-          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
-          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+      - name: Export live capital
+        if: env.TRADING_MODE == 'LIVE'
+        run: echo "LIVE_AVAILABLE_CAPITAL=${PAPER_AVAILABLE_CAPITAL}" >> "$GITHUB_ENV"
+      - name: Scan whole NSE equity market
         run: python scripts/market_snapshot.py
-      - name: Run deterministic technical SCRAP analysis
+      - name: Run deterministic SCRAP analysis
         env:
-          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
-          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
-          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
           SCRAP_LOOKBACK_DAYS: '45'
         run: python scripts/scrap_analysis.py
-
-      - name: Run provider-agnostic AI research council
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5' }}
-          ANTHROPIC_MODEL: 'claude-sonnet-5-5'
+      - name: Run OpenAI + Anthropic research council
         run: python scripts/ai_research_council.py
-
-      - name: Persist decision-time observation ledger
+      - name: Persist decision-time ledger
         run: python scripts/paper_cycle.py
-
-      - name: Run deterministic paper execution engine
-        env:
-          PAPER_STARTING_CAPITAL: '10000'
-          PAPER_MAX_POSITION_PCT: '20'
-          PAPER_TARGET_PCT: '2.0'
-          PAPER_STOP_PCT: '1.0'
-          PAPER_MAX_POSITIONS: '2'
+      - name: Execute PAPER mode
+        if: env.TRADING_MODE == 'PAPER'
         run: python scripts/paper_executor.py
-
-      - name: Commit market snapshot, SCRAP analysis, council, ledger and paper state
+      - name: Execute LIVE mode
+        if: env.TRADING_MODE == 'LIVE'
+        run: python scripts/live_executor.py
+      - name: Reconcile LIVE broker state
+        if: env.TRADING_MODE == 'LIVE'
+        run: python scripts/live_reconciliation.py
+      - name: Publish runtime mode/status
+        run: |
+          mkdir -p public/data
+          python - <<'PY'
+          import json, os
+          from datetime import datetime, timezone
+          mode=os.getenv("TRADING_MODE","PAPER").upper()
+          dhan_ready=all((os.getenv(k) or "").strip() for k in ("DHAN_CLIENT_ID","DHAN_ACCESS_TOKEN","DHAN_API_KEY"))
+          live_gate=mode=="LIVE" and os.getenv("LIVE_TRADING_ENABLED")=="1" and os.getenv("LIVE_TRADING_CONFIRMATION")=="I_UNDERSTAND_LIVE_ORDERS" and os.getenv("LIVE_KILL_SWITCH","0")!="1" and dhan_ready
+          payload={"generated_at":datetime.now(timezone.utc).isoformat().replace("+00:00","Z"),"mode":mode,
+                   "live_trading":{"enabled":live_gate,"server_side_gate":mode=="LIVE","kill_switch":os.getenv("LIVE_KILL_SWITCH","0")=="1"},
+                   "dhan":{"status":"READY" if dhan_ready else "NOT_CONFIGURED"},
+                   "ai":{"openai_configured":bool(os.getenv("OPENAI_API_KEY") and os.getenv("OPENAI_MODEL")),
+                         "anthropic_configured":bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("ANTHROPIC_MODEL"))}}
+          with open("public/data/runtime_status.json","w",encoding="utf-8") as f: json.dump(payload,f,indent=2)
+          print(json.dumps(payload))
+          PY
+      - name: Commit runtime and trading data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          mkdir -p data/paper/events data/universe data/learning
-          git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json public/data/paper_state.json data/ledger data/paper data/universe
-          if git diff --cached --quiet; then
-            echo 'No data changes to commit.'
-            exit 0
-          fi
-          git commit -m "chore: update paper market technical analysis"
+          mkdir -p data/live/events data/universe data/learning
+          git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json public/data/paper_state.json public/data/live_state.json public/data/live_reconciliation.json public/data/runtime_status.json data/ledger data/paper data/live data/universe data/learning
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "chore: update trading engine state"
           for attempt in 1 2 3; do
             git pull --rebase origin main && git push && exit 0
-            echo "Push attempt $attempt failed; retrying..."
             sleep $((attempt * 5))
           done
           exit 1
