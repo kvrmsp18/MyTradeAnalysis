@@ -61,13 +61,13 @@ def derive_regime(stocks):
     label="BULLISH" if breadth>=65 else "BEARISH" if breadth<=35 else "MIXED"
     return {"observed":len(stocks),"label":label,"breadth":round(breadth,1),"confidence":round(abs(breadth-50)*2,1)}
 
-def report(status,source,reason,stocks,universe_info=None):
+def report(status,source,reason,stocks,universe_info=None,regime_stocks=None):
     times=[x.get("quote_time") for x in stocks if x.get("quote_time")]
     data_as_of=max(times) if times else None
     payload={"status":status,"timestamp":utc_now(),"data_as_of":data_as_of or utc_now(),
              "data_as_of_basis":"PROVIDER_QUOTE_TIME" if times else "NONE",
              "source":source,"reason":reason,"paper_only":True,"universe":universe_info or {},
-             "universe_count":len(stocks),"regime":derive_regime(stocks),"stocks":stocks}
+             "universe_count":len(stocks),"regime":derive_regime(regime_stocks if regime_stocks is not None else stocks),"stocks":stocks}
     OUT.parent.mkdir(parents=True,exist_ok=True); OUT.write_text(json.dumps(payload,indent=2),encoding="utf-8")
     return payload
 
@@ -129,7 +129,7 @@ def dhan_scan(client_id,token):
     selected,stats=select_candidates(rows,top_n=TOP_N,max_price=BUDGET)
     save_selected([x["symbol"] for x in selected],ids,"DHAN_FULL_MARKET_SCAN")
     info={"mode":"DYNAMIC_FULL_NSE_SCAN","source":source,"instruments":len(ids),"scanned":stats["scanned"],"selected":stats["selected"],"ranking":stats}
-    return report("LIVE_MARKET_DATA","Dhan market feed",{"universe_source":source},selected,info)
+    return report("LIVE_MARKET_DATA","Dhan market feed",{"universe_source":source},selected,info,rows)
 
 def main():
     cid=(os.getenv("DHAN_CLIENT_ID") or "").strip(); token=(os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
