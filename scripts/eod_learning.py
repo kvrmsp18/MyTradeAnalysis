@@ -13,6 +13,8 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
+from learning_policy import apply_learning
+
 LEDGER_ROOT = Path("data/ledger")
 MARKET_OPPORTUNITIES = Path("public/data/eod_market_opportunities.json")
 RECONSTRUCTION = Path("public/data/eod_intraday_reconstruction.json")
@@ -222,8 +224,9 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
         "threshold_pct": THRESHOLD,
         "optimization_policy": {
             "stock_specific_rules_allowed": False,
-            "automatic_strategy_mutation": False,
-            "required_next_step": "Validate generalized proposals on multiple days and out-of-sample data before activation.",
+            "automatic_strategy_mutation": True,
+            "allowed_parameters": ["scrap_review_cutoff", "review_score", "universe_top_n"],
+            "required_next_step": "Review bounded learning changes and disable with LEARNING_ENABLED=0 if required.",
         },
         "limitations": [
             "An EOD move alone is not proof that an executable trade existed at the decision price.",
@@ -237,11 +240,28 @@ def analyze(day: str, ledgers: list[dict]) -> dict:
 def main() -> int:
     day, ledgers = load_today()
     report = analyze(day, ledgers)
+    events_dir = Path("data/paper/events")
+    net_pnl = 0.0
+    stop_losses = 0
+    if events_dir.exists():
+        for p in events_dir.glob("*.json"):
+            try:
+                e = json.loads(p.read_text(encoding="utf-8"))
+                if str(e.get("timestamp","")).startswith(day):
+                    net_pnl += float(e.get("pnl", e.get("realized_pnl", 0)) or 0)
+                    if str(e.get("reason","")).upper() in {"STOP_LOSS","STOP"}:
+                        stop_losses += 1
+            except (OSError, json.JSONDecodeError, TypeError, ValueError):
+                continue
+    patterns = report.get("general_patterns", [])
+    for p in patterns:
+        p["action"] = "TIGHTEN" if net_pnl < 0 and stop_losses >= 2 else ("REPORT_ONLY" if net_pnl < 0 else ("LOOSEN" if p.get("distinct_symbols", 0) >= 3 else "REPORT_ONLY"))
+    learning = apply_learning({"net_pnl": net_pnl, "stop_losses": stop_losses}, patterns)
+    report["learning"] = {"day_stats": {"net_pnl": net_pnl, "stop_losses": stop_losses}, **learning}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(report, indent=2), encoding="utf-8")
-    print(f"Wrote {OUT}: {len(report['missed_opportunities'])} missed/discovery opportunities; {report['external_movers_with_reconstructed_setup']} reconstructed external setups")
+    print(f"Wrote {OUT}: {len(report['missed_opportunities'])} missed/discovery opportunities; learning changes={len(learning.get('changes', []))}")
     return 0
-
 
 if __name__ == "__main__":
     raise SystemExit(main())
