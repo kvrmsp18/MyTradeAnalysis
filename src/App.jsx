@@ -8,6 +8,8 @@ const SCRAP='/MyTradeAnalysis/data/scrap_analysis.json';
 const COUNCIL='/MyTradeAnalysis/data/ai_research_council.json';
 const PAPER_STATE='/MyTradeAnalysis/data/paper_state.json';
 const RUNTIME_STATUS='/MyTradeAnalysis/data/runtime_status.json';
+const LIVE_STATE='/MyTradeAnalysis/data/live_state.json';
+const LIVE_RECON='/MyTradeAnalysis/data/live_reconciliation.json';
 
 const NAV=[
   ['dashboard','Dashboard',LayoutDashboard],['screener','Stock Screener',Search],['stock360','Stock 360',BarChart3],
@@ -65,6 +67,8 @@ export default function App(){
   const [search,setSearch]=useState('');
   const [stop,setStop]=useState(false);
   const [paper,setPaper]=useState(true);
+  const [liveState,setLiveState]=useState(null);
+  const [liveRecon,setLiveRecon]=useState(null);
   const [snapshot,setSnapshot]=useState(null);
   const [eod,setEod]=useState(null);
   const [scrap,setScrap]=useState(null);
@@ -77,26 +81,32 @@ export default function App(){
 
   async function load(){
     try{
-      const responses=await Promise.all([fetch(DATA+'?t='+Date.now()),fetch(EOD+'?t='+Date.now()),fetch(SCRAP+'?t='+Date.now()),fetch(COUNCIL+'?t='+Date.now()),fetch(PAPER_STATE+'?t='+Date.now()),fetch(RUNTIME_STATUS+'?t='+Date.now())]);
+      const responses=await Promise.all([fetch(DATA+'?t='+Date.now()),fetch(EOD+'?t='+Date.now()),fetch(SCRAP+'?t='+Date.now()),fetch(COUNCIL+'?t='+Date.now()),fetch(PAPER_STATE+'?t='+Date.now()),fetch(RUNTIME_STATUS+'?t='+Date.now()),fetch(LIVE_STATE+'?t='+Date.now()),fetch(LIVE_RECON+'?t='+Date.now())]);
       const nextSnapshot=await responses[0].json();
       const nextEod=await responses[1].json();
       const nextScrap=await responses[2].json();
       const nextCouncil=await responses[3].json();
       const nextPaperState=await responses[4].json();
       const nextRuntimeStatus=await responses[5].json();
+      const nextLiveState=await responses[6].json();
+      const nextLiveRecon=await responses[7].json();
       setSnapshot(nextSnapshot);
       setEod(nextEod);
       setScrap(nextScrap);
       setCouncil(nextCouncil);
       setPaperState(nextPaperState);
       setRuntimeStatus(nextRuntimeStatus);
+      setLiveState(nextLiveState);
+      setLiveRecon(nextLiveRecon);
     }catch(error){
       setSnapshot({status:'DATA_UNAVAILABLE',reason:'Market snapshot could not be loaded.',stocks:[]});
       setEod({status:'NOT_READY',profitable_moves:0,missed_opportunities:[],general_patterns:[]});
       setScrap({status:'NOT_RUN',stocks:[],stock_specific_rule_created:false,reason:'SCRAP data could not be loaded.'});
       setCouncil({status:'NOT_RUN',consensus:{status:'NOT_RUN',classification:'HOLD_FOR_REVIEW'}});
       setPaperState({cash:0,positions:{},realized_pnl:0,trade_count:0,funds_check:'UNAVAILABLE'});
-      setRuntimeStatus({status:'UNAVAILABLE',telegram:{status:'UNKNOWN'},dhan:{status:'UNKNOWN'},openai:{status:'UNKNOWN'},anthropic:{status:'UNKNOWN'}});
+      setRuntimeStatus({status:'UNAVAILABLE',telegram:{status:'UNKNOWN'},dhan:{status:'UNKNOWN'},openai:{status:'UNKNOWN'},anthropic:{status:'UNKNOWN'},live_trading:{enabled:false}});
+      setLiveState({status:'BLOCKED',mode:'LIVE',live_orders_enabled:false});
+      setLiveRecon({status:'NOT_READY'});
     }finally{setLoading(false)}
   }
 
@@ -111,6 +121,18 @@ export default function App(){
   }),[stocks,search]);
   const market=marketState(snapshot);
   const currentRuntimeStatus=useMemo(()=>deriveServiceState(snapshot,council,runtimeStatus),[snapshot,council,runtimeStatus]);
+  const liveReady=Boolean(runtimeStatus?.live_trading?.enabled);
+
+  function openLiveControl(){
+    if(!liveReady){
+      showNotice('Live execution is server-controlled. Add the Dhan live credential and enable the explicit LIVE trading gate in GitHub Actions; the browser cannot store or transmit broker credentials.');
+      window.open('https://github.com/kvrmsp18/MyTradeAnalysis/actions/workflows/paper-cycle.yml','_blank','noopener,noreferrer');
+      return;
+    }
+    setPaper(false);
+    setTab('live');
+    showNotice('Live Trading mode is active on the server. The engine remains protected by Dhan authentication, fresh primary Dhan data, AI verdict, funds, position and daily-loss gates.');
+  }
 
   function showNotice(text){setNotice(text);setTimeout(()=>setNotice(''),4500)}
   function runCycle(){
@@ -131,7 +153,7 @@ export default function App(){
     if(tab==='scrap')return <Scrap live={market.live} count={stocks.length} scrap={scrap}/>;
     if(tab==='strategies')return <StrategyCouncil stock={filtered[0]||stocks[0]} live={market.live}/>;
     if(tab==='paper')return <Paper stop={stop} paperState={paperState} showNotice={showNotice}/>;
-    if(tab==='live')return <Locked title="Live Trading" text="Live broker execution is locked during paper validation."/>;
+    if(tab==='live')return <LiveTrading runtimeStatus={runtimeStatus} liveState={liveState} liveRecon={liveRecon} snapshot={snapshot} onOpenControl={openLiveControl}/>;
     if(tab==='journal')return <Journal paperState={paperState} eod={eod}/>;
     if(tab==='baskets')return <Baskets stocks={stocks}/>;
     if(tab==='postmortem')return <PostMortem report={eod}/>;
@@ -146,7 +168,7 @@ export default function App(){
     <aside className={menu?'sidebar open':'sidebar'}>
       <div className="brand"><div className="logo">↗</div><div><b>NSE BSE Intraday AI</b><span>Trading Platform</span></div></div>
       <div className="nav">{NAV.map(item=>{const Icon=item[2];return <button key={item[0]} className={tab===item[0]?'navBtn active':'navBtn'} onClick={()=>{setTab(item[0]);setMenu(false)}}><Icon size={17}/>{item[1]}</button>})}</div>
-      <div className="sideCard"><div className="miniLabel">TRADING MODE</div><div className="modePill"><span/> PAPER TRADING</div><p>Live execution is disabled during validation.</p></div>
+      <div className="sideCard"><div className="miniLabel">TRADING MODE</div><div className="modePill"><span/> {paper?'PAPER TRADING':liveReady?'LIVE TRADING':'LIVE TRADING • LOCKED'}</div><p>{paper?'Paper execution is selected.':liveReady?'Server-side live execution is enabled.':'Live execution is awaiting its external credential/control gate.'}</p></div>
     </aside>
     <main className="main">
       <header className="top">
@@ -154,7 +176,7 @@ export default function App(){
         <div className="brandMobile"><b>NSE BSE Intraday AI</b><span>Trading Platform</span></div>
         <div className="globalSearch"><Search size={16}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search stocks (e.g. RELIANCE, TCS, INFY)..."/></div>
         <div className="topRight">
-          <div className="modeSwitch"><button className={paper?'selected':''} onClick={()=>setPaper(true)}><span/>Paper Trading</button><button onClick={()=>showNotice('Live Trading is locked until paper validation is complete.')}>● Live Trading</button></div>
+          <div className="modeSwitch"><button className={paper?'selected':''} onClick={()=>setPaper(true)}><span/>Paper Trading</button><button className={!paper?'selected liveSelected':''} onClick={openLiveControl}>● Live Trading</button></div>
           <div className="connections">
             <Connection status={currentRuntimeStatus?.dhan?.status} label="Dhan"/>
             <Connection status={currentRuntimeStatus?.telegram?.status} label="Telegram"/>
@@ -270,6 +292,19 @@ function Setting({title,text,control}){return <div className="setting"><div><b>{
 function Journal({paperState,eod}){const count=Number(paperState?.trade_count||0);const misses=Number(eod?.missed_opportunities?.length||0);return <><PageTitle eyebrow="AUDIT TRAIL" title="Trade Journal" text="Decision-time paper evidence, fills and post-market observations."/><div className="dashboardCards"><MarketMetric title="Paper events" value={count} sub="Recorded simulated events" icon={FileText}/><MarketMetric title="Open positions" value={Object.keys(paperState?.positions||{}).length} sub="Current paper positions" icon={Target}/><MarketMetric title="Realized P&L" value={`₹${Number(paperState?.realized_pnl||0).toFixed(2)}`} sub="Paper only" icon={Activity}/><MarketMetric title="EOD misses" value={misses} sub="Universe-wide review" icon={History}/></div><section className="card"><div className="callout"><FileText size={18}/><span>The journal is intentionally evidence-first. When a paper order is generated, its decision price, indicators, risk checks and exit outcome are retained; no browser-side trade is fabricated.</span></div>{count? <div className="empty">Paper events exist in the repository ledger. The browser view will expand them once the ledger feed is published as a public data artifact.</div>:<div className="empty">No paper fills have been recorded yet.</div>}</section></>}
 
 function Notifications({council,paperState,runtimeStatus}){const usable=['COMPLETE','DEGRADED_ONE_AI','DEGRADED_ONE_AI_FINAL'].includes(council?.status);return <><PageTitle eyebrow="ALERT CENTER" title="Notifications" text="Operational notification state without exposing secrets in the browser."/><section className="card"><div className="healthRow"><div><b>Telegram paper-trade alerts</b><span>{runtimeStatus?.telegram?.detail||"Server-side GitHub Actions workflow"}</span></div><span className={'health '+(runtimeStatus?.telegram?.status==='READY'||runtimeStatus?.telegram?.status==='CONFIGURED'?'ready':'blocked')}><i/>{runtimeStatus?.telegram?.label||"UNKNOWN"}</span></div><div className="healthRow"><div><b>AI council status</b><span>{council?.status||'UNKNOWN'}</span></div><span className={usable?'health ready':'health blocked'}><i/>{council?.status||'UNKNOWN'}</span></div><div className="healthRow"><div><b>Paper state</b><span>{paperState?.funds_check||'UNKNOWN'}</span></div><span className="health ready"><i/>SAFE</span></div><div className="callout"><Bell size={18}/><span>Telegram credentials remain server-side. The GUI never displays or transmits bot tokens.</span></div></section></>}
+
+
+function LiveTrading({runtimeStatus,liveState,liveRecon,snapshot,onOpenControl}){
+  const enabled=Boolean(runtimeStatus?.live_trading?.enabled);
+  const positions=liveState?.positions||{};
+  const brokerPositions=liveRecon?.broker_positions||[];
+  const rows=[['Server mode',String(runtimeStatus?.mode||'PAPER')],['Live gate',enabled?'ENABLED':'BLOCKED'],['Dhan',runtimeStatus?.dhan?.status||'UNKNOWN'],['Primary market data',snapshot?.status==='LIVE_MARKET_DATA'?'READY':'BLOCKED'],['Live engine',liveState?.status||'WAITING'],['Reconciliation',liveRecon?.status||'WAITING'],['Kill switch',runtimeStatus?.live_trading?.kill_switch?'ON':'OFF']];
+  return <><PageTitle eyebrow="REAL MONEY EXECUTION" title="Live Trading" text="Server-side Dhan execution with deterministic safety gates."/>
+    <section className="card"><div className="callout"><ShieldCheck size={20}/><span>{enabled?'Live execution is enabled on the server. Every order is re-checked for credentials, fresh Dhan data, funds, AI symbol support, position limits and daily loss limits.':'Live execution is fail-closed. The browser never receives broker credentials and cannot bypass the server-side gate.'}</span></div>
+    <div className="dashboardCards"><MarketMetric title="Live Gate" value={enabled?'ON':'OFF'} sub={enabled?'Real orders permitted by server gate':'Awaiting credential/control'} icon={Target}/><MarketMetric title="Broker Positions" value={brokerPositions.length} sub="Dhan reconciliation" icon={Wallet}/><MarketMetric title="Local Events" value={liveState?.trade_count||0} sub="Submitted live orders" icon={Activity}/><MarketMetric title="Daily P&L" value={liveState?.daily_pnl!=null?'₹'+Number(liveState.daily_pnl).toFixed(2):'—'} sub="Local execution journal" icon={BarChart3}/></div>
+    <div className="statusList">{rows.map(r=><StatusRow key={r[0]} name={r[0]} value={r[1]} green={['ENABLED','READY','OFF'].includes(r[1])} warn={['BLOCKED','ON'].includes(r[1])}/>)}</div>
+    <div className="buttonRow"><button className="primary" onClick={onOpenControl}>{enabled?'Open Live Engine Control':'Open Live Activation Control'}</button><span className="secondary">{enabled?'Live orders are server-side only':'GitHub Actions controls the persistent mode'}</span></div></section>
+    <section className="card"><div className="cardHead"><div><h3>Live execution safeguards</h3><span>No browser-side broker access</span></div></div><div className="statusList"><StatusRow name="NSE cash segment only" value="NSE_EQ" green/><StatusRow name="Product" value="INTRADAY" green/><StatusRow name="Maximum open positions" value={String(runtimeStatus?.live_limits?.max_positions||2)}/><StatusRow name="Maximum position value" value={(runtimeStatus?.live_limits?.max_position_pct||20)+'% of available funds'}/><StatusRow name="Target / Stop" value={(runtimeStatus?.live_limits?.target_pct||2)+'% / '+(runtimeStatus?.live_limits?.stop_pct||1)+'%'}/><StatusRow name="Daily loss limit" value={'₹'+Number(runtimeStatus?.live_limits?.max_daily_loss||500).toFixed(2)}/></div></section></>}
 
 function Locked({title,text}){return <><PageTitle eyebrow="LIVE EXECUTION" title={title} text={text}/><section className="locked"><ShieldCheck size={42}/><h3>LIVE TRADING DISABLED</h3><p>Dhan credentials do not enable live orders by themselves. Paper validation is required first.</p></section></>}
 function EmptyPage({title,text}){return <><PageTitle eyebrow="PENDING INTEGRATION" title={title} text={text}/><section className="card"><div className="empty"><AlertTriangle size={18}/>{text}</div></section></>}
