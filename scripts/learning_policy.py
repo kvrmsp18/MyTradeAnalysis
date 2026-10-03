@@ -43,7 +43,7 @@ def apply_learning(day_stats, patterns):
         else: skipped.append(f"{reason}: REPORT_ONLY")
         if direction is None: continue
         key={"SCRAP_WATCH_ONLY":"scrap_review_cutoff","EXECUTION_FEATURE_SCORE_BELOW_THRESHOLD":"review_score",
-             "NOT_IN_PAPER_CANDIDATE_UNIVERSE_SETUP":"universe_top_n"}.get(reason)
+             "NOT_IN_PAPER_CANDIDATE_UNIVERSE_SETUP":"universe_top_n", "NOT_IN_PAPER_CANDIDATE_UNIVERSE_WITH_RECONSTRUCTED_SETUP":"universe_top_n"}.get(reason)
         if not key: skipped.append(f"{reason}: unmapped"); continue
         new=clamp(key,effective[key]+direction*STEP[key])
         if new!=effective[key]:
