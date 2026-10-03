@@ -96,7 +96,8 @@ jobs:
                    "live_trading":{"enabled":live_gate,"server_side_gate":mode=="LIVE","kill_switch":os.getenv("LIVE_KILL_SWITCH","0")=="1"},
                    "dhan":{"status":"READY" if dhan_ready else "NOT_CONFIGURED"},
                    "ai":{"openai_configured":bool(os.getenv("OPENAI_API_KEY") and os.getenv("OPENAI_MODEL")),
-                         "anthropic_configured":bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("ANTHROPIC_MODEL"))}}
+                         "anthropic_configured":bool(os.getenv("ANTHROPIC_API_KEY") and os.getenv("ANTHROPIC_MODEL"))},
+                   "live_limits":{"max_positions":int(os.getenv("LIVE_MAX_POSITIONS","2")),"max_position_pct":float(os.getenv("LIVE_MAX_POSITION_PCT","20")),"target_pct":float(os.getenv("LIVE_TARGET_PCT","2.0")),"stop_pct":float(os.getenv("LIVE_STOP_PCT","1.0")),"max_daily_loss":float(os.getenv("LIVE_MAX_DAILY_LOSS","500"))}}
           with open("public/data/runtime_status.json","w",encoding="utf-8") as f: json.dump(payload,f,indent=2)
           print(json.dumps(payload))
           PY
