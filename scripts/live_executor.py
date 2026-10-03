@@ -222,14 +222,24 @@ def main() -> int:
     state.setdefault("trades", [])
     state.setdefault("daily_pnl", 0.0)
 
-    if float(state.get("daily_pnl", 0) or 0) <= -MAX_DAILY_LOSS:
-        return fail_closed("DAILY_LOSS_LIMIT")
-
     broker_positions = positions()
     state["broker_positions_snapshot"] = broker_positions
     events = manage_positions(broker_positions, state, ist, True)
+    # Persist exits before evaluating the entry-side daily loss gate. A loss
+    # limit must stop new buys, never prevent a protective/EOD sell.
+    if events:
+        state["last_events"] = events
+        save(STATE, state)
+    daily_loss_hit = float(state.get("daily_pnl", 0) or 0) <= -MAX_DAILY_LOSS
 
     # Do not open new positions during the final five minutes; only manage exits.
+    if daily_loss_hit:
+        state["last_processed_ledger"] = str(ledger_path)
+        state["last_run_at"] = now()
+        save(STATE, state)
+        publish(state, "EXIT_ONLY" if events else "BLOCKED", "DAILY_LOSS_LIMIT")
+        return 0
+
     if minutes >= 15 * 60 + 25:
         state["last_processed_ledger"] = str(ledger_path)
         state["last_run_at"] = now()
