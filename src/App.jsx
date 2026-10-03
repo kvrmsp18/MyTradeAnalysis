@@ -127,7 +127,7 @@ export default function App(){
     setPaper(false);
     setTab('live');
     if(!liveReady){
-      showNotice('Live Trading UI is ON, but server-side real-money execution remains blocked until the Dhan live credential and explicit LIVE activation gate are supplied.');
+      showNotice('Live Trading UI is ON, but server-side real-money execution remains blocked until the Dhan live credential/API key and explicit LIVE activation gate are supplied.');
       window.open('https://github.com/kvrmsp18/MyTradeAnalysis/actions/workflows/paper-cycle.yml','_blank','noopener,noreferrer');
       return;
     }
@@ -306,5 +306,5 @@ function LiveTrading({runtimeStatus,liveState,liveRecon,snapshot,onOpenControl})
     <div className="buttonRow"><button className="primary" onClick={onOpenControl}>{enabled?'Open Live Engine Control':'Open Live Activation Control'}</button><span className="secondary">{enabled?'Live orders are server-side only':'GitHub Actions controls the persistent mode'}</span></div></section>
     <section className="card"><div className="cardHead"><div><h3>Live execution safeguards</h3><span>No browser-side broker access</span></div></div><div className="statusList"><StatusRow name="NSE cash segment only" value="NSE_EQ" green/><StatusRow name="Product" value="INTRADAY" green/><StatusRow name="Maximum open positions" value={String(runtimeStatus?.live_limits?.max_positions||2)}/><StatusRow name="Maximum position value" value={(runtimeStatus?.live_limits?.max_position_pct||20)+'% of available funds'}/><StatusRow name="Target / Stop" value={(runtimeStatus?.live_limits?.target_pct||2)+'% / '+(runtimeStatus?.live_limits?.stop_pct||1)+'%'}/><StatusRow name="Daily loss limit" value={'₹'+Number(runtimeStatus?.live_limits?.max_daily_loss||500).toFixed(2)}/></div></section></>}
 
-function Locked({title,text}){return <><PageTitle eyebrow="LIVE EXECUTION" title={title} text={text}/><section className="locked"><ShieldCheck size={42}/><h3>LIVE TRADING DISABLED</h3><p>Dhan credentials do not enable live orders by themselves. Paper validation is required first.</p></section></>}
+function Locked({title,text}){return <><PageTitle eyebrow="LIVE EXECUTION" title={title} text={text}/><section className="locked"><ShieldCheck size={42}/><h3>LIVE TRADING DISABLED</h3><p>The browser never receives Dhan credentials. Real-money execution requires the server-side LIVE mode gate and Dhan live credentials/API key.</p></section></>}
 function EmptyPage({title,text}){return <><PageTitle eyebrow="PENDING INTEGRATION" title={title} text={text}/><section className="card"><div className="empty"><AlertTriangle size={18}/>{text}</div></section></>}
