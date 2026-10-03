@@ -1,8 +1,8 @@
-name: MyTradeAnalysis Paper Trade Alerts
+name: MyTradeAnalysis Trade Alerts
 
 on:
   workflow_run:
-    workflows: ["Paper Market Cycle"]
+    workflows: ["MyTradeAnalysis Trading Engine"]
     types: [completed]
   workflow_dispatch:
 
@@ -14,48 +14,57 @@ jobs:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout latest paper state
+      - name: Checkout latest trading state
         uses: actions/checkout@v5
 
-      - name: Send only new BUY/SELL Telegram events
+      - name: Send new BUY/SELL Telegram events
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           set -euo pipefail
-          marker='data/paper/last_notified_event.txt'
-          last=$(cat "$marker" 2>/dev/null || true)
-          events=$(find data/paper/events -type f -name '*.json' 2>/dev/null | sort || true)
-          if [ -n "$last" ]; then events=$(printf '%s\n' "$events" | awk -v last="$last" '$0 > last'); fi
-          if [ -z "$events" ]; then echo "No new paper BUY/SELL event."; exit 0; fi
-          if [ -z "${TELEGRAM_BOT_TOKEN:-}" ] || [ -z "${TELEGRAM_CHAT_ID:-}" ]; then echo "Telegram secrets are not configured; events remain unmarked for retry."; exit 0; fi
-          sent=0
-          latest_sent=''
-          while IFS= read -r file; do
-            [ -z "$file" ] && continue
-            side=$(jq -r '.event.side // ""' "$file")
-            if [ "$side" != "BUY" ] && [ "$side" != "SELL" ]; then continue; fi
-            symbol=$(jq -r '.event.symbol' "$file")
-            qty=$(jq -r '.event.quantity' "$file")
-            price=$(jq -r '.event.price' "$file")
-            reason=$(jq -r '.event.reason // "PAPER_ENTRY"' "$file")
-            pnl=$(jq -r '.event.pnl // "-"' "$file")
-            ts=$(jq -r '.event.timestamp' "$file")
-            if [ "$side" = "BUY" ]; then
-              score=$(jq -r '.event.score // "-"' "$file")
-              text="MyTradeAnalysis PAPER BUY\n\nSymbol: $symbol\nQuantity: $qty\nSimulated price: Rs.$price\nScore: $score\nTime: $ts\n\nLive trading: OFF"
+          paper_marker='data/paper/last_notified_event.txt'
+          live_marker='data/live/last_notified_event.txt'
+          paper_last=$(cat "$paper_marker" 2>/dev/null || true)
+          live_last=$(cat "$live_marker" 2>/dev/null || true)
+          paper_events=$(find data/paper/events -type f -name '*.json' 2>/dev/null | sort || true)
+          live_events=$(find data/live/events -type f -name '*.json' 2>/dev/null | sort || true)
+          if [ -n "$paper_last" ]; then paper_events=$(printf '%s\n' "$paper_events" | awk -v last="$paper_last" '$0 > last'); fi
+          if [ -n "$live_last" ]; then live_events=$(printf '%s\n' "$live_events" | awk -v last="$live_last" '$0 > last'); fi
+          if [ -z "${TELEGRAM_BOT_TOKEN:-}" ] || [ -z "${TELEGRAM_CHAT_ID:-}" ]; then
+            echo "Telegram secrets are not configured; events remain unmarked for retry."
+            exit 0
+          fi
+          sent_paper=0; sent_live=0; latest_paper=''; latest_live=''
+          send_event() {
+            file="$1"; mode="$2"
+            side=$(jq -r '.event.side // .side // ""' "$file")
+            [ "$side" = "BUY" ] || [ "$side" = "SELL" ] || return 0
+            symbol=$(jq -r '.event.symbol // .symbol' "$file")
+            qty=$(jq -r '.event.quantity // .quantity' "$file")
+            price=$(jq -r '.event.price // .requested_price // .price // "-"' "$file")
+            pnl=$(jq -r '.event.pnl // .event.estimated_pnl // .pnl // .estimated_pnl // "-"' "$file")
+            reason=$(jq -r '.event.reason // .reason // "ENTRY"' "$file")
+            ts=$(jq -r '.event.timestamp // .submitted_at // .timestamp // "-"' "$file")
+            order_id=$(jq -r '.event.order_id // .order_id // "-"' "$file")
+            if [ "$mode" = "LIVE" ]; then
+              title="MyTradeAnalysis LIVE $side"; price_label="Requested price"; extra="Broker order: $order_id"
             else
-              text="MyTradeAnalysis PAPER SELL\n\nSymbol: $symbol\nQuantity: $qty\nSimulated price: Rs.$price\nP&L: Rs.$pnl\nReason: $reason\nTime: $ts\n\nLive trading: OFF"
+              title="MyTradeAnalysis PAPER $side"; price_label="Simulated price"; extra="Live trading: OFF"
             fi
+            text="$title\n\nSymbol: $symbol\nQuantity: $qty\n$price_label: Rs.$price\nP&L: Rs.$pnl\nReason: $reason\nTime: $ts\n$extra"
             curl -fsS --max-time 20 -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" -d chat_id="$TELEGRAM_CHAT_ID" --data-urlencode text="$text" >/dev/null
-            sent=$((sent+1)); latest_sent="$file"
-          done <<< "$events"
-          if [ "$sent" -gt 0 ]; then
-            printf '%s\n' "$latest_sent" > "$marker"
+            if [ "$mode" = "LIVE" ]; then sent_live=$((sent_live+1)); latest_live="$file"; else sent_paper=$((sent_paper+1)); latest_paper="$file"; fi
+          }
+          while IFS= read -r file; do [ -n "$file" ] && send_event "$file" "PAPER"; done <<< "$paper_events"
+          while IFS= read -r file; do [ -n "$file" ] && send_event "$file" "LIVE"; done <<< "$live_events"
+          if [ "$sent_paper" -gt 0 ]; then mkdir -p "$(dirname "$paper_marker")"; printf '%s\n' "$latest_paper" > "$paper_marker"; fi
+          if [ "$sent_live" -gt 0 ]; then mkdir -p "$(dirname "$live_marker")"; printf '%s\n' "$latest_live" > "$live_marker"; fi
+          if [ "$sent_paper" -gt 0 ] || [ "$sent_live" -gt 0 ]; then
             git config user.name 'github-actions[bot]'
             git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add "$marker"
-            git commit -m 'chore: mark Telegram paper trade alerts delivered'
+            git add "$paper_marker" "$live_marker"
+            git commit -m 'chore: mark Telegram trade alerts delivered'
             git push
           else
             echo 'No BUY/SELL events required notification.'
