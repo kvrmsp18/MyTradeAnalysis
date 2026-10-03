@@ -74,7 +74,7 @@ jobs:
               'scripts/scrap_analysis.py': ['LIVE_MARKET_DATA_NSE', 'Yahoo Finance 5-minute fallback'],
               'scripts/eod_market_opportunities.py': ['marketfeed/quote', 'ohlc'],
               'scripts/paper_engine_self_test.py': ['PAPER ENGINE SELF-TEST: PASS', 'NO-REBUY', 'CORRUPT-STATE', 'STALE-DATA'],
-              '.github/workflows/paper-trade-alerts.yml': ['Paper Market Cycle', 'BUY/SELL', 'TELEGRAM_BOT_TOKEN'],
+              '.github/workflows/paper-trade-alerts.yml': ['MyTradeAnalysis Trading Engine', 'BUY/SELL', 'TELEGRAM_BOT_TOKEN', 'LIVE'],
               '.github/workflows/paper-cycle.yml': [
                   'ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'ANTHROPIC_MODEL',
                   'claude-sonnet-5-5', 'scrap_analysis.py', 'ai_research_council.py', 'timeout-minutes: 8'
