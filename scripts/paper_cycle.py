@@ -283,6 +283,7 @@ def main() -> int:
             elif symbol_verdict == "SUPPORT":
                 factors.append("ai_symbol_support")
             else:
+                decision = "WATCH"
                 factors.append("ai_symbol_verdict_missing")
         elif decision == "REVIEW":
             factors.append("ai_advisory_unavailable_deterministic_path")
