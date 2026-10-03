@@ -17,6 +17,11 @@ from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
+try:
+    from learning_policy import load_policy
+except ImportError:
+    load_policy = lambda: {}
+
 SNAPSHOT = Path("public/data/market_snapshot.json")
 SCRAP = Path("public/data/scrap_analysis.json")
 COUNCIL = Path("public/data/ai_research_council.json")
@@ -240,6 +245,11 @@ def main() -> int:
     day = now.strftime("%Y-%m-%d")
     stamp = now.strftime("%H%M%S")
     out = Path("data/ledger") / day / f"{stamp}.json"
+    policy = load_policy()
+    effective = policy.get("effective", {}) if isinstance(policy, dict) else {}
+    global MIN_SCORE, MIN_SCRAP_SCORE
+    MIN_SCORE = float(effective.get("review_score", MIN_SCORE))
+    MIN_SCRAP_SCORE = float(effective.get("scrap_review_cutoff", MIN_SCRAP_SCORE))
     all_stocks = snapshot.get("stocks", [])
     analysis_budget = CAPITAL
     stocks = [
@@ -262,15 +272,19 @@ def main() -> int:
         scrap_row = scrap_map.get(symbol, {"symbol": symbol, "status": "UNAVAILABLE", "action": "OBSERVE", "score": None})
         score, factors, decision, research = score_stock(stock, scrap_row)
         rejection = None
-        # AI is advisory. One working AI can guide the paper decision; an
-        # unavailable AI is ignored for this cycle. AI cannot create a REVIEW
-        # candidate or bypass SCRAP, capital or risk gates.
-        if decision == "REVIEW" and ai_available and ai_classification in {"WATCH_ONLY", "NO_SUPPORT"}:
-            decision = "WATCH"
-            factors.append("ai_advisory_" + ai_classification.lower())
-        elif decision == "REVIEW" and ai_available and ai_classification == "SUPPORTS_REVIEW":
-            factors.append("ai_advisory_supports_review")
-        elif decision == "REVIEW" and not ai_available:
+        # AI is advisory per share. It can downgrade a deterministic REVIEW but can never create one or bypass gates.
+        symbol_verdict = None
+        verdict_row = council.get("candidate_verdicts", {}).get(symbol) if isinstance(council.get("candidate_verdicts"), dict) else None
+        if isinstance(verdict_row, dict): symbol_verdict = verdict_row.get("verdict")
+        if decision == "REVIEW" and ai_available:
+            if ai_classification == "NO_SUPPORT" or symbol_verdict in {"WATCH", "AVOID"}:
+                decision = "WATCH"
+                factors.append("ai_symbol_" + str(symbol_verdict or ai_classification).lower())
+            elif symbol_verdict == "SUPPORT":
+                factors.append("ai_symbol_support")
+            else:
+                factors.append("ai_symbol_verdict_missing")
+        elif decision == "REVIEW":
             factors.append("ai_advisory_unavailable_deterministic_path")
 
         if decision == "INSUFFICIENT_DATA":
@@ -305,12 +319,15 @@ def main() -> int:
             "ranking": None,
             "analysis_pool_member": decision == "REVIEW",
             "decision": decision,
+            "learning_policy": policy,
+            "ai_symbol_verdict": symbol_verdict,
             "rejection_reason": rejection,
             "available_capital": CAPITAL,
             "required_capital": max_position_value,
             "risk_gate": "PAPER_ONLY_PASS",
             "capacity_gate": "PAPER_REFERENCE_CAPACITY",
             "ai_council": {
+                "symbol_verdict": symbol_verdict,
                 "status": council.get("status", "NOT_RUN"),
                 "execution_authorized": False,
                 "consensus": council.get("consensus"),
