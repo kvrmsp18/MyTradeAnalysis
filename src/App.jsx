@@ -124,13 +124,13 @@ export default function App(){
   const liveReady=Boolean(runtimeStatus?.live_trading?.enabled);
 
   function openLiveControl(){
+    setPaper(false);
+    setTab('live');
     if(!liveReady){
-      showNotice('Live execution is server-controlled. Add the Dhan live credential and enable the explicit LIVE trading gate in GitHub Actions; the browser cannot store or transmit broker credentials.');
+      showNotice('Live Trading UI is ON, but server-side real-money execution remains blocked until the Dhan live credential and explicit LIVE activation gate are supplied.');
       window.open('https://github.com/kvrmsp18/MyTradeAnalysis/actions/workflows/paper-cycle.yml','_blank','noopener,noreferrer');
       return;
     }
-    setPaper(false);
-    setTab('live');
     showNotice('Live Trading mode is active on the server. The engine remains protected by Dhan authentication, fresh primary Dhan data, AI verdict, funds, position and daily-loss gates.');
   }
 
