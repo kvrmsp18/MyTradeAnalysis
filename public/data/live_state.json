@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "mode": "LIVE",
+  "status": "BLOCKED",
+  "live_orders_enabled": false,
+  "reason": "Dhan live credential and explicit server-side activation are pending.",
+  "generated_at": "2026-10-03T02:40:26.723Z"
+}
