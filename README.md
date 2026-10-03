@@ -1,10 +1,10 @@
 # MyTradeAnalysis
 
-A **Paper Trading first** NSE/BSE intraday research and trading-analysis application.
+A **paper-to-live** NSE/BSE intraday research and trading-analysis application. The complete live execution path is implemented server-side; real-money submission remains fail-closed until the external Dhan live credential and explicit Live mode gate are supplied.
 
 ## Current phase
 
-**Paper Trading only. Live order submission is disabled.** The goal is to build, test and observe the complete decision pipeline before any consideration of real-money execution.
+**Execution engine complete for both PAPER and LIVE modes.** Paper mode remains the default. The live broker path is implemented, reconciled and independently safety-tested; it cannot submit a real order unless all server-side live gates are explicitly enabled.
 
 ### Core pipeline
 
@@ -36,9 +36,13 @@ Market Data
 - OpenAI + Anthropic research-council module: **implemented and invoked by the paper cycle when credentials/models are configured**
 - EOD missed-opportunity report: **implemented as diagnostic analysis; activation of generalized optimizations remains validation-gated**
 - Technical/SCRAP/ranking engine: **runs on shares discovered live from the whole NSE equity market (no fixed list). Needs the Dhan Data API for the full scan; otherwise it re-quotes the last live-discovered list via NSE/Yahoo, or bootstraps from the previous session's bhavcopy, or refuses to trade (DATA_UNAVAILABLE)**
-- Paper execution engine: **implemented; not declared fully ready until a market-hours cycle passes the funds gate and produces an auditable fill/skip**
-- Full EOD strategy-optimization validator: **next integration stage**
-- Live orders: **disabled**
+- Paper execution engine: **implemented**
+- Live Dhan order adapter: **implemented and fail-closed** (`scripts/dhan_order.py`)
+- Live execution engine: **implemented** with target/stop/EOD exits, funds/position/daily-loss gates and broker-order journaling (`scripts/live_executor.py`)
+- Live broker reconciliation: **implemented** (`scripts/live_reconciliation.py`)
+- Live execution safety self-test: **implemented**
+- GUI Live Trading control: **implemented; server-side activation required**
+- Remaining external activation inputs: **Dhan live credential/API key and explicit server-side LIVE mode/confirmation**
 
 ## Dhan market-data setup
 
@@ -135,8 +139,10 @@ See:
 
 ## Safety defaults
 
-- Paper Trading: **ON**
-- Live Trading: **OFF**
+- Paper Trading: **ON by default**
+- Live Trading: **OFF by default**
+- Live execution requires all of: `DHAN_CLIENT_ID`, `DHAN_ACCESS_TOKEN`, `DHAN_API_KEY`, `LIVE_TRADING_ENABLED=1`, `LIVE_TRADING_CONFIRMATION=I_UNDERSTAND_LIVE_ORDERS`, `TRADING_MODE=LIVE`, and `LIVE_KILL_SWITCH!=1`.
+- The browser never receives Dhan credentials and cannot directly place an order.
 - AI is advisory and cannot bypass deterministic gates.
 - Missing market data is `DATA UNAVAILABLE`, never fabricated.
 - No hard-coded preference for a particular share.
