@@ -172,6 +172,7 @@ def main():
         ist = datetime.now(ZoneInfo("Asia/Kolkata"))
 
     market_minutes = ist.hour * 60 + ist.minute
+    simulated_stamp = ist.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
     eod_exit = ist.weekday() < 5 and market_minutes >= 15 * 60 + 29
     entry_allowed = ist.weekday() < 5 and 9 * 60 + 15 <= market_minutes < 15 * 60 + 25
 
@@ -283,7 +284,7 @@ def main():
         state["positions"][symbol] = {
             "quantity": quantity,
             "entry_price": current,
-            "entry_time": now(),
+            "entry_time": simulated_stamp,
             "target_price": round(current * (1 + TARGET_PCT / 100), 4),
             "stop_price": round(current * (1 - STOP_PCT / 100), 4),
             "score": candidate.get("features", {}).get("score"),
@@ -296,7 +297,7 @@ def main():
             "price": current,
             "cost": round(cost, 2),
             "score": candidate.get("features", {}).get("score"),
-            "timestamp": now(),
+            "timestamp": simulated_stamp,
             "funds_check": "PASS",
             "live_order_sent": False,
         }
