@@ -18,5 +18,7 @@ jobs:
           python-version: '3.12'
       - name: Run offline BUY/SELL state test
         run: python scripts/paper_engine_self_test.py
+      - name: Run dynamic-universe and learning self-test
+        run: python scripts/dynamic_bot_self_test.py
       - name: Compile all Python scripts
         run: python -m compileall -q scripts
