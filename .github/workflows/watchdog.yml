@@ -22,7 +22,7 @@ jobs:
   heartbeat:
     runs-on: ubuntu-latest
     steps:
-      - name: Check paper-cycle heartbeat
+      - name: Check trading-engine heartbeat
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
@@ -53,11 +53,11 @@ jobs:
           scheduled = [r for r in runs if r.get('event') == 'schedule']
 
           if not market_open:
-              print(f'HEARTBEAT OK: market closed ({ist.isoformat()}); no fresh paper cycle required.')
+              print(f'HEARTBEAT OK: market closed ({ist.isoformat()}); no fresh trading-engine cycle required.')
               sys.exit(0)
 
           if not scheduled:
-              print('HEARTBEAT FAILURE: no scheduled paper run found during market hours.')
+              print('HEARTBEAT FAILURE: no scheduled trading-engine run found during market hours.')
               sys.exit(1)
 
           latest = scheduled[0]
@@ -70,16 +70,16 @@ jobs:
 
           if status in {'queued', 'in_progress'}:
               if age > 15:
-                  print('HEARTBEAT FAILURE: paper cycle has been queued/running for more than 15 minutes.')
+                  print('HEARTBEAT FAILURE: trading engine has been queued/running for more than 15 minutes.')
                   sys.exit(1)
               sys.exit(0)
           if conclusion != 'success':
-              print('HEARTBEAT FAILURE: latest scheduled paper cycle did not succeed.')
+              print('HEARTBEAT FAILURE: latest scheduled trading engine did not succeed.')
               sys.exit(1)
           if age > 15:
-              print('HEARTBEAT FAILURE: no successful paper cycle in the last 15 minutes.')
+              print('HEARTBEAT FAILURE: no successful trading-engine cycle in the last 15 minutes.')
               sys.exit(1)
-          print('HEARTBEAT OK: paper cycle is alive.')
+          print('HEARTBEAT OK: trading engine is alive.')
           PY
 
       - name: Validate public AI council heartbeat
@@ -138,6 +138,6 @@ jobs:
             echo ''
             echo '- Paper-cycle watchdog: checked'
             echo '- AI council output: checked'
-            echo '- Trading mode: PAPER ONLY'
+            echo '- Trading mode: PAPER/LIVE SERVER ENGINE'
             echo '- Live execution: NOT ENABLED'
           } >> "$GITHUB_STEP_SUMMARY"
