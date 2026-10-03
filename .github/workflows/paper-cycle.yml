@@ -37,8 +37,6 @@ jobs:
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-5' }}
       ANTHROPIC_MODEL: 'claude-sonnet-5-5'
-      LIVE_TRADING_ENABLED: ${{ secrets.LIVE_TRADING_ENABLED || '0' }}
-      LIVE_TRADING_CONFIRMATION: ${{ secrets.LIVE_TRADING_CONFIRMATION || '' }}
       LIVE_KILL_SWITCH: ${{ vars.LIVE_KILL_SWITCH || '0' }}
       LIVE_MAX_POSITION_PCT: ${{ vars.LIVE_MAX_POSITION_PCT || '20' }}
       LIVE_MAX_POSITIONS: ${{ vars.LIVE_MAX_POSITIONS || '2' }}
@@ -61,9 +59,6 @@ jobs:
         run: python scripts/dhan_auth_check.py
       - name: Check available broker funds
         run: python scripts/paper_funds.py
-      - name: Export live capital
-        if: env.TRADING_MODE == 'LIVE'
-        run: echo "LIVE_AVAILABLE_CAPITAL=${PAPER_AVAILABLE_CAPITAL}" >> "$GITHUB_ENV"
       - name: Scan whole NSE equity market
         run: python scripts/market_snapshot.py
       - name: Run deterministic SCRAP analysis
@@ -91,7 +86,7 @@ jobs:
           from datetime import datetime, timezone
           mode=os.getenv("TRADING_MODE","PAPER").upper()
           dhan_ready=all((os.getenv(k) or "").strip() for k in ("DHAN_CLIENT_ID","DHAN_ACCESS_TOKEN","DHAN_API_KEY"))
-          live_gate=mode=="LIVE" and os.getenv("LIVE_TRADING_ENABLED")=="1" and os.getenv("LIVE_TRADING_CONFIRMATION")=="I_UNDERSTAND_LIVE_ORDERS" and os.getenv("LIVE_KILL_SWITCH","0")!="1" and dhan_ready
+          live_gate=mode=="LIVE" and os.getenv("LIVE_KILL_SWITCH","0")!="1" and dhan_ready
           payload={"generated_at":datetime.now(timezone.utc).isoformat().replace("+00:00","Z"),"mode":mode,
                    "live_trading":{"enabled":live_gate,"server_side_gate":mode=="LIVE","kill_switch":os.getenv("LIVE_KILL_SWITCH","0")=="1"},
                    "dhan":{"status":"READY" if dhan_ready else "NOT_CONFIGURED"},
