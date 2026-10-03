@@ -104,7 +104,7 @@ def parse_symbol_verdicts(text, allowed_symbols):
     """
     allowed = {str(s).upper(): str(s) for s in allowed_symbols}
     out = {}
-    for m in re.finditer(r"(?im)^[\\s#>*_-]*([A-Z0-9&][A-Z0-9&\\-]{0,19})[\\s*_]*:[\\s*_]*(SUPPORT|WATCH|AVOID)\\b", text or ""):
+    for m in re.finditer(r"(?im)^[\s#>*_-]*([A-Z0-9&][A-Z0-9&\-]{0,19})[\s*_]*:[\s*_]*(SUPPORT|WATCH|AVOID)\\b", text or ""):
         key = m.group(1).upper()
         if key in allowed and allowed[key] not in out:
             out[allowed[key]] = m.group(2).upper()
