@@ -79,7 +79,7 @@ jobs:
                   'ANTHROPIC_API_KEY', 'OPENAI_API_KEY', 'OPENAI_MODEL', 'ANTHROPIC_MODEL',
                   'claude-sonnet-5-5', 'scrap_analysis.py', 'ai_research_council.py', 'timeout-minutes: 8'
               ],
-              '.github/workflows/watchdog.yml': ['PAPER ONLY', 'AI council output', 'market closed'],
+              '.github/workflows/watchdog.yml': ['PAPER/LIVE SERVER ENGINE', 'AI council output', 'market closed'],
               '.github/workflows/ai-development-council.yml': ['OPENAI_API_KEY', 'ANTHROPIC_API_KEY', 'ai_council_self_test.py', 'ai_development_council.py', 'fetch-depth: 0', 'Enforce GUI build success'],
               'scripts/ai_development_council.py': ['DEVELOPMENT_CLASSIFICATION', 'DEGRADED_SINGLE_AI', 'call_openai', 'call_anthropic'],
           }
