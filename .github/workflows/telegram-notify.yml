@@ -26,14 +26,16 @@ jobs:
         shell: bash
         env:
           EVENT_INPUT: ${{ inputs.event }}
+          SCHEDULE: ${{ github.event.schedule }}
         run: |
           set -euo pipefail
           event="${EVENT_INPUT:-AUTO}"
           if [ "$event" = "AUTO" ]; then
-            hour=$(TZ=Asia/Kolkata date +%H)
-            minute=$(TZ=Asia/Kolkata date +%M)
-            if [ "$hour" = "08" ] && [ "$minute" = "50" ]; then event="PREMARKET"; fi
-            if [ "$hour" = "16" ] && [ "$minute" = "05" ]; then event="EOD_POST_MORTEM"; fi
+            # Decide from WHICH cron fired, not from the wall clock: GitHub routinely starts
+            # scheduled jobs several minutes late, which used to make the exact-minute test miss
+            # the EOD report entirely.
+            if [ "$SCHEDULE" = "5 11 * * 1-5" ]; then event="EOD_POST_MORTEM"; fi
+            if [ "$SCHEDULE" = "20 3 * * 1-5" ]; then event="PREMARKET"; fi
           fi
 
           status=$(jq -r '.status // "UNKNOWN"' public/data/market_snapshot.json 2>/dev/null || echo UNKNOWN)
@@ -100,6 +102,8 @@ jobs:
           EOF
 
           if [ "$event" = "EOD_POST_MORTEM" ]; then
+            printf '\n' >> message.txt
+            python3 scripts/eod_trade_summary.py --text >> message.txt || echo "EOD trade summary unavailable" >> message.txt
             if [ -n "$top_misses" ]; then
               printf '\nTop EOD findings:\n%s\n' "$top_misses" >> message.txt
             else
