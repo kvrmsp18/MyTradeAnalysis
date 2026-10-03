@@ -1,6 +1,6 @@
 # MyTradeAnalysis
 
-A **paper-to-live** NSE/BSE intraday research and trading-analysis application. The complete live execution path is implemented server-side; real-money submission remains fail-closed until the external Dhan live credential and explicit Live mode gate are supplied.
+A **paper-to-live** NSE/BSE intraday research and trading-analysis application. The complete live execution path is implemented server-side; real-money submission remains fail-closed until the Dhan live credential/API key and explicit Live mode are supplied.
 
 ## Current phase
 
@@ -42,7 +42,7 @@ Market Data
 - Live broker reconciliation: **implemented** (`scripts/live_reconciliation.py`)
 - Live execution safety self-test: **implemented**
 - GUI Live Trading control: **implemented; server-side activation required**
-- Remaining external activation inputs: **Dhan live credential/API key and explicit server-side LIVE mode/confirmation**
+- Remaining external activation inputs: **Dhan live credential/API key and explicit server-side LIVE mode**
 
 ## Dhan market-data setup
 
@@ -141,7 +141,7 @@ See:
 
 - Paper Trading: **ON by default**
 - Live Trading: **OFF by default**
-- Live execution requires all of: `DHAN_CLIENT_ID`, `DHAN_ACCESS_TOKEN`, `DHAN_API_KEY`, `LIVE_TRADING_ENABLED=1`, `LIVE_TRADING_CONFIRMATION=I_UNDERSTAND_LIVE_ORDERS`, `TRADING_MODE=LIVE`, and `LIVE_KILL_SWITCH!=1`.
+- Live execution requires: `DHAN_CLIENT_ID`, `DHAN_ACCESS_TOKEN`, `DHAN_API_KEY`, `TRADING_MODE=LIVE`, and `LIVE_KILL_SWITCH!=1`. The Live mode selection is the explicit activation gate; no extra confirmation secret is required.
 - The browser never receives Dhan credentials and cannot directly place an order.
 - AI is advisory and cannot bypass deterministic gates.
 - Missing market data is `DATA UNAVAILABLE`, never fabricated.
