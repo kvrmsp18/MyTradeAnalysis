@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-from dhan_order import LiveOrderBlocked, is_fill_status, order_detail, positions, submit_order
+from dhan_order import LiveOrderBlocked, available_funds, is_fill_status, order_detail, positions, submit_order
 
 LEDGER_ROOT = Path("data/ledger")
 STATE = Path("data/live/state.json")
@@ -159,6 +159,9 @@ def manage_positions(broker_positions: list[dict], state: dict, ist: datetime, f
         reason = "EOD_EXIT" if eod_exit else "TARGET" if fresh_data and return_pct >= TARGET_PCT else "STOP_LOSS" if fresh_data and return_pct <= -STOP_PCT else None
         if reason is None:
             continue
+        if price * quantity > available:
+            continue
+
         response = submit_order(
             transaction_type="SELL",
             exchange_segment="NSE_EQ",
@@ -257,7 +260,13 @@ def main() -> int:
     snapshot_by_symbol = {str(x.get("symbol")): x for x in snapshot.get("stocks", [])}
     broker_by_symbol = {_symbol(x): x for x in broker_positions if _symbol(x)}
 
-    available = float(os.getenv("LIVE_AVAILABLE_CAPITAL", "0") or 0)
+    # Never trust a prior workflow step or paper fallback for live sizing.
+    # Re-read broker cash immediately before the first BUY and again after
+    # each submitted BUY so multiple entries cannot over-commit available cash.
+    try:
+        available = available_funds()
+    except Exception as exc:
+        return fail_closed("LIVE_FUNDS_UNAVAILABLE:" + type(exc).__name__)
     if available <= 0:
         return fail_closed("LIVE_FUNDS_UNAVAILABLE")
     position_cap = available * MAX_POSITION_PCT / 100
@@ -309,6 +318,20 @@ def main() -> int:
         events.append(event)
         state["trades"].append(event)
         open_count += 1
+        # Re-read after the order so the next candidate is sized against the
+        # broker's current available balance rather than a stale pre-order value.
+        try:
+            available = available_funds()
+        except Exception as exc:
+            state["last_processed_ledger"] = str(ledger_path)
+            state["last_run_at"] = now()
+            state["last_events"] = events
+            save(STATE, state)
+            publish(state, "ORDERS_SUBMITTED", "LIVE_FUNDS_RECHECK_FAILED:" + type(exc).__name__)
+            return 0
+        if available <= 0:
+            break
+        position_cap = available * MAX_POSITION_PCT / 100
 
     state["last_processed_ledger"] = str(ledger_path)
     state["last_run_at"] = now()
