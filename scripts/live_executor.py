@@ -291,7 +291,7 @@ def main() -> int:
             continue
 
         quantity = int(position_cap // price)
-        if quantity < 1:
+        if quantity < 1 or price * quantity > available:
             continue
 
         tag = ("MTA_" + datetime.now(timezone.utc).strftime("%H%M%S") + "_" + symbol)[:30]
