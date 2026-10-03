@@ -41,6 +41,9 @@ jobs:
       - name: Run AI client 429 self-test
         run: python scripts/ai_clients_self_test.py
 
+      - name: Run dynamic universe, learning-loop, per-share AI and EOD-summary self-test
+        run: python scripts/dynamic_bot_self_test.py
+
       - name: Validate required paper-only safeguards and AI council wiring
         run: |
           python - <<'PY'
@@ -56,7 +59,10 @@ jobs:
               'scripts/eod_intraday_reconstruction.py': ['paper_only', 'automatic_strategy_mutation'],
               'scripts/eod_market_opportunities.py': ['paper_only'],
               'scripts/paper_executor.py': ['PAPER_SIMULATED_FILL', 'live_orders_enabled', 'EOD_EXIT', 'STOP_LOSS', 'OVERNIGHT_EXIT', 'MAX_POSITIONS_REACHED'],
-              'scripts/market_snapshot.py': ['marketfeed/quote', 'TMPV', 'data_as_of', 'derive_regime'],
+              'scripts/market_snapshot.py': ['marketfeed/quote', 'universe.select_candidates', 'data_as_of', 'derive_regime', 'DYNAMIC_FULL_NSE_SCAN'],
+              'scripts/universe.py': ['parse_master', 'select_candidates', 'bhavcopy_universe'],
+              'scripts/learning_policy.py': ['apply_learning', 'MAX_DRIFT_FRACTION', 'LEARNING_ENABLED'],
+              'scripts/eod_trade_summary.py': ['TOTAL P/L TODAY', 'BOUGHT', 'SOLD'],
               'scripts/scrap_analysis.py': ['LIVE_MARKET_DATA_NSE', 'Yahoo Finance 5-minute fallback'],
               'scripts/eod_market_opportunities.py': ['marketfeed/quote', 'ohlc'],
               'scripts/paper_engine_self_test.py': ['PAPER ENGINE SELF-TEST: PASS', 'NO-REBUY', 'CORRUPT-STATE', 'STALE-DATA'],

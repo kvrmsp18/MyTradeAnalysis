@@ -24,6 +24,12 @@ SNAPSHOT = Path("public/data/market_snapshot.json")
 OUT = Path("public/data/scrap_analysis.json")
 DHAN_URL = "https://api.dhan.co/v2/charts/historical"
 LOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "45"))
+try:
+    from learning_policy import load_policy
+    _policy = load_policy()
+    REVIEW_CUTOFF = float(_policy.get("effective", {}).get("scrap_review_cutoff", os.getenv("SCRAP_REVIEW_CUTOFF", "70")))
+except Exception:
+    REVIEW_CUTOFF = float(os.getenv("SCRAP_REVIEW_CUTOFF", "70"))
 
 
 def num(v):
@@ -221,7 +227,7 @@ def analyse(symbol, quote, candles):
     max_raw = 16
     raw = structure + confirmation + relative + actionability + protection
     score = round(raw / max_raw * 100, 1)
-    if score >= 70:
+    if score >= REVIEW_CUTOFF:
         action = "REVIEW"
     elif score >= 50:
         action = "WATCH"

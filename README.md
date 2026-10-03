@@ -35,7 +35,7 @@ Market Data
 - Buffett / Jhunjhunwala / Peter Lynch / 100 Baggers / CANSLIM evidence layer: **integrated into the decision ledger**
 - OpenAI + Anthropic research-council module: **implemented and invoked by the paper cycle when credentials/models are configured**
 - EOD missed-opportunity report: **implemented as diagnostic analysis; activation of generalized optimizations remains validation-gated**
-- Technical/SCRAP/ranking engine: **running on the current validation universe; Dhan data-subscription limitation currently forces an explicitly labelled fallback when required**
+- Technical/SCRAP/ranking engine: **runs on shares discovered live from the whole NSE equity market (no fixed list). Needs the Dhan Data API for the full scan; otherwise it re-quotes the last live-discovered list via NSE/Yahoo, or bootstraps from the previous session's bhavcopy, or refuses to trade (DATA_UNAVAILABLE)**
 - Paper execution engine: **implemented; not declared fully ready until a market-hours cycle passes the funds gate and produces an auditable fill/skip**
 - Full EOD strategy-optimization validator: **next integration stage**
 - Live orders: **disabled**
@@ -141,7 +141,7 @@ See:
 - Missing market data is `DATA UNAVAILABLE`, never fabricated.
 - No hard-coded preference for a particular share.
 - All important decisions must be auditable from persisted decision-time evidence.
-- Automatic strategy mutation: **OFF**.
+- Automatic strategy mutation: **BOUNDED GENERAL PARAMETERS ONLY** (SCRAP review cutoff, review score, number of shares sent to deep analysis; see `data/learning/policy.json`, `LEARNING_ENABLED=0` switches it off). Never a stock-specific rule; capital and risk limits are never touched.
 
 ## Development rule
 

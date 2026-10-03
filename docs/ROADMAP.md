@@ -14,7 +14,7 @@
 
 ## Phase 3 — Market engine
 - [ ] Connect real Dhan market-data path
-- [ ] Build complete NSE universe loader
+- [x] Build complete NSE universe loader (scripts/universe.py; the live full-market scan needs the Dhan Data API)
 - [ ] Implement dynamic rotating analysis pool
 - [ ] Persist decision-time evidence for every candidate and rejection
 

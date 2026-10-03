@@ -91,3 +91,32 @@ def resolve_advisory(openai_text, anthropic_text):
     if oc and ac:
         return {"status":"DISAGREEMENT","classification":"HOLD_FOR_REVIEW","working_provider":None}
     return {"status":"DEGRADED_UNCLASSIFIED","classification":None,"working_provider":None}
+
+
+SYMBOL_VERDICTS = ("SUPPORT", "WATCH", "AVOID")
+
+
+def parse_symbol_verdicts(text, allowed_symbols):
+    """Parse lines like 'SYMBOL: SUPPORT' (markdown decoration tolerated).
+
+    Only symbols in allowed_symbols count, so prose that merely mentions a ticker cannot create a
+    verdict. The first verdict per symbol wins. Returns {symbol: SUPPORT|WATCH|AVOID}.
+    """
+    allowed = {str(s).upper(): str(s) for s in allowed_symbols}
+    out = {}
+    for m in re.finditer(r"(?im)^[\s#>*_-]*([A-Z0-9&][A-Z0-9&\-]{0,19})[\s*_]*:[\s*_]*(SUPPORT|WATCH|AVOID)\\b", text or ""):
+        key = m.group(1).upper()
+        if key in allowed and allowed[key] not in out:
+            out[allowed[key]] = m.group(2).upper()
+    return out
+
+
+def combine_symbol_verdicts(per_provider):
+    """Conservative consensus across available providers: AVOID > WATCH > SUPPORT."""
+    rank = {"SUPPORT": 0, "WATCH": 1, "AVOID": 2}
+    combined = {}
+    for verdicts in per_provider:
+        for sym, v in verdicts.items():
+            if sym not in combined or rank[v] > rank[combined[sym]]:
+                combined[sym] = v
+    return combined

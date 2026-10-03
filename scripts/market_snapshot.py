@@ -1,465 +1,159 @@
 #!/usr/bin/env python3
-"""Collect truthful paper-trading market data.
-
-Primary source: Dhan marketfeed.
-Fallback order: NSE India -> NSE proxy -> Yahoo Finance.
-
-The fallback is real market data but is explicitly labelled. It is never
-presented as Dhan data and never used for broker orders.
-
-The initial paper-validation universe is a broad Nifty-50 style liquid basket,
-not a stock-specific watchlist. When Dhan marketfeed is available, the same
-basket is resolved from Dhan's instrument master.
-"""
+"""Truthful paper-only market snapshot using a dynamic full NSE equity universe."""
 from __future__ import annotations
-
-import concurrent.futures
-import csv
-import io
-import json
-import sys
-import urllib.error
-import urllib.parse
-import urllib.request
-from datetime import datetime, timezone
+import concurrent.futures,csv,json,os,sys,time,urllib.error,urllib.parse,urllib.request
+from datetime import datetime,timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
+from universe import load_master,select_candidates,save_selected,load_carried,bhavcopy_universe
 
-MASTER_URL = "https://images.dhan.co/api-data/api-scrip-master.csv"
-MARKETFEED_URL = "https://api.dhan.co/v2/marketfeed/quote"
-OUT = Path("public/data/market_snapshot.json")
+MARKETFEED_URL="https://api.dhan.co/v2/marketfeed/quote"
+OUT=Path("public/data/market_snapshot.json")
+BATCH=1000
+TOP_N=int(os.getenv("UNIVERSE_TOP_N","60") or 60)
+BUDGET=max(1000.0,float(os.getenv("PAPER_ANALYSIS_BUDGET","1000") or 1000))
+NSE_HOME="https://www.nseindia.com/"
+NSE_QUOTE_URL="https://www.nseindia.com/api/quote-equity?symbol="
+NSE_HEADERS={"User-Agent":"Mozilla/5.0","Accept":"application/json,text/plain,*/*","Accept-Language":"en-US,en;q=0.9","Referer":NSE_HOME}
 
-# Validation universe only. It is deliberately broad and sector-diverse.
-# It is not a permanent stock preference and can be replaced by a dynamic
-# exchange-universe loader when the Dhan data subscription is available.
-SYMBOLS = [
-    "ADANIENT","ADANIPORTS","APOLLOHOSP","ASIANPAINT","AXISBANK",
-    "BAJAJ-AUTO","BAJFINANCE","BAJAJFINSV","BEL","BHARTIARTL",
-    "CIPLA","COALINDIA","DRREDDY","EICHERMOT","ETERNAL",
-    "GRASIM","HCLTECH","HDFCBANK","HDFCLIFE","HEROMOTOCO",
-    "HINDALCO","HINDUNILVR","ICICIBANK","INDUSINDBK","INFY",
-    "ITC","JIOFIN","JSWSTEEL","KOTAKBANK","LT",
-    "M&M","MARUTI","MAXHEALTH","NESTLEIND","NTPC",
-    "ONGC","POWERGRID","RELIANCE","SBILIFE","SBIN",
-    "SHRIRAMFIN","SUNPHARMA","TATACONSUM","TMPV","TATASTEEL",
-    "TCS","TECHM","TITAN","TRENT","ULTRACEMCO","WIPRO",
-]
-
-YAHOO = {symbol: symbol.replace("&", "%26") + ".NS" for symbol in SYMBOLS}
-YAHOO["M&M"] = "M&M.NS"
-YAHOO["TMPV"] = "TMPV.NS"
-YAHOO_INDICES = {"nifty50":"%5ENSEI", "banknifty":"%5ENSEBANK", "sensex":"%5EBSESN"}
-
-
-def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-
-
-def yahoo_index_snapshot() -> dict:
-    indices = {}
-    for name, ticker in YAHOO_INDICES.items():
-        try:
-            url = (
-                f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
-                "?interval=5m&range=1d"
-            )
-            payload = json.loads(
-                fetch(url, {"User-Agent":"Mozilla/5.0","Accept":"application/json"}, timeout=12).decode("utf-8")
-            )
-            result = (payload.get("chart", {}).get("result") or [None])[0]
-            meta = (result or {}).get("meta", {})
-            price = meta.get("regularMarketPrice")
-            previous = meta.get("previousClose", meta.get("chartPreviousClose"))
-            if price is None:
-                continue
-            change = ((float(price)-float(previous))/float(previous)*100) if previous else None
-            indices[name] = {"value":float(price),"change_pct":round(change,2) if change is not None else None}
-        except Exception:
-            continue
-    return indices
-
-
-
-def derive_regime(stocks: list[dict]) -> dict:
-    changes=[float(x["change"]) for x in stocks if x.get("change") is not None]
-    if not changes: return {"label":"UNAVAILABLE","breadth":None,"confidence":0}
-    breadth=round(sum(1 for x in changes if x>0)/len(changes)*100,1)
-    label="BULLISH" if breadth>=65 else "BEARISH" if breadth<=35 else "MIXED"
-    return {"label":label,"breadth":breadth,"confidence":round(abs(breadth-50)*2,1)}
-
-def write_report(status: str, source: str, reason: object, stocks: list[dict]) -> None:
-    OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(
-        json.dumps(
-            {
-                "status": status,
-                "timestamp": utc_now(),
-                "data_as_of": utc_now(),
-                "source": source,
-                "reason": reason,
-                "paper_only": True,
-                "universe": "NIFTY50_VALIDATION_BASKET",
-                "universe_count": len(SYMBOLS),
-                "indices": yahoo_index_snapshot(),
-                "regime": derive_regime(stocks),
-                "stocks": stocks,
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
-
-
-def fetch(url: str, headers: dict | None = None, body: bytes | None = None, timeout: int = 25) -> bytes:
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers=headers or {},
-        method="POST" if body else "GET",
-    )
+def utc_now(): return datetime.now(timezone.utc).isoformat().replace("+00:00","Z")
+def fetch(url,headers=None,body=None,timeout=25):
+    req=urllib.request.Request(url,data=body,headers=headers or {},method="POST" if body else "GET")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as response:
-            return response.read()
-    except urllib.error.HTTPError as exc:
-        body_text = exc.read().decode("utf-8", "replace")
-        raise RuntimeError(f"HTTP {exc.code}: {body_text[:500]}") from exc
+        with urllib.request.urlopen(req,timeout=timeout) as r:return r.read()
+    except urllib.error.HTTPError as e: raise RuntimeError(f"HTTP {e.code}: {e.read().decode('utf-8','replace')[:500]}") from e
 
+def parse_time(v):
+    if v in (None,""): return None
+    s=str(v).strip()
+    for fmt in ("%d/%m/%Y %H:%M:%S","%Y-%m-%d %H:%M:%S","%Y-%m-%dT%H:%M:%S%z","%Y-%m-%dT%H:%M:%S"):
+        try:
+            dt=datetime.strptime(s,fmt)
+            if dt.tzinfo is None: dt=dt.replace(tzinfo=ZoneInfo("Asia/Kolkata"))
+            return dt.astimezone(timezone.utc).isoformat().replace("+00:00","Z")
+        except ValueError: pass
+    try:return datetime.fromtimestamp(float(v),tz=timezone.utc).isoformat().replace("+00:00","Z")
+    except (TypeError,ValueError):return None
 
-def pick(row: dict, *names: str) -> str:
-    lowered = {str(k).strip().lower(): v for k, v in row.items()}
-    for name in names:
-        value = lowered.get(name.lower())
-        if value not in (None, ""):
-            return str(value).strip()
-    return ""
-
-
-def resolve_ids() -> dict[str, str]:
-    text = fetch(MASTER_URL).decode("utf-8-sig", errors="replace")
-    result: dict[str, str] = {}
-    for row in csv.DictReader(io.StringIO(text)):
-        exchange = pick(row, "SEM_EXM_EXCH_ID", "EXCH_ID", "exchange")
-        segment = pick(row, "SEM_SEGMENT", "SEGMENT")
-        symbol = pick(row, "SEM_TRADING_SYMBOL", "TRADING_SYMBOL", "symbol")
-        sec_id = pick(row, "SEM_SMST_SECURITY_ID", "SEM_SECURITY_ID", "SECURITY_ID", "security_id")
-        if (
-            exchange.upper() == "NSE"
-            and segment.upper() in ("E", "EQUITY", "NSE_EQ")
-            and symbol in SYMBOLS
-            and sec_id
-        ):
-            result[symbol] = sec_id
-
-    missing = [symbol for symbol in SYMBOLS if symbol not in result]
-    # A single stale/demerger-affected symbol must not disable the entire
-    # Dhan universe. Require a broad majority, then carry the missing names
-    # through the explicitly-labelled fallback path.
-    if len(result) < max(40, int(len(SYMBOLS) * 0.80)):
-        raise RuntimeError(f"Instrument IDs unavailable for {len(missing)} symbols: {', '.join(missing[:15])}")
-    return result
-
-
-def normalise_dhan(payload: dict, ids: dict[str, str]) -> list[dict]:
-    data = payload.get("data", {}) if isinstance(payload, dict) else {}
-    segment = data.get("NSE_EQ", data.get("NSE", {})) if isinstance(data, dict) else {}
-    rows: list[dict] = []
-    as_of = utc_now()
-    for symbol, sec_id in ids.items():
-        quote = segment.get(str(sec_id)) if isinstance(segment, dict) else None
-        if not isinstance(quote, dict):
-            continue
-        ltp = quote.get("last_price", quote.get("ltp"))
-        ohlc = quote.get("ohlc") if isinstance(quote.get("ohlc"), dict) else {}
-        close = ohlc.get("close", quote.get("close"))
-        if ltp is None:
-            continue
-        change = quote.get("change_percent")
-        if change is None and close not in (None, 0):
-            change = (float(ltp) - float(close)) / float(close) * 100
-        rows.append({
-            "symbol": symbol,
-            "price": float(ltp),
-            "change": round(float(change), 2) if change is not None else None,
-            "open": ohlc.get("open", quote.get("open")),
-            "high": ohlc.get("high", quote.get("high")),
-            "low": ohlc.get("low", quote.get("low")),
-            "prev_close": close,
-            "volume": quote.get("volume"),
-            "security_id": str(sec_id),
-            "data_as_of": as_of,
-        })
+def normalise_dhan(payload,ids):
+    data=payload.get("data",{}) if isinstance(payload,dict) else {}
+    seg=data.get("NSE_EQ",data.get("NSE",{})) if isinstance(data,dict) else {}
+    rows=[]
+    for symbol,sec in ids.items():
+        q=seg.get(str(sec)) if isinstance(seg,dict) else None
+        if not isinstance(q,dict):continue
+        ltp=q.get("last_price",q.get("ltp")); o=q.get("ohlc") if isinstance(q.get("ohlc"),dict) else {}
+        prev=o.get("close",q.get("close"))
+        if ltp is None:continue
+        change=q.get("change_percent")
+        if change is None and prev not in (None,0):
+            change=(float(ltp)-float(prev))/float(prev)*100
+        qt=parse_time(q.get("last_trade_time") or q.get("last_traded_time") or q.get("quote_time"))
+        rows.append({"symbol":symbol,"price":float(ltp),"change":round(float(change),2) if change is not None else None,
+                     "open":o.get("open",q.get("open")),"high":o.get("high",q.get("high")),"low":o.get("low",q.get("low")),
+                     "prev_close":prev,"volume":q.get("volume"),"security_id":str(sec),"quote_time":qt})
     return rows
 
-NSE_HOME = "https://www.nseindia.com/"
-NSE_QUOTE_URL = "https://www.nseindia.com/api/quote-equity?symbol="
-NSE_HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/153.0.0.0 Safari/537.36",
-    "Accept": "application/json,text/plain,*/*",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Referer": NSE_HOME,
-}
+def derive_regime(stocks):
+    changes=[float(x["change"]) for x in stocks if x.get("change") is not None]
+    if not changes:return {"observed":len(stocks),"label":"UNAVAILABLE","breadth":None,"confidence":0}
+    breadth=sum(x>0 for x in changes)/len(changes)*100
+    label="BULLISH" if breadth>=65 else "BEARISH" if breadth<=35 else "MIXED"
+    return {"observed":len(stocks),"label":label,"breadth":round(breadth,1),"confidence":round(abs(breadth-50)*2,1)}
 
+def report(status,source,reason,stocks,universe_info=None,regime_stocks=None):
+    times=[x.get("quote_time") for x in stocks if x.get("quote_time")]
+    data_as_of=max(times) if times else None
+    payload={"status":status,"timestamp":utc_now(),"data_as_of":data_as_of or utc_now(),
+             "data_as_of_basis":"PROVIDER_QUOTE_TIME" if times else "NONE",
+             "source":source,"reason":reason,"paper_only":True,"universe":universe_info or {},
+             "universe_count":len(stocks),"regime":derive_regime(regime_stocks if regime_stocks is not None else stocks),"stocks":stocks}
+    OUT.parent.mkdir(parents=True,exist_ok=True); OUT.write_text(json.dumps(payload,indent=2),encoding="utf-8")
+    return payload
 
 def nse_session():
     import http.cookiejar
-    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
-    opener.open(urllib.request.Request(NSE_HOME, headers=NSE_HEADERS), timeout=20).read()
-    return opener
+    op=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+    op.open(urllib.request.Request(NSE_HOME,headers=NSE_HEADERS),timeout=20).read(); return op
 
+def nse_quote(op,symbol):
+    with op.open(urllib.request.Request(NSE_QUOTE_URL+urllib.parse.quote(symbol),headers=NSE_HEADERS),timeout=20) as r:d=json.loads(r.read().decode())
+    p=d.get("priceInfo",{}); price=p.get("lastPrice")
+    if price is None:raise RuntimeError("NSE quote missing lastPrice")
+    return {"symbol":symbol,"price":float(price),"change":float(p["pChange"]) if p.get("pChange") is not None else None,
+            "open":p.get("open"),"high":p.get("intraDayHighLow",{}).get("max"),"low":p.get("intraDayHighLow",{}).get("min"),
+            "prev_close":p.get("previousClose"),"volume":d.get("marketDeptOrderBook",{}).get("tradeInfo",{}).get("totalTradedVolume"),"security_id":None,
+            "quote_time":utc_now()}
 
-def nse_quote(opener, symbol: str) -> dict:
-    request = urllib.request.Request(
-        NSE_QUOTE_URL + urllib.parse.quote(symbol),
-        headers=NSE_HEADERS,
-    )
-    with opener.open(request, timeout=20) as response:
-        data = json.loads(response.read().decode("utf-8"))
+def yahoo_quote(symbol):
+    ticker=urllib.parse.quote(symbol.replace("&","%26")+".NS",safe="")
+    url=f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}?interval=5m&range=1d"
+    payload=json.loads(fetch(url,{"User-Agent":"Mozilla/5.0","Accept":"application/json"},12).decode())
+    result=(payload.get("chart",{}).get("result") or [None])[0]; meta=(result or {}).get("meta",{})
+    price=meta.get("regularMarketPrice"); prev=meta.get("previousClose",meta.get("chartPreviousClose"))
+    if price is None:raise RuntimeError("Yahoo price unavailable")
+    return {"symbol":symbol,"price":float(price),"change":round((float(price)-float(prev))/float(prev)*100,2) if prev else None,
+            "open":meta.get("regularMarketDayOpen"),"high":meta.get("regularMarketDayHigh"),"low":meta.get("regularMarketDayLow"),
+            "prev_close":prev,"volume":meta.get("regularMarketVolume"),"security_id":None,"quote_time":utc_now()}
 
-    price_info = data.get("priceInfo", {})
-    price = price_info.get("lastPrice")
-    if price is None:
-        raise RuntimeError("NSE quote missing lastPrice")
+def fallback_quotes(symbols):
+    rows=[];errors=[]
+    try:
+        op=nse_session()
+        for s in symbols:
+            try:rows.append(nse_quote(op,s))
+            except Exception as e:errors.append(f"{s}: {e}")
+        if rows:return rows,errors,"NSE India"
+    except Exception as e:errors.append(str(e))
+    rows=[] 
+    with concurrent.futures.ThreadPoolExecutor(max_workers=12) as pool:
+        futures={pool.submit(yahoo_quote,s):s for s in symbols}
+        for f in concurrent.futures.as_completed(futures):
+            s=futures[f]
+            try:rows.append(f.result())
+            except Exception as e:errors.append(f"{s}: {e}")
+    rows.sort(key=lambda x:x["symbol"])
+    if rows:return rows,errors,"Yahoo Finance"
+    raise RuntimeError("; ".join(errors[:10]) or "no fallback quotes")
 
-    return {
-        "symbol": symbol,
-        "price": float(price),
-        "change": float(price_info["pChange"]) if price_info.get("pChange") is not None else None,
-        "open": price_info.get("open"),
-        "high": price_info.get("intraDayHighLow", {}).get("max"),
-        "low": price_info.get("intraDayHighLow", {}).get("min"),
-        "prev_close": price_info.get("previousClose"),
-        "volume": data.get("marketDeptOrderBook", {}).get("tradeInfo", {}).get("totalTradedVolume"),
-        "security_id": None,
-    }
+def dhan_scan(client_id,token):
+    ids,source=load_master(fetch)
+    rows=[]
+    items=list(ids.items())
+    for start in range(0,len(items),BATCH):
+        chunk=dict(items[start:start+BATCH])
+        body=json.dumps({"NSE_EQ":[int(x) for x in chunk.values()]}).encode()
+        payload=json.loads(fetch(MARKETFEED_URL,{"access-token":token,"client-id":client_id,"Content-Type":"application/json","Accept":"application/json"},body).decode())
+        rows.extend(normalise_dhan(payload,chunk)); time.sleep(1.1)
+    if not rows:raise RuntimeError("Dhan returned no usable NSE equity quotes")
+    selected,stats=select_candidates(rows,top_n=TOP_N,max_price=BUDGET)
+    save_selected([x["symbol"] for x in selected],ids,"DHAN_FULL_MARKET_SCAN")
+    info={"mode":"DYNAMIC_FULL_NSE_SCAN","source":source,"instruments":len(ids),"scanned":stats["scanned"],"selected":stats["selected"],"ranking":stats}
+    return report("LIVE_MARKET_DATA","Dhan market feed",{"universe_source":source},selected,info,rows)
 
-
-def nse_proxy_quote(symbol: str) -> dict:
-    target = "https://www.nseindia.com/api/quote-equity?symbol=" + urllib.parse.quote(symbol)
-    proxy = "https://r.jina.ai/" + target
-    request = urllib.request.Request(
-        proxy,
-        headers={"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-    )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        data = json.loads(response.read().decode("utf-8", "replace"))
-
-    price_info = data.get("priceInfo", {})
-    price = price_info.get("lastPrice")
-    if price is None:
-        raise RuntimeError("NSE proxy quote missing lastPrice")
-
-    return {
-        "symbol": symbol,
-        "price": float(price),
-        "change": float(price_info.get("pChange") or 0),
-        "open": price_info.get("open"),
-        "high": price_info.get("intraDayHighLow", {}).get("max"),
-        "low": price_info.get("intraDayHighLow", {}).get("min"),
-        "prev_close": price_info.get("previousClose"),
-        "volume": data.get("marketDeptOrderBook", {}).get("tradeInfo", {}).get("totalTradedVolume"),
-        "security_id": None,
-    }
-
-
-def nse_fallback() -> tuple[list[dict], list[str]]:
-    opener = nse_session()
-    rows: list[dict] = []
-    errors: list[str] = []
-    for symbol in SYMBOLS:
+def main():
+    cid=(os.getenv("DHAN_CLIENT_ID") or "").strip(); token=(os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
+    dhan_error=None
+    if cid and token:
+        try:dhan_scan(cid,token); print("Dynamic full-NSE Dhan scan complete"); return 0
+        except Exception as e:dhan_error=str(e)
+    else:dhan_error="DHAN_CLIENT_ID or DHAN_ACCESS_TOKEN not configured"
+    symbols,ids,carried_at=load_carried()
+    if symbols:
         try:
-            rows.append(nse_quote(opener, symbol))
-        except Exception as exc:
-            errors.append(f"{symbol}: {exc}")
-            if "HTTP 403" in str(exc):
-                raise RuntimeError("NSE India access blocked (HTTP 403); stopping fallback early.")
-    if not rows:
-        raise RuntimeError("NSE India fallback failed: " + "; ".join(errors[:10]))
-    return rows, errors
-
-
-def nse_proxy_fallback() -> tuple[list[dict], list[str]]:
-    rows: list[dict] = []
-    errors: list[str] = []
-    for symbol in SYMBOLS:
-        try:
-            rows.append(nse_proxy_quote(symbol))
-        except Exception as exc:
-            errors.append(f"{symbol}: {exc}")
-            if "HTTP 403" in str(exc):
-                raise RuntimeError("NSE proxy access blocked (HTTP 403); stopping fallback early.")
-    if not rows:
-        raise RuntimeError("NSE proxy fallback failed: " + "; ".join(errors[:10]))
-    return rows, errors
-
-
-def yahoo_quote(symbol: str) -> dict:
-    ticker = urllib.parse.quote(YAHOO[symbol], safe="")
-    url = (
-        f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
-        "?interval=5m&range=1d&events=div%2Csplits"
-    )
-    payload = json.loads(
-        fetch(
-            url,
-            {"User-Agent": "Mozilla/5.0", "Accept": "application/json"},
-            timeout=12,
-        ).decode("utf-8")
-    )
-    result = payload.get("chart", {}).get("result") or []
-    if not result:
-        raise RuntimeError("Yahoo returned no chart")
-
-    meta = result[0].get("meta", {})
-    price = meta.get("regularMarketPrice")
-    close = meta.get("previousClose", meta.get("chartPreviousClose"))
-    if price is None:
-        raise RuntimeError("Yahoo price unavailable")
-
-    change = (float(price) - float(close)) / float(close) * 100 if close else None
-    return {
-        "symbol": symbol,
-        "price": float(price),
-        "change": round(change, 2) if change is not None else None,
-        "open": meta.get("regularMarketDayOpen"),
-        "data_as_of": utc_now(),
-        "high": meta.get("regularMarketDayHigh"),
-        "low": meta.get("regularMarketDayLow"),
-        "prev_close": close,
-        "volume": meta.get("regularMarketVolume"),
-        "security_id": None,
-    }
-
-
-def yahoo_fallback() -> tuple[list[dict], list[str]]:
-    rows: list[dict] = []
-    errors: list[str] = []
-
-    # Parallel fetch keeps the paper-cycle within the GitHub Actions time budget.
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as pool:
-        futures = {pool.submit(yahoo_quote, symbol): symbol for symbol in SYMBOLS}
-        for future in concurrent.futures.as_completed(futures):
-            symbol = futures[future]
-            try:
-                rows.append(future.result())
-            except Exception as exc:
-                errors.append(f"{symbol}: {exc}")
-
-    rows.sort(key=lambda row: row["symbol"])
-    if not rows:
-        raise RuntimeError("Yahoo fallback failed: " + "; ".join(errors[:10]))
-    return rows, errors
-
-
-def main() -> int:
-    client_id = ""
-    token = ""
+            rows,errors,source=fallback_quotes(symbols)
+            selected,stats=select_candidates(rows,top_n=TOP_N,max_price=BUDGET)
+            info={"mode":"CARRIED_DYNAMIC","source":source,"discovered_at":carried_at,"instruments":len(symbols),"scanned":len(rows),"selected":len(selected),"ranking":stats}
+            report("LIVE_MARKET_DATA_FALLBACK",source,{"dhan_error":dhan_error,"fallback_errors":errors},selected,info); return 0
+        except Exception as e: carried_error=str(e)
+    else: carried_error="no recent live-discovered universe"
     try:
-        import os
-        client_id = (os.getenv("DHAN_CLIENT_ID") or "").strip()
-        token = (os.getenv("DHAN_ACCESS_TOKEN") or "").strip()
-    except Exception:
-        pass
+        symbols,stats,session=bhavcopy_universe(fetch,TOP_N,BUDGET)
+        rows,errors,source=fallback_quotes(symbols)
+        info={"mode":"BHAVCOPY_PREVIOUS_SESSION","source":source,"session_date":session,"instruments":len(symbols),"scanned":len(rows),"selected":len(rows),"ranking":stats}
+        report("LIVE_MARKET_DATA_FALLBACK",source,{"dhan_error":dhan_error,"carried_error":carried_error,"fallback_errors":errors},rows,info); return 0
+    except Exception as e:
+        report("DATA_UNAVAILABLE","none",{"dhan_error":dhan_error,"carried_error":carried_error,"bhavcopy_error":str(e)},[],{"mode":"DATA_UNAVAILABLE","instruments":0,"scanned":0,"selected":0})
+        print("Market data unavailable; no trade universe",file=sys.stderr); return 0
 
-    dhan_error: str | None = None
-    nse_exc: Exception | None = None
-    nse_proxy_exc: Exception | None = None
-
-    if client_id and token:
-        try:
-            ids = resolve_ids()
-            body = json.dumps({"NSE_EQ": [int(value) for value in ids.values()]}).encode()
-            payload = json.loads(
-                fetch(
-                    MARKETFEED_URL,
-                    {
-                        "access-token": token,
-                        "client-id": client_id,
-                        "Content-Type": "application/json",
-                        "Accept": "application/json",
-                    },
-                    body,
-                ).decode("utf-8")
-            )
-            rows = normalise_dhan(payload, ids)
-            if rows:
-                write_report(
-                    "LIVE_MARKET_DATA",
-                    "Dhan market feed",
-                    {"credential": "DHAN_ACCESS_TOKEN", "universe": "NIFTY50_VALIDATION_BASKET"},
-                    rows,
-                )
-                return 0
-            dhan_error = "Dhan returned no usable NSE equity quotes."
-        except Exception as exc:
-            dhan_error = str(exc)
-    elif not client_id:
-        dhan_error = "DHAN_CLIENT_ID is not configured."
-    else:
-        dhan_error = "DHAN_ACCESS_TOKEN is not configured."
-
-    try:
-        rows, errors = nse_fallback()
-        write_report(
-            "LIVE_MARKET_DATA_NSE",
-            "NSE India public quote feed",
-            {"dhan_error": dhan_error, "fallback_errors": errors},
-            rows,
-        )
-        print(f"Using NSE India because Dhan was unavailable: {dhan_error}")
-        return 0
-    except Exception as exc:
-        nse_exc = exc
-
-    try:
-        rows, errors = nse_proxy_fallback()
-        write_report(
-            "LIVE_MARKET_DATA_NSE_PROXY",
-            "NSE India via public fetch proxy",
-            {"dhan_error": dhan_error, "direct_nse_error": str(nse_exc), "fallback_errors": errors},
-            rows,
-        )
-        print(f"Using NSE India via proxy because direct NSE access was unavailable: {nse_exc}")
-        return 0
-    except Exception as exc:
-        nse_proxy_exc = exc
-
-    try:
-        rows, errors = yahoo_fallback()
-        write_report(
-            "LIVE_MARKET_DATA_FALLBACK",
-            "Yahoo Finance chart feed",
-            {
-                "dhan_error": dhan_error,
-                "nse_error": str(nse_exc),
-                "nse_proxy_error": str(nse_proxy_exc),
-                "fallback_errors": errors,
-            },
-            rows,
-        )
-        print(
-            "Using Yahoo fallback because Dhan and NSE were unavailable: "
-            f"Dhan={dhan_error}; NSE={nse_exc}; proxy={nse_proxy_exc}; "
-            f"received={len(rows)}/{len(SYMBOLS)}"
-        )
-        return 0
-    except Exception as exc:
-        write_report(
-            "DATA_UNAVAILABLE",
-            "none",
-            {
-                "dhan_error": dhan_error,
-                "nse_error": str(nse_exc),
-                "nse_proxy_error": str(nse_proxy_exc),
-                "fallback_error": str(exc),
-            },
-            [],
-        )
-        print(
-            "Market data unavailable: "
-            f"Dhan={dhan_error}; NSE={nse_exc}; proxy={nse_proxy_exc}; fallback={exc}",
-            file=sys.stderr,
-        )
-        return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__=="__main__": raise SystemExit(main())

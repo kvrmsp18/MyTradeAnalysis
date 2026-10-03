@@ -37,18 +37,18 @@ jobs:
           DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
         run: python scripts/dhan_auth_check.py
 
-      - name: Collect Dhan market snapshot
-        env:
-          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
-          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
-          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
-        run: python scripts/market_snapshot.py
-
       - name: Check available Dhan funds for paper-entry gating
         env:
           DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
           DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
         run: python scripts/paper_funds.py
+
+      - name: Scan the whole NSE equity market and select shares dynamically (no fixed list)
+        env:
+          DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
+          DHAN_ACCESS_TOKEN: ${{ secrets.DHAN_ACCESS_TOKEN }}
+          DHAN_API_KEY: ${{ secrets.DHAN_API_KEY }}
+        run: python scripts/market_snapshot.py
       - name: Run deterministic technical SCRAP analysis
         env:
           DHAN_CLIENT_ID: ${{ secrets.DHAN_CLIENT_ID }}
@@ -81,8 +81,8 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          mkdir -p data/paper/events
-          git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json public/data/paper_state.json data/ledger data/paper
+          mkdir -p data/paper/events data/universe data/learning
+          git add public/data/market_snapshot.json public/data/scrap_analysis.json public/data/ai_research_council.json public/data/paper_state.json data/ledger data/paper data/universe
           if git diff --cached --quiet; then
             echo 'No data changes to commit.'
             exit 0
