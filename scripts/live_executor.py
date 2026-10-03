@@ -110,6 +110,83 @@ def fail_closed(reason: str) -> int:
     return 0
 
 
+def _num(row: dict, *keys: str) -> float:
+    for key in keys:
+        try:
+            value = row.get(key)
+            if value is not None and value != "":
+                return float(value)
+        except (TypeError, ValueError):
+            pass
+    return 0.0
+
+
+def _symbol(row: dict) -> str:
+    return str(row.get("tradingSymbol") or row.get("trading_symbol") or row.get("symbol") or "")
+
+
+def _net_qty(row: dict) -> int:
+    return int(_num(row, "netQty", "net_qty", "quantity"))
+
+
+def _market_price(row: dict) -> float:
+    return _num(row, "lastTradedPrice", "last_traded_price", "ltp", "marketPrice", "market_price")
+
+
+def _average_buy(row: dict) -> float:
+    return _num(row, "buyAvg", "buy_avg", "averagePrice", "average_price")
+
+
+def _security_id(row: dict) -> str:
+    return str(row.get("securityId") or row.get("security_id") or "")
+
+
+def manage_positions(broker_positions: list[dict], state: dict, ist: datetime, fresh_data: bool) -> list[dict]:
+    events = []
+    minutes = ist.hour * 60 + ist.minute
+    eod_exit = minutes >= 15 * 60 + 29
+    for row in broker_positions:
+        qty = _net_qty(row)
+        if qty <= 0:
+            continue
+        symbol = _symbol(row)
+        current = _market_price(row)
+        entry = _average_buy(row)
+        security_id = _security_id(row)
+        if not symbol or current <= 0 or entry <= 0 or not security_id:
+            continue
+        return_pct = (current - entry) / entry * 100
+        reason = "EOD_EXIT" if eod_exit else "TARGET" if fresh_data and return_pct >= TARGET_PCT else "STOP_LOSS" if fresh_data and return_pct <= -STOP_PCT else None
+        if reason is None:
+            continue
+        response = submit_order(
+            transaction_type="SELL",
+            exchange_segment="NSE_EQ",
+            security_id=security_id,
+            quantity=qty,
+            product_type="INTRADAY",
+            order_type="MARKET",
+            tag=("MTA_EXIT_" + symbol)[:30],
+        )
+        order_id = str(response.get("orderId") or response.get("order_id") or response.get("data", {}).get("orderId") or "")
+        if not order_id:
+            raise RuntimeError("Dhan accepted exit request without an order id")
+        detail = order_detail(order_id)
+        status_value = detail.get("orderStatus") or detail.get("order_status") or detail.get("status")
+        pnl = (current - entry) * qty
+        event = {
+            "side": "SELL", "symbol": symbol, "quantity": qty, "security_id": security_id,
+            "requested_price": current, "entry_price": entry, "estimated_pnl": round(pnl, 2),
+            "return_pct": round(return_pct, 4), "reason": reason, "order_id": order_id,
+            "broker_status": status_value, "submitted_at": now(), "filled": is_fill_status(status_value),
+            "paper_order": False,
+        }
+        events.append(event)
+        state.setdefault("trades", []).append(event)
+        state["daily_pnl"] = round(float(state.get("daily_pnl", 0) or 0) + pnl, 2)
+    return events
+
+
 def main() -> int:
     try:
         from dhan_order import config_from_env
@@ -119,7 +196,6 @@ def main() -> int:
 
     if os.getenv("TRADING_MODE", "PAPER").upper() != "LIVE":
         return fail_closed("TRADING_MODE is not LIVE")
-
     if os.getenv("LIVE_KILL_SWITCH", "0") == "1":
         return fail_closed("LIVE_KILL_SWITCH=1")
 
@@ -131,36 +207,51 @@ def main() -> int:
         return fail_closed("STALE_MARKET_DATA")
     if snapshot.get("status") != "LIVE_MARKET_DATA":
         return fail_closed("PRIMARY_DHAN_MARKET_DATA_REQUIRED")
-    if read(ledger_path, {}).get("mode") != "PAPER":
+
+    ledger = read(ledger_path, {})
+    if ledger.get("mode") != "PAPER":
         return fail_closed("DECISION_LEDGER_MODE_INVALID")
 
     ist, minutes = market_clock()
-    if ist.weekday() >= 5 or not (9 * 60 + 15 <= minutes < 15 * 60 + 25):
-        return fail_closed("OUTSIDE_ENTRY_WINDOW")
+    if ist.weekday() >= 5:
+        return fail_closed("WEEKEND")
+    if not (9 * 60 + 15 <= minutes < 15 * 60 + 30):
+        return fail_closed("OUTSIDE_MARKET_SESSION")
 
     state = read(STATE, {"positions": {}, "trades": [], "daily_pnl": 0.0, "last_processed_ledger": None}, strict=True)
-    if state.get("last_processed_ledger") == str(ledger_path):
-        publish(state, "IDLE", "LEDGER_ALREADY_PROCESSED")
-        return 0
+    state.setdefault("trades", [])
+    state.setdefault("daily_pnl", 0.0)
 
     if float(state.get("daily_pnl", 0) or 0) <= -MAX_DAILY_LOSS:
         return fail_closed("DAILY_LOSS_LIMIT")
 
-    candidates = [x for x in read(ledger_path, {}).get("candidates", []) if x.get("decision") == "REVIEW"]
+    broker_positions = positions()
+    state["broker_positions_snapshot"] = broker_positions
+    events = manage_positions(broker_positions, state, ist, True)
+
+    # Do not open new positions during the final five minutes; only manage exits.
+    if minutes >= 15 * 60 + 25:
+        state["last_processed_ledger"] = str(ledger_path)
+        state["last_run_at"] = now()
+        state["last_events"] = events
+        save(STATE, state)
+        publish(state, "EXIT_ONLY", "FINAL_MINUTES")
+        return 0
+
+    if state.get("last_processed_ledger") == str(ledger_path):
+        publish(state, "IDLE", "LEDGER_ALREADY_PROCESSED")
+        return 0
+
+    candidates = [x for x in ledger.get("candidates", []) if x.get("decision") == "REVIEW"]
     candidates.sort(key=lambda x: x.get("ranking", 999999))
     snapshot_by_symbol = {str(x.get("symbol")): x for x in snapshot.get("stocks", [])}
+    broker_by_symbol = {_symbol(x): x for x in broker_positions if _symbol(x)}
 
-    # Reconcile broker positions before opening anything.
-    broker_positions = positions()
-    broker_by_symbol = {}
-    for row in broker_positions:
-        symbol = str(row.get("tradingSymbol") or row.get("trading_symbol") or row.get("symbol") or "")
-        if symbol:
-            broker_by_symbol[symbol] = row
-    state["broker_positions_snapshot"] = broker_positions
-
-    events = []
-    open_count = len([p for p in broker_positions if float(p.get("netQty", p.get("net_qty", 0)) or 0) != 0])
+    available = float(os.getenv("LIVE_AVAILABLE_CAPITAL", "0") or 0)
+    if available <= 0:
+        return fail_closed("LIVE_FUNDS_UNAVAILABLE")
+    position_cap = available * MAX_POSITION_PCT / 100
+    open_count = len([p for p in broker_positions if _net_qty(p) != 0])
 
     for candidate in candidates:
         if open_count >= MAX_POSITIONS:
@@ -171,20 +262,15 @@ def main() -> int:
         price = float(quote.get("price") or 0)
         if not security_id or price <= 0:
             continue
-        if symbol in broker_by_symbol and float(broker_by_symbol[symbol].get("netQty", broker_by_symbol[symbol].get("net_qty", 0)) or 0) != 0:
+        if symbol in broker_by_symbol and _net_qty(broker_by_symbol[symbol]) != 0:
             continue
 
         score = float(candidate.get("features", {}).get("score") or 0)
         scrap_score = float(candidate.get("scrap_result", {}).get("score") or 0)
-        if score < 65 or scrap_score < 60:
+        ai_verdict = str(candidate.get("ai_council", {}).get("symbol_verdict") or candidate.get("ai_symbol_verdict") or "")
+        if score < 65 or scrap_score < 60 or ai_verdict != "SUPPORT":
             continue
 
-        # Live capital is checked against Dhan's current broker funds, not the
-        # paper balance. The workflow supplies LIVE_AVAILABLE_CAPITAL.
-        available = float(os.getenv("LIVE_AVAILABLE_CAPITAL", "0") or 0)
-        if available <= 0:
-            return fail_closed("LIVE_FUNDS_UNAVAILABLE")
-        position_cap = available * MAX_POSITION_PCT / 100
         quantity = int(position_cap // price)
         if quantity < 1:
             continue
@@ -202,25 +288,16 @@ def main() -> int:
         order_id = str(response.get("orderId") or response.get("order_id") or response.get("data", {}).get("orderId") or "")
         if not order_id:
             raise RuntimeError("Dhan accepted request without returning an order id")
-
         detail = order_detail(order_id)
         status_value = detail.get("orderStatus") or detail.get("order_status") or detail.get("status")
         event = {
-            "side": "BUY",
-            "symbol": symbol,
-            "quantity": quantity,
-            "security_id": str(security_id),
-            "requested_price": price,
-            "order_id": order_id,
-            "broker_status": status_value,
-            "submitted_at": now(),
-            "filled": is_fill_status(status_value),
-            "target_pct": TARGET_PCT,
-            "stop_pct": STOP_PCT,
-            "paper_order": False,
+            "side": "BUY", "symbol": symbol, "quantity": quantity, "security_id": str(security_id),
+            "requested_price": price, "order_id": order_id, "broker_status": status_value,
+            "submitted_at": now(), "filled": is_fill_status(status_value), "target_pct": TARGET_PCT,
+            "stop_pct": STOP_PCT, "paper_order": False,
         }
         events.append(event)
-        state.setdefault("trades", []).append(event)
+        state["trades"].append(event)
         open_count += 1
 
     state["last_processed_ledger"] = str(ledger_path)
@@ -230,7 +307,7 @@ def main() -> int:
     for idx, event in enumerate(events, 1):
         save(EVENTS / f"{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{idx}_{event['side']}_{event['symbol']}.json", event)
     publish(state, "ORDERS_SUBMITTED" if events else "NO_TRADE", "LIVE_ENGINE_COMPLETE")
-    print(f"LIVE_EXECUTION_COMPLETE events={len(events)}")
+    print(f"LIVE_EXECUTION_COMPLETE events={len(events)} daily_pnl={state.get('daily_pnl', 0)}")
     return 0
 
 
