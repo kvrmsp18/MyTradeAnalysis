@@ -16,6 +16,7 @@ import os
 import urllib.request, urllib.parse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 SNAPSHOT = Path("public/data/market_snapshot.json")
 OUT = Path("public/data/scrap_analysis.json")
 # SCRAP "REVIEW" cutoff: configured base (70) plus any bounded EOD-learned adjustment.
@@ -27,7 +28,8 @@ try:
 except Exception: # policy is optional; never let it break analysis
  REVIEW_CUTOFF = float(os.getenv("SCRAP_REVIEW_CUTOFF", "70"))
 DHAN_URL = "https://api.dhan.co/v2/charts/historical"
-LOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "45"))
+# ~260 calendar days generally covers 125 completed sessions plus holidays/data gaps.
+LOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "260"))
 def num(v):
  try:
  if v in (None, ""):
@@ -300,6 +302,27 @@ str(to_date))
  candles = fetch_yahoo_history(symbol)
  source, interval = "Yahoo Finance 5-minute fallback", "5m"
  row = analyse(symbol, quote, candles)
+ try:
+  from strategy_signals import evaluate_strategy_signals
+  strategy_candles = candles
+  if interval == "1d":
+   today_ist = datetime.now(timezone.utc).astimezone(ZoneInfo("Asia/Kolkata")).date()
+   def _candle_day(value):
+    try:
+     if isinstance(value, (int, float)) or str(value).isdigit():
+      return datetime.fromtimestamp(float(value), timezone.utc).astimezone(ZoneInfo("Asia/Kolkata")).date()
+     parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+     if parsed.tzinfo is None:
+      parsed = parsed.replace(tzinfo=timezone.utc)
+     return parsed.astimezone(ZoneInfo("Asia/Kolkata")).date()
+    except (TypeError, ValueError, OverflowError):
+     return None
+   # Exclude today's potentially incomplete daily bar; current quote/volume is evaluated separately.
+   strategy_candles = [c for c in candles if _candle_day(c.get("timestamp")) != today_ist]
+  row["strategy_signals"] = evaluate_strategy_signals(strategy_candles, interval, quote)
+ except Exception as strategy_exc:
+  row["strategy_signals"] = {"version": "strategy-reference-v1", "execution_authorized": False,
+                             "status": "UNAVAILABLE", "reason": str(strategy_exc)}
  row["data_source"] = source
  row["candle_interval"] = interval # indicators are computed on THESE candles
  result["stocks"].append(row)
