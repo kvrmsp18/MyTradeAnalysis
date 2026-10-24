@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - feature/strategy-reference-v1
+    paths:
+      - "repair/source_bundle.part*"
+      - "repair/patch5_extra.part*"
+      - "repair/wire_strategy_signals.py"
+      - ".github/workflows/restore-verified-sources.yml"
   workflow_dispatch:
 
 permissions:
@@ -38,7 +43,8 @@ jobs:
           import sys
 
           destination = Path(sys.argv[3])
-          total = 0
+          verified = 0
+          copied = 0
           for root in (Path(sys.argv[1]), Path(sys.argv[2])):
               manifest = root / "__verified__" / "SHA256SUMS.txt"
               if not manifest.is_file():
@@ -53,13 +59,19 @@ jobs:
                   actual = hashlib.sha256(source.read_bytes()).hexdigest()
                   if actual != expected:
                       raise SystemExit(f"SHA-256 mismatch for {relative}: {actual} != {expected}")
+                  verified += 1
+                  # GitHub App token lacks workflow-file push permission, so keep this
+                  # workflow identical for the restoration commit; its original hash is verified.
+                  if relative == ".github/workflows/validation.yml":
+                      continue
                   target = destination / relative
                   target.parent.mkdir(parents=True, exist_ok=True)
                   shutil.copyfile(source, target)
-                  total += 1
-          if total != 16:
-              raise SystemExit(f"Expected 16 verified Patch 5 source files, restored {total}")
-          print(f"PATCH5_SOURCE_HASHES_VERIFIED={total}")
+                  copied += 1
+          if verified != 16 or copied != 15:
+              raise SystemExit(f"Expected 16 verified sources and 15 copied non-workflow files; got {verified}/{copied}")
+          print(f"PATCH5_SOURCE_HASHES_VERIFIED={verified}")
+          print(f"PATCH5_NON_WORKFLOW_FILES_RESTORED={copied}")
           PY
 
       - name: Connect daily and hourly strategy signals without enabling orders
