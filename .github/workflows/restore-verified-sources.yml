@@ -144,19 +144,12 @@ jobs:
               validation = validation.replace(
                   trigger, "on:\n  pull_request:\n    branches: [main]\n  push:\n", 1
               )
-          test_marker = '''      - name: Run dynamic universe, learning-loop, per-share AI and EOD-summary self-test
-        run: python scripts/dynamic_bot_self_test.py
-'''
+          test_marker = "      - name: Run dynamic universe, learning-loop, per-share AI and EOD-summary self-test\\n" + "        run: python scripts/dynamic_bot_self_test.py\\n"
+          step = "      - name: Run frozen strategy signal self-test\\n" + "        run: python scripts/strategy_signals_self_test.py\\n"
           if "python scripts/strategy_signals_self_test.py" not in validation:
               if test_marker not in validation:
                   raise SystemExit("Validation strategy test insertion marker not found")
-              validation = validation.replace(
-                  test_marker,
-                  test_marker + '''      - name: Run frozen strategy signal self-test
-        run: python scripts/strategy_signals_self_test.py
-''',
-                  1,
-              )
+              validation = validation.replace(test_marker, test_marker + step, 1)
           validation_path.write_text(validation, encoding="utf-8")
           print("STRATEGY_PIPELINE_WIRING=PASS")
           PY
