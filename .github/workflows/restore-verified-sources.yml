@@ -84,55 +84,48 @@ jobs:
           if 'LOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "260"))' not in source:
               raise SystemExit("SCRAP 125-day history lookback could not be configured")
 
-          old = '''                row = analyse(symbol, quote, candles)
-                row["data_source"] = source
-                row["candle_interval"] = interval  # indicators are computed on THESE candles
-                result["stocks"].append(row)'''
-          new = '''                row = analyse(symbol, quote, candles)
-                try:
-                    from strategy_signals import evaluate_strategy_signals
-
-                    strategy_candles = candles
-                    if interval == "1d":
-                        today_ist = datetime.now(timezone.utc).astimezone(ZoneInfo("Asia/Kolkata")).date()
-
-                        def _candle_day(value):
-                            try:
-                                if isinstance(value, (int, float)) or str(value).isdigit():
-                                    stamp = float(value)
-                                    if stamp > 10_000_000_000:
-                                        stamp /= 1000.0
-                                    return datetime.fromtimestamp(stamp, timezone.utc).astimezone(ZoneInfo("Asia/Kolkata")).date()
-                                parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
-                                if parsed.tzinfo is None:
-                                    parsed = parsed.replace(tzinfo=timezone.utc)
-                                return parsed.astimezone(ZoneInfo("Asia/Kolkata")).date()
-                            except (TypeError, ValueError, OverflowError, OSError):
-                                return None
-
-                        # Only identified, completed daily candles may form the previous-125-session window.
-                        strategy_candles = [
-                            candle for candle in candles
-                            if _candle_day(candle.get("timestamp")) is not None
-                            and _candle_day(candle.get("timestamp")) < today_ist
-                        ]
-                    row["strategy_signals"] = evaluate_strategy_signals(
-                        strategy_candles, interval, quote
-                    )
-                except Exception as strategy_exc:
-                    row["strategy_signals"] = {
-                        "version": "strategy-reference-v1",
-                        "execution_authorized": False,
-                        "status": "UNAVAILABLE",
-                        "reason": str(strategy_exc),
-                    }
-                row["data_source"] = source
-                row["candle_interval"] = interval  # indicators are computed on THESE candles
-                result["stocks"].append(row)'''
-          if old in source:
-              source = source.replace(old, new, 1)
-          elif 'row["strategy_signals"] = evaluate_strategy_signals(' not in source:
-              raise SystemExit("SCRAP strategy insertion marker not found")
+          anchor = "                row = analyse(symbol, quote, candles)\\n"
+          if anchor not in source and 'row["strategy_signals"] = evaluate_strategy_signals(' not in source:
+              raise SystemExit("SCRAP strategy insertion anchor not found")
+          if 'row["strategy_signals"] = evaluate_strategy_signals(' not in source:
+              inserted_lines = [
+                  "                try:",
+                  "                    from strategy_signals import evaluate_strategy_signals",
+                  "",
+                  "                    strategy_candles = candles",
+                  "                    if interval == \\"1d\\":",
+                  "                        today_ist = datetime.now(timezone.utc).astimezone(ZoneInfo(\\"Asia/Kolkata\\")).date()",
+                  "",
+                  "                        def _candle_day(value):",
+                  "                            try:",
+                  "                                if isinstance(value, (int, float)) or str(value).isdigit():",
+                  "                                    stamp = float(value)",
+                  "                                    if stamp > 10_000_000_000:",
+                  "                                        stamp /= 1000.0",
+                  "                                    return datetime.fromtimestamp(stamp, timezone.utc).astimezone(ZoneInfo(\\"Asia/Kolkata\\")).date()",
+                  "                                parsed = datetime.fromisoformat(str(value).replace(\\"Z\\", \\"+00:00\\"))",
+                  "                                if parsed.tzinfo is None:",
+                  "                                    parsed = parsed.replace(tzinfo=timezone.utc)",
+                  "                                return parsed.astimezone(ZoneInfo(\\"Asia/Kolkata\\")).date()",
+                  "                            except (TypeError, ValueError, OverflowError, OSError):",
+                  "                                return None",
+                  "",
+                  "                        strategy_candles = [",
+                  "                            candle for candle in candles",
+                  "                            if _candle_day(candle.get(\\"timestamp\\")) is not None",
+                  "                            and _candle_day(candle.get(\\"timestamp\\")) < today_ist",
+                  "                        ]",
+                  "                    row[\\"strategy_signals\\"] = evaluate_strategy_signals(strategy_candles, interval, quote)",
+                  "                except Exception as strategy_exc:",
+                  "                    row[\\"strategy_signals\\"] = {",
+                  "                        \\"version\\": \\"strategy-reference-v1\\",",
+                  "                        \\"execution_authorized\\": False,",
+                  "                        \\"status\\": \\"UNAVAILABLE\\",",
+                  "                        \\"reason\\": str(strategy_exc),",
+                  "                    }",
+              ]
+              injection = anchor + "\\n".join(inserted_lines) + "\\n"
+              source = source.replace(anchor, injection, 1)
           scrap_path.write_text(source, encoding="utf-8")
 
           validation_path = Path(".github/workflows/validation.yml")
