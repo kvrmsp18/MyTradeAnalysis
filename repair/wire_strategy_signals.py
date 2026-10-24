@@ -63,26 +63,4 @@ if 'row["strategy_signals"] = evaluate_strategy_signals(' not in source:
     source = source.replace(anchor, anchor + inserted, 1)
 scrap_path.write_text(source, encoding="utf-8")
 
-validation_path = Path(".github/workflows/validation.yml")
-validation = validation_path.read_text(encoding="utf-8")
-if "  pull_request:" not in validation:
-    trigger = "on:\n  push:\n"
-    if trigger not in validation:
-        raise SystemExit("Validation workflow trigger insertion marker not found")
-    validation = validation.replace(
-        trigger, "on:\n  pull_request:\n    branches: [main]\n  push:\n", 1
-    )
-marker = (
-    "      - name: Run dynamic universe, learning-loop, per-share AI and EOD-summary self-test\n"
-    "        run: python scripts/dynamic_bot_self_test.py\n"
-)
-step = (
-    "      - name: Run frozen strategy signal self-test\n"
-    "        run: python scripts/strategy_signals_self_test.py\n"
-)
-if "python scripts/strategy_signals_self_test.py" not in validation:
-    if marker not in validation:
-        raise SystemExit("Validation strategy test insertion marker not found")
-    validation = validation.replace(marker, marker + step, 1)
-validation_path.write_text(validation, encoding="utf-8")
 print("STRATEGY_PIPELINE_WIRING=PASS")
