@@ -48,8 +48,7 @@ def set_env(key: str, value: str) -> None:
     env_file = os.getenv("GITHUB_ENV")
     if env_file:
         with open(env_file, "a", encoding="utf-8") as handle:
-            handle.write(f"{key}={value}
-")
+            handle.write(f"{key}={value}\n")
 
 
 def set_paper_fallback(reason: str) -> int:
