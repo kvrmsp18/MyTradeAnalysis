@@ -1,0 +1,24 @@
+name: Strategy Signals Validation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  strategy-signals:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Compile strategy evaluator and tests
+        run: python -m py_compile scripts/strategy_signals.py scripts/strategy_signals_self_test.py
+      - name: Run strategy self-test
+        run: python scripts/strategy_signals_self_test.py

@@ -30,6 +30,11 @@ TARGET_PCT = float(os.getenv("LIVE_TARGET_PCT", "2.0"))
 STOP_PCT = float(os.getenv("LIVE_STOP_PCT", "1.0"))
 MAX_DAILY_LOSS = float(os.getenv("LIVE_MAX_DAILY_LOSS", "500"))
 STALE_MINUTES = float(os.getenv("LIVE_MAX_DATA_AGE_MINUTES", "5"))
+# Positions are squared off by the BOT from this IST minute-of-day (default 15:15). The old rule
+# (>= 15:29) could never fire: the last scheduled cycle is 15:25 and the 15:30 cycle is rejected by
+# the session gate, so nothing closed positions before the broker's own auto square-off.
+EOD_EXIT_MINUTE = int(os.getenv("LIVE_EOD_EXIT_MINUTE", str(15 * 60 + 15)))
+AI_USABLE = {"COMPLETE", "DEGRADED_ONE_AI", "DEGRADED_ONE_AI_FINAL"}
 
 
 def now() -> str:
@@ -97,7 +102,7 @@ def publish(state: dict, status: str, reason: str = "") -> None:
         "realized_pnl": state.get("realized_pnl", 0),
         "daily_pnl": state.get("daily_pnl", 0),
         "trade_count": len(state.get("trades", [])),
-        "live_orders_enabled": os.getenv("LIVE_TRADING_ENABLED") == "1",
+        "live_orders_enabled": os.getenv("TRADING_MODE", "PAPER").upper() == "LIVE" and os.getenv("LIVE_KILL_SWITCH", "0") != "1",
         "generated_at": now(),
     }
     save(PUBLIC_STATE, payload)
@@ -144,10 +149,14 @@ def _security_id(row: dict) -> str:
 def manage_positions(broker_positions: list[dict], state: dict, ist: datetime, fresh_data: bool) -> list[dict]:
     events = []
     minutes = ist.hour * 60 + ist.minute
-    eod_exit = minutes >= 15 * 60 + 29
+    eod_exit = minutes >= EOD_EXIT_MINUTE
     for row in broker_positions:
         qty = _net_qty(row)
         if qty <= 0:
+            continue
+        # Only manage intraday positions: never auto-sell delivery / carry-forward holdings.
+        ptype = str(row.get("productType") or row.get("product_type") or "").upper()
+        if ptype and ptype not in ("INTRADAY", "MIS"):
             continue
         symbol = _symbol(row)
         current = _market_price(row)
@@ -158,8 +167,6 @@ def manage_positions(broker_positions: list[dict], state: dict, ist: datetime, f
         return_pct = (current - entry) / entry * 100
         reason = "EOD_EXIT" if eod_exit else "TARGET" if fresh_data and return_pct >= TARGET_PCT else "STOP_LOSS" if fresh_data and return_pct <= -STOP_PCT else None
         if reason is None:
-            continue
-        if price * quantity > available:
             continue
 
         response = submit_order(
@@ -224,6 +231,11 @@ def main() -> int:
     state = read(STATE, {"positions": {}, "trades": [], "daily_pnl": 0.0, "last_processed_ledger": None}, strict=True)
     state.setdefault("trades", [])
     state.setdefault("daily_pnl", 0.0)
+    today = ist.date().isoformat()
+    if state.get("trading_day") != today:
+        state["trading_day"] = today
+        state["daily_pnl"] = 0.0  # the daily-loss limit is per IST trading day
+        state["trades"] = state["trades"][-200:]
 
     broker_positions = positions()
     state["broker_positions_snapshot"] = broker_positions
@@ -243,7 +255,7 @@ def main() -> int:
         publish(state, "EXIT_ONLY" if events else "BLOCKED", "DAILY_LOSS_LIMIT")
         return 0
 
-    if minutes >= 15 * 60 + 25:
+    if minutes >= EOD_EXIT_MINUTE:  # no new entries once the end-of-day exit window opens
         state["last_processed_ledger"] = str(ledger_path)
         state["last_run_at"] = now()
         state["last_events"] = events
@@ -286,8 +298,12 @@ def main() -> int:
 
         score = float(candidate.get("features", {}).get("score") or 0)
         scrap_score = float(candidate.get("scrap_result", {}).get("score") or 0)
-        ai_verdict = str(candidate.get("ai_council", {}).get("symbol_verdict") or candidate.get("ai_symbol_verdict") or "")
-        if score < 65 or scrap_score < 60 or ai_verdict != "SUPPORT":
+        council = candidate.get("ai_council", {}) or {}
+        ai_verdict = str(council.get("symbol_verdict") or candidate.get("ai_symbol_verdict") or "")
+        ai_available = str(council.get("status")) in AI_USABLE
+        # With an AI available, a real-money entry needs that AI's explicit SUPPORT for this share.
+        # With no AI reachable the bot continues on its deterministic rules (your requirement).
+        if score < 65 or scrap_score < 60 or (ai_available and ai_verdict != "SUPPORT"):
             continue
 
         quantity = int(position_cap // price)

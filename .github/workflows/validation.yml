@@ -1,6 +1,8 @@
 name: MyTradeAnalysis Validation
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths-ignore:
@@ -43,6 +45,8 @@ jobs:
 
       - name: Run dynamic universe, learning-loop, per-share AI and EOD-summary self-test
         run: python scripts/dynamic_bot_self_test.py
+      - name: Run frozen strategy signal self-test
+        run: python scripts/strategy_signals_self_test.py
 
       - name: Run live execution safety self-test
         run: python scripts/live_engine_self_test.py
