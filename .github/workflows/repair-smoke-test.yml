@@ -1,0 +1,11 @@
+name: Repair Workflow Smoke Test
+on:
+  push:
+    branches:
+      - feature/strategy-reference-v1
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm workflow parser and runner
+        run: echo "REPAIR_WORKFLOW_SMOKE_TEST=PASS"
