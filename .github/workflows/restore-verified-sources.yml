@@ -1,179 +1,23 @@
-name: Patch 5 Verified Source Restore
+name: Restore Source Bundle
 
 on:
   push:
-    branches: [feature/strategy-reference-v1]
-    paths:
-      - "repair/source_bundle.part*"
-      - ".github/workflows/restore-verified-sources.yml"
+    branches:
+      - feature/strategy-reference-v1
   workflow_dispatch:
 
 permissions:
-  contents: write
-  actions: write
+  contents: read
 
 jobs:
-  restore:
+  check-bundle:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-        with:
-          persist-credentials: true
-      - uses: actions/setup-python@v6
-        with:
-          python-version: "3.12"
-
-      - name: Rebuild and verify original Patch 5 files
+      - name: Checkout bundle
+        uses: actions/checkout@v5
+      - name: Verify bundle can be rebuilt
+        shell: bash
         run: |
           set -euo pipefail
           cat repair/source_bundle.part* | base64 --decode > "$RUNNER_TEMP/sources.tar.xz"
-          mkdir -p "$RUNNER_TEMP/sources"
-          tar -xJf "$RUNNER_TEMP/sources.tar.xz" -C "$RUNNER_TEMP/sources"
-          python - "$RUNNER_TEMP/sources" "$GITHUB_WORKSPACE" <<'PY'
-          from pathlib import Path
-          import hashlib, shutil, sys
-          src, dst = Path(sys.argv[1]), Path(sys.argv[2])
-          manifest = src / "__verified__" / "SHA256SUMS.txt"
-          assert manifest.is_file(), "Verified SHA256 manifest missing"
-          count = 0
-          for line in manifest.read_text(encoding="utf-8").splitlines():
-              if not line.strip():
-                  continue
-              expected, relative = line.split("  ", 1)
-              original = src / relative
-              if not original.is_file():
-                  raise SystemExit(f"Missing bundle source: {relative}")
-              got = hashlib.sha256(original.read_bytes()).hexdigest()
-              if got != expected:
-                  raise SystemExit(f"SHA-256 mismatch: {relative}")
-              target = dst / relative
-              target.parent.mkdir(parents=True, exist_ok=True)
-              shutil.copyfile(original, target)
-              count += 1
-          print(f"PATCH5_SOURCE_HASHES_VERIFIED={count}")
-          PY
-
-      - name: Wire strategy signals into restored SCRAP pipeline
-        run: |
-          set -euo pipefail
-          python - <<'PY'
-          from pathlib import Path
-
-          path = Path("scripts/scrap_analysis.py")
-          source = path.read_text(encoding="utf-8")
-          if "from zoneinfo import ZoneInfo" not in source:
-              anchor = "from pathlib import Path\n"
-              assert anchor in source, "SCRAP import anchor missing"
-              source = source.replace(anchor, anchor + "from zoneinfo import ZoneInfo\n", 1)
-
-          old_lookback = 'LOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "45"))'
-          new_lookback = '# 260 calendar days normally cover at least 125 completed trading sessions.\nLOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "260"))'
-          if old_lookback in source:
-              source = source.replace(old_lookback, new_lookback, 1)
-          assert 'LOOKBACK_DAYS = int(os.getenv("SCRAP_LOOKBACK_DAYS", "260"))' in source
-
-          old = '''                row = analyse(symbol, quote, candles)
-                row["data_source"] = source
-                row["candle_interval"] = interval  # indicators are computed on THESE candles
-                result["stocks"].append(row)'''
-          new = '''                row = analyse(symbol, quote, candles)
-                try:
-                    from strategy_signals import evaluate_strategy_signals
-                    strategy_candles = candles
-                    if interval == "1d":
-                        today_ist = datetime.now(timezone.utc).astimezone(ZoneInfo("Asia/Kolkata")).date()
-
-                        def _candle_day(value):
-                            try:
-                                if isinstance(value, (int, float)) or str(value).isdigit():
-                                    stamp = float(value)
-                                    if stamp > 10_000_000_000:
-                                        stamp /= 1000.0
-                                    return datetime.fromtimestamp(stamp, timezone.utc).astimezone(ZoneInfo("Asia/Kolkata")).date()
-                                stamp = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
-                                if stamp.tzinfo is None:
-                                    stamp = stamp.replace(tzinfo=timezone.utc)
-                                return stamp.astimezone(ZoneInfo("Asia/Kolkata")).date()
-                            except (TypeError, ValueError, OverflowError, OSError):
-                                return None
-
-                        # A day must be identified and completed to qualify for the reference window.
-                        strategy_candles = [c for c in candles if _candle_day(c.get("timestamp")) is not None and _candle_day(c.get("timestamp")) < today_ist]
-                    row["strategy_signals"] = evaluate_strategy_signals(strategy_candles, interval, quote)
-                except Exception as strategy_exc:
-                    row["strategy_signals"] = {
-                        "version": "strategy-reference-v1",
-                        "execution_authorized": False,
-                        "status": "UNAVAILABLE",
-                        "reason": str(strategy_exc),
-                    }
-                row["data_source"] = source
-                row["candle_interval"] = interval  # indicators are computed on THESE candles
-                result["stocks"].append(row)'''
-          if old in source:
-              source = source.replace(old, new, 1)
-          elif 'row["strategy_signals"] = evaluate_strategy_signals(' not in source:
-              raise SystemExit("SCRAP strategy integration anchor missing")
-          path.write_text(source, encoding="utf-8")
-
-          path = Path(".github/workflows/validation.yml")
-          workflow = path.read_text(encoding="utf-8")
-          if "  pull_request:" not in workflow:
-              anchor = "on:\n  push:\n"
-              assert anchor in workflow, "Validation trigger anchor missing"
-              workflow = workflow.replace(anchor, "on:\n  pull_request:\n    branches: [main]\n  push:\n", 1)
-          marker = '''      - name: Run dynamic universe, learning-loop, per-share AI and EOD-summary self-test
-        run: python scripts/dynamic_bot_self_test.py
-'''
-          if "python scripts/strategy_signals_self_test.py" not in workflow:
-              assert marker in workflow, "Validation strategy test insertion anchor missing"
-              workflow = workflow.replace(marker, marker + '''      - name: Run frozen strategy signal self-test
-        run: python scripts/strategy_signals_self_test.py
-''', 1)
-          path.write_text(workflow, encoding="utf-8")
-          print("STRATEGY_PIPELINE_WIRING=PASS")
-          PY
-
-      - name: Remove transfer chunks and commit restored source
-        run: |
-          set -euo pipefail
-          git rm -r repair
-          rm -f .github/workflows/restore-verified-sources.yml
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/workflows/validation.yml scripts
-          git commit -m "repair: restore verified Patch 5 sources and wire strategy signals"
-          git push origin HEAD:feature/strategy-reference-v1
-
-      - name: Compile Python source
-        run: python -m compileall -q scripts
-      - name: Test paper engine
-        run: python scripts/paper_engine_self_test.py
-      - name: Test EOD reconstruction
-        run: python scripts/eod_intraday_reconstruction_self_test.py
-      - name: Test AI clients
-        run: python scripts/ai_clients_self_test.py
-      - name: Test dynamic universe and learning
-        run: python scripts/dynamic_bot_self_test.py
-      - name: Test live engine safety
-        run: python scripts/live_engine_self_test.py
-      - name: Test live exit path
-        run: python scripts/live_exit_self_test.py
-      - name: Test strategy signals
-        run: python scripts/strategy_signals_self_test.py
-      - name: Install frontend dependencies
-        run: npm install
-      - name: Build GUI
-        run: npm run build
-      - name: Dispatch standard validation workflow
-        if: success()
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          curl --fail-with-body --silent --show-error \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer $GH_TOKEN" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/workflows/validation.yml/dispatches" \
-            -d '{"ref":"feature/strategy-reference-v1"}'
+          tar -tJf "$RUNNER_TEMP/sources.tar.xz"
